@@ -18,6 +18,10 @@
 
 ;Brinstar Metatiles
 
+;The macro definitions are simply index numbers into the pattern tables that represent the 4 quadrants
+;of the macro definition. The bytes correspond to the following position in order: lower right tile,
+;lower left tile, upper right tile, upper left tile.
+
 LAEF0:  .byte $F1, $F1, $F1, $F1
 LAEF4:  .byte $FF, $FF, $F0, $F0
 LAEF8:  .byte $64, $64, $64, $64

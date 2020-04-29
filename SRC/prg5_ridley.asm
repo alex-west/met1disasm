@@ -22,6 +22,8 @@
 
 .include "./MetroidDefines.txt"
 
+BANK = 5
+
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
 Startup                = $C01A
@@ -249,22 +251,22 @@ L95DA:  .byte $06, $00, $03, $58, $44, $4A, $48, $4A, $4A, $36, $25
 L95E5:  LDA $6B02,X
 L95E8:  JSR $8024
 
-L95EB:  .word $98D7
-L95ED:  .word $990C
-L95EF:  .word $9847
-L95F1:  .word $9862
-L95F3:  .word $982A
-L95F5:  .word $982A
-L95F7:  .word $9967
-L95F9:  .word $9867
-L95FB:  .word $982A
-L95FD:  .word $9A13
-L95FF:  .word $9A4A
-L9601:  .word $982A
-L9603:  .word $9B03
-L9605:  .word $982A
-L9607:  .word $9B16
-L9609:  .word $982A
+L95EB:  .word $98D7 ; 00 - swooper
+L95ED:  .word $990C ; 01 - becomes swooper ?
+L95EF:  .word $9847 ; 02 - dessgeegas
+L95F1:  .word $9862 ; 03 - ceiling dessgeegas
+L95F3:  .word $982A ; 04 - disappears
+L95F5:  .word $982A ; 05 - same as 4
+L95F7:  .word $9967 ; 06 - crawler
+L95F9:  .word $9867 ; 07 - pipe bugs
+L95FB:  .word $982A ; 08 - same as 4
+L95FD:  .word $9A13 ; 09 - ridley
+L95FF:  .word $9A4A ; 0A - ridley fireball
+L9601:  .word $982A ; 0B - same as 4
+L9603:  .word $9B03 ; 0C - bouncy orbs
+L9605:  .word $982A ; 0D - same as 4
+L9607:  .word $9B16 ; 0E - ???
+L9609:  .word $982A ; 0F - same as 4
 
 L960B:  .byte $23, $23, $23, $23, $3A, $3A, $3C, $3C, $00, $00, $00, $00, $56, $56, $65, $63
 
@@ -2105,73 +2107,7 @@ B1F7:   .byte $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine_1.asm"
-
-;The init music table loads addresses $062B thru $0637 with the initial data needed to play the
-;selected music.  The data for each entry in the table have the following format:
-;.byte $xx, $xx, $xx, $xx, $xx : .word $xxxx, $xxxx, $xxxx, $xxxx.
-;The first five bytes have the following functions:
-;Byte 0=index to proper note length table.  Will be either #$00, #$0B or #$17.
-;Byte 1=Repeat music byte. #$00=no repeat, any other value and the music repeats.
-;Byte 2=Controls length counter for triangle channel.
-;Byte 3=Volume control byte for SQ1.
-;Byte 4=Volume control byte for SQ2.
-;Address 0=Base address of SQ1 music data.
-;Address 1=Base address of SQ2 music data.
-;Address 2=Base address of triangle music data.
-;Address 3=Base address of noise music data.
-
-InitMusicTbl:
-
-;Mother brain music(not used this memory page).
-LBD31:  .byte $0B, $FF, $F5, $00, $00
-LBD36:  .word $0100, $0300, $0500, $0000
-
-;Escape music(not used this memory page).
-LBD3E:  .byte $0B, $FF, $00, $02, $02
-LBD43:  .word $0100, $0300, $0500, $0700
-
-;Norfair music(not used this memory page).
-LBD4B:  .byte $0B, $FF, $F0, $04, $04
-LBD50:  .word $0100, $0300, $0500, $0700
-
-;Kraid area music.
-LBD58:  .byte $00, $FF, $F0, $00, $00
-LBD5D:  .word $B03F, $B041, $B0AA, $0000
-
-;Item room music.
-LBD65:  .byte $0B, $FF, $03, $00, $00
-LBD6A:  .word $BDDA, $BDDC, $BDCD, $0000
-
-;Ridley area music.
-LBD72:  .byte $0B, $FF, $F0, $01, $01
-LBD77:  .word $B022, $B031, $B000, $0000
-
-;End game music(not used this memory page).
-LBD7F:  .byte $17, $00, $00, $02, $01
-LBD84:  .word $0100, $0300, $0500, $0700
-
-;Intro music(not used this memory page).
-LBD8C:  .byte $17, $00, $F0, $02, $05
-LBD91:  .word $0100, $0300, $0500, $0700
-
-;Fade in music
-LBD99:  .byte $0B, $00, $F0, $02, $00
-LBD9E:  .word $BE3E, $BE1D, $BE36, $0000
-
-;Power up music
-LBDA6:  .byte $00, $00, $F0, $01, $00
-LBDAB:  .word $BDF7, $BE0D, $BE08, $0000
-
-;Brinstar music(not used this memory page).
-LBDB3:  .byte $0B, $FF, $00, $02, $03
-LBDB8:  .word $0100, $0300, $0500, $0700
-
-;Tourian music
-LBDC0:  .byte $0B, $FF, $03, $00, $00
-LBDC5:  .word $BE59, $BE47, $BE62, $0000
-
-.include "music_engine_2.asm"
+.include "music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 

@@ -22,6 +22,8 @@
 
 include "MetroidDefines.txt"
 
+BANK = 1
+
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
 Startup                = $C01A
@@ -124,22 +126,22 @@ L95DA:  .byte $01, $00, $03, $43, $00, $00, $00, $00, $00, $00, $69
 L95E5:  LDA EnDataIndex, X
 L95E8:  JSR $8024
 
-L95EB:  .word $99B8
-L95ED:  .word $99D3
-L95EF:  .word $99E5
-L95F1:  .word $99D8
-L95F3:  .word $99FA
-L95F5:  .word $9A4C
-L95F7:  .word $9AF5
-L95F9:  .word $9B32
-L95FB:  .word $9BA2
-L95FD:  .word $9BD2
-L95FF:  .word $9C1A
-L9601:  .word $0000
-L9603:  .word $0000
-L9605:  .word $0000
-L9607:  .word $0000
-L9609:  .word $0000
+L95EB:  .word $99B8 ; 00 - Sidehopper
+L95ED:  .word $99D3 ; 01 - Ceiling sidehopper
+L95EF:  .word $99E5 ; 02 - Waver
+L95F1:  .word $99D8 ; 03 - Ripper
+L95F3:  .word $99FA ; 04 - Skree
+L95F5:  .word $9A4C ; 05 - Wallcrawler
+L95F7:  .word $9AF5 ; 06 - Rio (swoopers)
+L95F9:  .word $9B32 ; 07 - Pipe bugs
+L95FB:  .word $9BA2 ; 08 - Kraid? (crashes)
+L95FD:  .word $9BD2 ; 09 - Kraid projectile? (crashes)
+L95FF:  .word $9C1A ; 0A - jumps immediately to the above routine
+L9601:  .word $0000 ; 0B - Null pointers (hard crash)
+L9603:  .word $0000 ; 0C - Null
+L9605:  .word $0000 ; 0D - Null
+L9607:  .word $0000 ; 0E - Null
+L9609:  .word $0000 ; 0F - Null
 
 L960B:  .byte $27, $27, $29, $29, $2D, $2B, $31, $2F, $33, $33, $41, $41, $4B, $4B, $55, $53
 
@@ -983,21 +985,10 @@ LA267:  .byte $21, $00, $00, $C7, $C5, $D7, $D5, $E7, $E5, $FF
 ;----------------------------[ Room and structure pointer tables ]-----------------------------------
 
 RmPtrTbl:
-LA314:  .word $A441, $A454, $A45C, $A480, $A4BB, $A4ED, $A524, $A55A
-LA324:  .word $A587, $A5B9, $A5DD, $A615, $A635, $A661, $A68D, $A6B1
-LA334:  .word $A6DB, $A715, $A73C, $A768, $A78B, $A7A3, $A7D0, $A7F1
-LA344:  .word $A81B, $A85B, $A88B, $A8B1, $A8E7, $A910, $A92B, $A96B
-LA354:  .word $A997, $A9C6, $A9F6, $AA20, $AA56, $AAA4, $AAE6, $AB19
-LA364:  .word $AB48, $AB71, $AB92, $ABBF, $AC24, $AC4D, $AC6A 
+.include brinstar/room_ptrs.asm
 
 StrctPtrTbl:
-LA372:  .word $AC84, $AC97, $ACB0, $ACC9, $ACD0, $ACD7, $ACDB, $ACE6
-LA382:  .word $ACF3, $ACFF, $AD05, $AD0A, $AD1A, $AD1E, $AD28, $AD4D 
-LA392:  .word $AD57, $AD6A, $AD7F, $AD8E, $AD98, $ADA2, $ADAD, $ADBE
-LA3A2:  .word $ADE3, $ADE6, $ADEC, $ADF9, $AE09, $AE13, $AE18, $AE2D
-LA3B2:  .word $AE42, $AE48, $AE4B, $AE5F, $AE70, $AE85, $AE8E, $AE92
-LA3C2:  .word $AEA5, $AEB0, $AEB3, $AEBE, $AEC8, $AECB, $AEDE, $AEE1
-LA3D2:  .word $AEE4, $AEED 
+.include brinstar/structure_ptrs.asm
 
 ;------------------------------------[ Special items table ]-----------------------------------------
 
@@ -1011,11 +1002,7 @@ LA3D2:  .word $AEE4, $AEED
 
 .include "brinstar/structures.asm"
 
-;----------------------------------------[ Macro definitions ]---------------------------------------
-
-;The macro definitions are simply index numbers into the pattern tables that represent the 4 quadrants
-;of the macro definition. The bytes correspond to the following position in order: lower right tile,
-;lower left tile, upper right tile, upper left tile. 
+;----------------------------------------[ Macro definitions ]--------------------------------------- 
 
 MacroDefs:
 .include "brinstar/metatiles.asm"
@@ -1042,97 +1029,12 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine_1.asm"
-
-;The init music table loads addresses $062B thru $0637 with the initial data needed to play the
-;selected music.  The data for each entry in the table have the following format:
-;.byte $xx, $xx, $xx, $xx, $xx : .word $xxxx, $xxxx, $xxxx, $xxxx.
-;The first five bytes have the following functions:
-;Byte 0=index to proper note length table.  Will be either #$00, #$0B or #$17.
-;Byte 1=Repeat music byte. #$00=no repeat, any other value and the music repeats.
-;Byte 2=Controls length counter for triangle channel.
-;Byte 3=Volume control byte for SQ1.
-;Byte 4=Volume control byte for SQ2.
-;Address 0=Base address of SQ1 music data.
-;Address 1=Base address of SQ2 music data.
-;Address 2=Base address of triangle music data.
-;Address 3=Base address of noise music data.
-
-InitMusicTbl:
-
-;Mother brain music(not used this memory page).
-LBD31:  .byte $0B, $FF, $F5, $00, $00
-LBD36:  .word $0100, $0300, $0500, $0000
-
-;Escape music(not used this memory page).
-LBD3E:  .byte $0B, $FF, $00, $02, $02
-LBD43:  .word $0100, $0300, $0500, $0700
-
-;Norfair music(not used this memory page).
-LBD4B:  .byte $0B, $FF, $F0, $04, $04
-LBD50:  .word $0100, $0300, $0500, $0700
-
-;Kraid area music(not used this memory page).
-LBD58:  .byte $00, $FF, $F0, $00, $00
-LBD5D:  .word $0100, $0300, $0500, $0000
-
-;Item room music.
-LBD65:  .byte $0B, $FF, $03, $00, $00
-LBD6A:  .word $BDDA, $BDDC, $BDCD, $0000
-
-;Ridley area music(not used this memory page).
-LBD72:  .byte $0B, $FF, $F0, $01, $01
-LBD77:  .word $0100, $0300, $0500, $0000
-
-;End game music(not used this memory page).
-LBD7F:  .byte $17, $00, $00, $02, $01
-LBD84:  .word $0100, $0300, $0500, $0700
-
-;Intro music(not used this memory page).
-LBD8C:  .byte $17, $00, $F0, $02, $05
-LBD91:  .word $0100, $0300, $0500, $0700
-
-;Fade in music
-LBD99:  .byte $0B, $00, $F0, $02, $00
-LBD9E:  .word $BE3E, $BE1D, $BE36, $0000
-
-;Power up music
-LBDA6:  .byte $00, $00, $F0, $01, $00
-LBDAB:  .word $BDF7, $BE0D, $BE08, $0000
-
-;Brinstar music
-LBDB3:  .byte $0B, $FF, $00, $02, $03
-LBDB8:  .word $B000, $B057, $B0C1, $B12B
-
-;Tourian music
-LBDC0:  .byte $0B, $FF, $03, $00, $00
-LBDC5:  .word $BE59, $BE47, $BE62, $0000
-
-.include "music_engine_2.asm"
+.include "music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
 .include reset.asm
 
-;RESET:
-;LBFB0:  SEI                             ;Disables interrupt.
-;LBFB1:  CLD                             ;Sets processor to binary mode.
-;LBFB2:  LDX #$00                        ;
-;LBFB4:  STX PPUControl0                 ;Clear PPU control registers.
-;LBFB7:  STX PPUControl1                 ;
-;LBFBA:
-;      + LDA PPUStatus                   ;
-;LBFBD:  BPL LBFBA                       ;Wait for VBlank.
-;LBFBF:
-;      + LDA PPUStatus                   ;
-;LBFC2:  BPL LBFBF                       ;
-;LBFC4:  ORA #$FF                        ;
-;LBFC6:  STA MMC1Reg0                    ;Reset MMC1 chip.-->
-;LBFC9:  STA MMC1Reg1                    ;(MSB is set).
-;LBFCC:  STA MMC1Reg2                    ;
-;LBFCF:  STA MMC1Reg3                    ;
-;LBFD2:  JMP Startup                     ;($C01A)Does preliminry housekeeping.
-;
 ;;Not used.
 ;LBFD5:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $00, $00, $00, $00
 ;LBFE5:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -1144,3 +1046,5 @@ LBDC5:  .word $BE59, $BE47, $BE62, $0000
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
+
+BRINSTAR = 0

@@ -22,6 +22,8 @@
 
 .include "MetroidDefines.txt"
 
+BANK = 0
+
 ;-------------------------------------[ Forward declarations ]--------------------------------------
 
 Startup                = $C01A
@@ -6123,59 +6125,7 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine_1.asm"
-
-InitMusicTbl:
-
-;Mother brain music(not used this memory page).
-LBD31:  .byte $0B, $FF, $F5, $00, $00
-LBD36:  .word $0100, $0300, $0500, $0000
-
-;Escape music(not used this memory page).
-LBD3E:  .byte $0B, $FF, $00, $02, $02
-LBD43:  .word $0100, $0300, $0500, $0700
-
-;Norfair music(not used this memory page).
-LBD4B:  .byte $0B, $FF, $F0, $04, $04
-LBD50:  .word $0100, $0300, $0500, $0700
-
-;Kraid area music(not used this memory page).
-LBD58:  .byte $00, $FF, $F0, $00, $00
-LBD5D:  .word $0100, $0300, $0500, $0000
-
-;Item room music.
-LBD65:  .byte $0B, $FF, $03, $00, $00
-LBD6A:  .word $BDDA, $BDDC, $BDCD, $0000
-
-;Ridley area music(not used this memory page).
-LBD72:  .byte $0B, $FF, $F0, $01, $01
-LBD77:  .word $0100, $0300, $0500, $0000
-
-;End game music
-LBD7F:  .byte $17, $00, $00, $02, $01
-LBD84:  .word $AC00, $ADC5, $ACF5, $AE8E
-
-;Intro music
-LBD8C:  .byte $17, $00, $F0, $02, $05
-LBD91:  .word $B0B9, $B000, $B076, $B115
-
-;Fade in music
-LBD99:  .byte $0B, $00, $F0, $02, $00
-LBD9E:  .word $BE3E, $BE1D, $BE36, $0000
-
-;Power up music
-LBDA6:  .byte $00, $00, $F0, $01, $00
-LBDAB:  .word $BDF7, $BE0D, $BE08, $0000
-
-;Brinstar music(not used this memory page).
-LBDB3:  .byte $0B, $FF, $00, $02, $03
-LBDB8:  .word $0100, $0300, $0500, $0700
-
-;Tourian music
-LBDC0:  .byte $0B, $FF, $03, $00, $00
-LBDC5:  .word $BE59, $BE47, $BE62, $0000
-
-.include "music_engine_2.asm"
+.include "music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 

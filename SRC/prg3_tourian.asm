@@ -22,6 +22,8 @@
 
 .include "MetroidDefines.txt"
 
+BANK = 3
+
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
 Startup                = $C01A
@@ -254,22 +256,22 @@ L95DA:  .byte $06, $00, $03, $21, $00, $00, $00, $00, $00, $10, $00
 L95E5:  LDA $6B02,X
 L95E8:  JSR $8024
 
-L95EB:  .word $97F9
-L95ED:  .word $97F9
-L95EF:  .word $9A27
-L95F1:  .word $97DC
-L95F3:  .word $9A2C
-L95F5:  .word $97DC
-L95F7:  .word $97DC
-L95F9:  .word $97DC
-L95FB:  .word $97DC
-L95FD:  .word $97DC
-L95FF:  .word $97DC
-L9601:  .word $97DC
-L9603:  .word $97DC
-L9605:  .word $97DC
-L9607:  .word $97DC
-L9609:  .word $97DC
+L95EB:  .word $97F9 ; 00 - metroid
+L95ED:  .word $97F9 ; 01 - same as 0
+L95EF:  .word $9A27 ; 02 - i dunno but it takes 30 damage with varia
+L95F1:  .word $97DC ; 03 - disappears
+L95F3:  .word $9A2C ; 04 - rinka
+L95F5:  .word $97DC ; 05 - same as 3
+L95F7:  .word $97DC ; 06 - same as 3
+L95F9:  .word $97DC ; 07 - same as 3
+L95FB:  .word $97DC ; 08 - same as 3
+L95FD:  .word $97DC ; 09 - same as 3
+L95FF:  .word $97DC ; 0A - same as 3
+L9601:  .word $97DC ; 0B - same as 3
+L9603:  .word $97DC ; 0C - same as 3
+L9605:  .word $97DC ; 0D - same as 3
+L9607:  .word $97DC ; 0E - same as 3
+L9609:  .word $97DC ; 0F - same as 3
 
 
 L960B:  .byte $08, $08, $08, $08, $16, $16, $18, $18, $1F, $1F, $00, $00, $00, $00, $00, $00
@@ -2992,59 +2994,7 @@ LB1F0:  .byte $E6, $E6, $C4, $8E, $1C, $3C, $18, $30, $E8, $E8, $C8, $90, $60, $
 
 ;-----------------------------------------[ Sound engine ]-------------------------------------------
 
-.include "music_engine_1.asm"
-
-InitMusicTbl:
-
-;Mother brain music.
-LBD31:  .byte $0B, $FF, $F5, $00, $00
-LBD36:  .word $B18C, $B18E, $B161, $0000
-
-;Escape music.
-LBD3E:  .byte $0B, $FF, $00, $02, $02
-LBD43:  .word $B04D, $B000, $B0CF, $B15A
-
-;Norfair music(not used this memory page).
-LBD4B:  .byte $0B, $FF, $F0, $04, $04
-LBD50:  .word $0100, $0300, $0500, $0700
-
-;Kraid area music(not used this memory page).
-LBD58:  .byte $00, $FF, $F0, $00, $00
-LBD5D:  .word $0100, $0300, $0500, $0000
-
-;Item room music.
-LBD65:  .byte $0B, $FF, $03, $00, $00
-LBD6A:  .word $BDDA, $BDDC, $BDCD, $0000
-
-;Ridley area music(not used this memory page).
-LBD72:  .byte $0B, $FF, $F0, $01, $01
-LBD77:  .word $0100, $0300, $0500, $0000
-
-;End game music(not used this memory page).
-LBD7F:  .byte $17, $00, $00, $02, $01
-LBD84:  .word $0100, $0300, $0500, $0700
-
-;Intro music(not used this memory page).
-LBD8C:  .byte $17, $00, $F0, $02, $05
-LBD91:  .word $0100, $0300, $0500, $0700
-
-;Fade in music
-LBD99:  .byte $0B, $00, $F0, $02, $00
-LBD9E:  .word $BE3E, $BE1D, $BE36, $0000
-
-;Power up music
-LBDA6:  .byte $00, $00, $F0, $01, $00
-LBDAB:  .word $BDF7, $BE0D, $BE08, $0000
-
-;Brinstar music(not used this memory page).
-LBDB3:  .byte $0B, $FF, $00, $02, $03
-LBDB8:  .word $0100, $0300, $0500, $0700
-
-;Tourian music
-LBDC0:  .byte $0B, $FF, $03, $00, $00
-LBDC5:  .word $BE59, $BE47, $BE62, $0000
-
-.include "music_engine_2.asm"
+.include "music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
