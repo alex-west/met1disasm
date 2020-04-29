@@ -24,17 +24,17 @@
 
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
-.alias startup                  $C01A
-.alias NMI                      $C0D9
-.alias ChooseRoutine            $C27C
-.alias Adiv32                   $C2BE
-.alias Amul16                   $C2C5
-.alias TwosCompliment           $C3D4
-.alias Base10Subtract           $C3FB
-.alias SubtractHealth           $CE92
-.alias SetProjectileAnim        $D2FA
-.alias UpdateEnemyAnim          $E094
-.alias VerticalRoomCentered     $E21B
+Startup                = $C01A
+NMI                    = $C0D9
+ChooseRoutine          = $C27C
+Adiv32                 = $C2BE
+Amul16                 = $C2C5
+TwosCompliment         = $C3D4
+Base10Subtract         = $C3FB
+SubtractHealth         = $CE92
+SetProjectileAnim      = $D2FA
+UpdateEnemyAnim        = $E094
+VerticalRoomCentered   = $E21B
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
@@ -2175,30 +2175,11 @@ LBDC5:  .word $BE59, $BE47, $BE62, $0000
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-RESET:
-LBFB0:  SEI                             ;Disables interrupt.
-LBFB1:  CLD                             ;Sets processor to binary mode.
-LBFB2:  LDX #$00                        ;
-LBFB4:  STX PPUControl0                 ;Clear PPU control registers.
-LBFB7:  STX PPUControl1                 ;
-LBFBA:* LDA PPUStatus                   ;
-LBFBD:  BPL -                           ;Wait for VBlank.
-LBFBF:* LDA PPUStatus                   ;
-LBFC2:  BPL -                           ;
-LBFC4:  ORA #$FF                        ;
-LBFC6:  STA MMC1Reg0                    ;Reset MMC1 chip.-->
-LBFC9:  STA MMC1Reg1                    ;(MSB is set).
-LBFCC:  STA MMC1Reg2                    ;
-LBFCF:  STA MMC1Reg3                    ;
-LBFD2:  JMP Startup                     ;($C01A)Does preliminry housekeeping.
-
-;Not used.
-LBFD5:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $00, $00, $00, $00
-LBFE5:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-LBFF5:  .byte $00, $00, $00, $00, $00
+.include reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
+.org $BFFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.

@@ -50,41 +50,49 @@ L8048:  .word $84FD, $84A6, $844A, $844A, $84A6, $84FD, $83F4, $83F4
 L8058:  LDX PageIndex
 L805A:  LDA $0405,X
 L805D:  ASL 
-L805E:  BMI ++++++++
+L805E:  BMI L80AF
 L8060:  LDA EnStatus,X
 L8063:  CMP #$02
-L8065:  BNE ++++++++
+L8065:  BNE L80AF
 L8067:  JSR $8244
 L806A:  LDA $00
-L806C:  BPL ++
+L806C:  BPL L807D
 L806E:  JSR TwosCompliment              ;($C3D4)
 L8071:  STA $66
-L8073:* JSR $83F5
+L8073:
+      + JSR $83F5
 L8076:  JSR $80B8
 L8079:  DEC $66
-L807B:  BNE -
-L807D:* BEQ ++
+L807B:  BNE L8073
+L807D:
+      + BEQ L808B
 L807F:  STA $66
-L8081:* JSR $844B
+L8081:
+      + JSR $844B
 L8084:  JSR $80FB
 L8087:  DEC $66
-L8089:  BNE -
-L808B:* JSR $8318
+L8089:  BNE L8081
+L808B:
+      + JSR $8318
 L808E:  LDA $00
-L8090:  BPL ++
+L8090:  BPL L80A1
 L8092:  JSR TwosCompliment              ;($C3D4)
 L8095:  STA $66
-L8097:* JSR $84A7
+L8097:
+      + JSR $84A7
 L809A:  JSR $816E
 L809D:  DEC $66
-L809F:  BNE -
-L80A1:* BEQ ++
+L809F:  BNE L8097
+L80A1:
+      + BEQ L80AF
 L80A3:  STA $66
-L80A5:* JSR $84FE
+L80A5:
+      + JSR $84FE
 L80A8:  JSR $8134
 L80AB:  DEC $66
-L80AD:  BNE -
-L80AF:* RTS
+L80AD:  BNE L80A5
+L80AF:
+      + RTS
  
 L80B0:  LDY EnDataIndex,X
 L80B3:  LDA $977B,Y
@@ -1375,9 +1383,9 @@ L8B03:  .byte $0C, $04, $10, $FD, $00, $57, $18, $FD, $40, $18, $57, $FD, $C0, $
 
 SamusEnterDoor:
 L8B13:  LDA DoorStatus                  ;The code determines if Samus has entered a door if the-->
-L8B15:  BNE ++++                        ;door status is 0, but door data information has been-->
+L8B15:  BNE L8B6C                       ;door status is 0, but door data information has been-->
 L8B17:  LDY SamusDoorData               ;written. If both conditions are met, Samus has just-->
-L8B19:  BEQ ++++                        ;entered a door.
+L8B19:  BEQ L8B6C                       ;entered a door.
 L8B1B:  STA CurrentMissilePickups       ;
 L8B1D:  STA CurrentEnergyPickups        ;Reset current missile and energy power-up counters.
 L8B1F:  LDA RandomNumber1               ;
@@ -1394,23 +1402,26 @@ L8B31:  LSR                             ;
 L8B32:  STA $006C,Y                     ;
 L8B35:  LDA ScrollDir                   ;
 L8B37:  AND #$02                        ;Is Samus scrolling horizontally?-->
-L8B39:  BNE +                           ;If so, branch.
+L8B39:  BNE L8B4B                       ;If so, branch.
 L8B3B:  LDX #$04                        ;Samus currently scrolling vertically.
 L8B3D:  LDA ScrollY                     ;Is room centered on screen?-->
-L8B3F:  BEQ +++++                       ;If so, branch.
+L8B3F:  BEQ L8B6D                       ;If so, branch.
 L8B41:  LDA $FF                         ;
 L8B43:  EOR ObjectHi                    ;Get inverse of Samus' current nametable.
 L8B46:  LSR                             ;
-L8B47:  BCC +++                         ;If Samus is on nametable 3, branch.
-L8B49:  BCS ++                          ;If Samus is on nametable 0, branch to decrement x.
+L8B47:  BCC L8B53                       ;If Samus is on nametable 3, branch.
+L8B49:  BCS L8B52                       ;If Samus is on nametable 0, branch to decrement x.
 
-L8B4B:* LDX #$02                        ;Samus is currently scrolling horizontally.
+L8B4B:
+      + LDX #$02                        ;Samus is currently scrolling horizontally.
 L8B4D:  LDA ObjectX                     ;Is Samus entering a left hand door?-->
-L8B50:  BPL ++                          ;If so, branch.
-L8B52:* DEX                             ;
+L8B50:  BPL L8B53                       ;If so, branch.
+L8B52:
+      + DEX                             ;
 
 SetDoorEntryInfo:
-L8B53:* TXA                             ;X contains door scroll status and is transferred to A.
+L8B53:
+      + TXA                             ;X contains door scroll status and is transferred to A.
 L8B54:  STA DoorScrollStatus            ;Save door scroll status.
 L8B56:  JSR SamusInDoor                 ;($8B74)Indicate Samus just entered a door.
 L8B59:  LDA #$12                        ;
@@ -1421,9 +1432,11 @@ L8B62:  ORA ObjAction                   ;Keep Samus action so she will appear th
 L8B65:  STA SamusDoorData               ;out of the door as she did going in.
 L8B67:  LDA #$05                        ;
 L8B69:  STA ObjAction                   ;Indicate Samus is in a door.
-L8B6C:* RTS                             ;
+L8B6C:
+      + RTS                             ;
 
-L8B6D:* JSR SetDoorEntryInfo            ;($8B53)Save Samus action and set door entry timer.
+L8B6D:
+      + JSR SetDoorEntryInfo            ;($8B53)Save Samus action and set door entry timer.
 L8B70:  JSR VerticalRoomCentered        ;($E21B)Room is centered. Toggle scroll.
 
 L8B73:  TXA                             ;X=#$01 or #$02(depending on which door Samus is in).
@@ -1436,12 +1449,13 @@ L8B78:  RTS                             ;
 ;----------------------------------------------------------------------------------------------------
 
 L8B79:  LDX #$B0
-L8B7B:* JSR $8B87
+L8B7B:
+      + JSR $8B87
 L8B7E:  LDA PageIndex
 L8B80:  SEC 
 L8B81:  SBC #$10
 L8B83:  TAX 
-L8B84:  BMI -
+L8B84:  BMI L8B7B
 L8B86:  RTS
 
 L8B87:  STX PageIndex

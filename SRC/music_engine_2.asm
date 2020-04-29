@@ -472,13 +472,14 @@ LBF26:  LDA InitMusicIndexTbl,Y         ;($BBFA)Find index for music in InitMusi
 LBF29:  TAY                             ;
 LBF2A:  LDX #$00                        ;
 
-LBF2C:* LDA InitMusicTbl,Y              ;Base is $BD31.
+LBF2C:
+      + LDA InitMusicTbl,Y              ;Base is $BD31.
 LBF2F:  STA NoteLengthTblOffset,X       ;
 LBF32:  INY                             ;The following loop repeats 13 times to-->
 LBF33:  INX                             ;load the initial music addresses -->
 LBF34:  TXA                             ;(registers $062B thru $0637).
 LBF35:  CMP #$0D                        ;
-LBF37:  BNE -                           ;
+LBF37:  BNE LBF2C                       ;
 
 LBF39:  LDA #$01                        ;Resets addresses $0640 thru $0643 to #$01.-->
 LBF3B:  STA SQ1MusicFrameCount          ;These addresses are used for counting the-->

@@ -19,19 +19,19 @@
 
 ;-------------------------------------------[ Defines ]----------------------------------------------
 
-.alias PPUControl0              $2000   ;
-.alias PPUControl1              $2001   ;PPU hardware control registers.
-.alias PPUStatus                $2002   ;
+PPUControl0            = $2000   ;
+PPUControl1            = $2001   ;PPU hardware control registers.
+PPUStatus              = $2002   ;
 
-.alias MMC1Reg0                 $8000   ;Writing to any of these addresses or any--> 
-.alias MMC1Reg1                 $A000   ;address in between will write configuration-->
-.alias MMC1Reg2                 $C000   ;bits to the MMC chip.
-.alias MMC1Reg3                 $E000   ;
+MMC1Reg0               = $8000   ;Writing to any of these addresses or any--> 
+MMC1Reg1               = $A000   ;address in between will write configuration-->
+MMC1Reg2               = $C000   ;bits to the MMC chip.
+MMC1Reg3               = $E000   ;
 
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
-.alias startup                  $C01A
-.alias NMI                      $C0D9
+Startup                = $C01A
+NMI                    = $C0D9
 
 ;----------------------------------------[ Start of code ]-------------------------------------------
 
@@ -1098,30 +1098,11 @@ LBFA0:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-RESET:
-LBFB0:  SEI                             ;Disables interrupt.
-LBFB1:  CLD                             ;Sets processor to binary mode.
-LBFB2:  LDX #$00                        ;
-LBFB4:  STX PPUControl0                 ;Clear PPU control registers.
-LBFB7:  STX PPUControl1                 ;
-LBFBA:* LDA PPUStatus                   ;
-LBFBD:  BPL -                           ;Wait for VBlank.
-LBFBF:* LDA PPUStatus                   ;
-LBFC2:  BPL -                           ;
-LBFC4:  ORA #$FF                        ;
-LBFC6:  STA MMC1Reg0                    ;Reset MMC1 chip.-->
-LBFC9:  STA MMC1Reg1                    ;(MSB is set).
-LBFCC:  STA MMC1Reg2                    ;
-LBFCF:  STA MMC1Reg3                    ;
-LBFD2:  JMP Startup                     ;($C01A)Does preliminry housekeeping.
-
-;Not used.
-LBFD5:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $00, $00, $00, $00
-LBFE5:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-LBFF5:  .byte $00, $00, $00, $00, $00
+.include reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
+.org $BFFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
