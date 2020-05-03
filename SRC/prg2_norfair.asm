@@ -129,7 +129,7 @@ L95F1:  .word $9833 ; 03 - disappears
 L95F3:  .word $9833 ; 04 - same as 3
 L95F5:  .word $9833 ; 05 - same as 3
 L95F7:  .word $9996 ; 06 - crawler
-L95F9:  .word $9850 ; 07 - pipe bug
+L95F9:  .word GametRoutine ; 07 - pipe bug
 L95FB:  .word $9833 ; 08 - same as 3
 L95FD:  .word $9833 ; 09 - same as 3
 L95FF:  .word $9833 ; 0A - same as 3
@@ -218,56 +218,12 @@ L9845:  JMP $8000
 L9848:  LDA $01
 L984A:  JMP $8003
 L984D:  JMP $8006
-L9850:  LDA $6AF4,X
-L9853:  CMP #$02
-L9855:  BNE $988F
-L9857:  LDA $0403,X
-L985A:  BNE $988F
-L985C:  LDA $6AFE,X
-L985F:  BNE $9873
-L9861:  LDA $030D
-L9864:  SEC 
-L9865:  SBC $0400,X
-L9868:  CMP #$40
-L986A:  BCS $988F
-L986C:  LDA #$7F
-L986E:  STA $6AFE,X
-L9871:  BNE $988F
-L9873:  LDA $0402,X
-L9876:  BMI $988F
-L9878:  LDA #$00
-L987A:  STA $0402,X
-L987D:  STA $0406,X
-L9880:  STA $6AFE,X
-L9883:  LDA $0405,X
-L9886:  AND #$01
-L9888:  TAY 
-L9889:  LDA $98BE,Y
-L988C:  STA $0403,X
-L988F:  LDA $0405,X
-L9892:  ASL 
-L9893:  BMI $98B3
-L9895:  LDA $6AF4,X
-L9898:  CMP #$02
-L989A:  BNE $98B3
-L989C:  JSR $8036
-L989F:  PHA 
-L98A0:  JSR $8039
-L98A3:  STA $05
-L98A5:  PLA 
-L98A6:  STA $04
-L98A8:  JSR $9A42
-L98AB:  JSR $8027
-L98AE:  BCC $98B8
-L98B0:  JSR $9A52
-L98B3:  LDA #$03
-L98B5:  JMP $8003
-L98B8:  LDA #$00
-L98BA:  STA $6AF4,X
-L98BD:  RTS
 
-L98BE:  PHP 
-L98BF:  SED 
+;-------------------------------------------------------------------------------
+GametRoutine: ; L9850
+.include enemies/pipe_bug.asm
+
+;-------------------------------------------------------------------------------
 L98C0:  LDA $6AF4,X
 L98C3:  CMP #$03
 L98C5:  BEQ $98CA
@@ -443,21 +399,23 @@ L9A3D:  LDA $8048,Y
 L9A40:  PHA 
 L9A41:  RTS
 
-L9A42:  LDA $0400,X
+StorePositionToTemp:
+L9A42:  LDA EnYRoomPos,X
 L9A45:  STA $08
-L9A47:  LDA $0401,X
+L9A47:  LDA EnXRoomPos,X
 L9A4A:  STA $09
-L9A4C:  LDA $6AFB,X
+L9A4C:  LDA EnNameTable,X
 L9A4F:  STA $0B
 L9A51:  RTS
 
+LoadPositionFromTemp:
 L9A52:  LDA $0B
 L9A54:  AND #$01
-L9A56:  STA $6AFB,X
+L9A56:  STA EnNameTable,X
 L9A59:  LDA $08
-L9A5B:  STA $0400,X
+L9A5B:  STA EnYRoomPos,X
 L9A5E:  LDA $09
-L9A60:  STA $0401,X
+L9A60:  STA EnXRoomPos,X
 L9A63:  RTS
 
 L9A64:  LDA $81
@@ -493,7 +451,7 @@ L9AA6:  STY $04
 L9AA8:  BMI $9AAC
 L9AAA:  LDA #$20
 L9AAC:  STA $6AF9,X
-L9AAF:  JSR $9A42
+L9AAF:  JSR StorePositionToTemp
 L9AB2:  JSR $8027
 L9AB5:  LDA #$E8
 L9AB7:  BCC $9ABD
@@ -503,7 +461,7 @@ L9ABD:  STA $08
 L9ABF:  LDA $0405,X
 L9AC2:  ORA #$20
 L9AC4:  STA $0405,X
-L9AC7:  JSR $9A52
+L9AC7:  JSR LoadPositionFromTemp
 L9ACA:  LDA #$02
 L9ACC:  JMP $8003
 L9ACF:  JMP $8006

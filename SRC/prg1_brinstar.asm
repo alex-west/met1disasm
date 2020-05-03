@@ -123,8 +123,9 @@ L95D9:  .byte $B0                       ;Samus start verticle screen position.
 L95DA:  .byte $01, $00, $03, $43, $00, $00, $00, $00, $00, $00, $69 
 
 ; Enemy AI jump table
+ChooseEnemyRoutine:
 L95E5:  LDA EnDataIndex, X
-L95E8:  JSR $8024
+L95E8:  JSR CommonJump_ChooseRoutine
 
 L95EB:  .word $99B8 ; 00 - Sidehopper
 L95ED:  .word $99D3 ; 01 - Ceiling sidehopper
@@ -133,7 +134,7 @@ L95F1:  .word $99D8 ; 03 - Ripper
 L95F3:  .word $99FA ; 04 - Skree
 L95F5:  .word $9A4C ; 05 - Wallcrawler
 L95F7:  .word $9AF5 ; 06 - Rio (swoopers)
-L95F9:  .word $9B32 ; 07 - Pipe bugs
+L95F9:  .word ZebRoutine ; 07 - Pipe bugs
 L95FB:  .word $9BA2 ; 08 - Kraid? (crashes)
 L95FD:  .word $9BD2 ; 09 - Kraid projectile? (crashes)
 L95FF:  .word $9C1A ; 0A - jumps immediately to the above routine
@@ -359,7 +360,7 @@ L9A74:  JSR $9ABD
 L9A77:  LDA #$03
 L9A79:  STA $040A,X
 L9A7C:  BNE $9A84
-L9A7E:  JSR $9AE2
+L9A7E:  JSR JumpByRTS
 L9A81:  JSR $9AA8
 L9A84:  JSR $9AC6
 L9A87:  LDA #$03
@@ -392,7 +393,7 @@ L9AC2:  STA $0405,X
 L9AC5:  RTS
 
 L9AC6:  JSR $9ADA
-L9AC9:  JSR $9AE2
+L9AC9:  JSR JumpByRTS
 L9ACC:  LDX PageIndex
 L9ACE:  BCC $9AD9
 L9AD0:  JSR $9ADA
@@ -406,6 +407,7 @@ L9ADE:  TYA
 L9ADF:  AND #$03
 L9AE1:  RTS
 
+JumpByRTS:
 L9AE2:  LDY $0405,X
 L9AE5:  STY $00
 L9AE7:  LSR $00
@@ -424,7 +426,7 @@ L9AF9:  BEQ $9B2D
 L9AFB:  CMP #$03
 L9AFD:  BEQ $9B2A
 L9AFF:  LDA #$80
-L9B01:  STA $6AFE,X
+L9B01:  STA EnData1A,X
 L9B04:  LDA $0402,X
 L9B07:  BMI $9B25
 L9B09:  LDA $0405,X
@@ -438,62 +440,19 @@ L9B19:  JSR $95C6
 L9B1C:  CMP #$10
 L9B1E:  BCS $9B25
 L9B20:  LDA #$00
-L9B22:  STA $6AFE,X
+L9B22:  STA EnData1A,X
 L9B25:  LDA #$03
 L9B27:  JMP $8000
 L9B2A:  JMP $8006
 L9B2D:  LDA #$08
 L9B2F:  JMP $8003
-L9B32:  LDA EnStatus,X
-L9B35:  CMP #$02
-L9B37:  BNE $9B71
-L9B39:  LDA $0403,X
-L9B3C:  BNE $9B71
-L9B3E:  LDA $6AFE,X
-L9B41:  BNE $9B55
-L9B43:  LDA $030D
-L9B46:  SEC 
-L9B47:  SBC EnYRoomPos,X
-L9B4A:  CMP #$40
-L9B4C:  BCS $9B71
-L9B4E:  LDA #$7F
-L9B50:  STA $6AFE,X
-L9B53:  BNE $9B71
-L9B55:  LDA $0402,X
-L9B58:  BMI $9B71
-L9B5A:  LDA #$00
-L9B5C:  STA $0402,X
-L9B5F:  STA EnCounter,X
-L9B62:  STA $6AFE,X
-L9B65:  LDA $0405,X
-L9B68:  AND #$01
-L9B6A:  TAY 
-L9B6B:  LDA $9BA0,Y
-L9B6E:  STA $0403,X
-L9B71:  LDA $0405,X
-L9B74:  ASL 
-L9B75:  BMI $9B95
-L9B77:  LDA EnStatus,X
-L9B7A:  CMP #$02
-L9B7C:  BNE $9B95
-L9B7E:  JSR $8036
-L9B81:  PHA 
-L9B82:  JSR $8039
-L9B85:  STA $05
-L9B87:  PLA 
-L9B88:  STA $04
-L9B8A:  JSR $9CA8
-L9B8D:  JSR $8027
-L9B90:  BCC $9B9A
-L9B92:  JSR $9C96
-L9B95:  LDA #$03
-L9B97:  JMP $8003
-L9B9A:  LDA #$00
-L9B9C:  STA EnStatus,X
-L9B9F:  RTS
 
-L9BA0:  .byte $04, $FC
+;-------------------------------------------------------------------------------
+ZebRoutine: ; L9B32
+.include enemies/pipe_bug.asm
 
+;-------------------------------------------------------------------------------
+; Brinstar Kraid Routine ??
 L9BA2:  LDA EnStatus,X
 L9BA5:  CMP #$03
 L9BA7:  BCC $9BC2
@@ -598,13 +557,15 @@ L9C7C:  TAY
 L9C7D:  LDA $9CBB,Y
 L9C80:  STA $05
 L9C82:  LDX #$00
-L9C84:  JSR $9CA8
+L9C84:  JSR StorePositionToTemp
 L9C87:  JSR $8027
 L9C8A:  LDX PageIndex
 L9C8C:  BCC $9CA7
 L9C8E:  LDA EnStatus,X
-L9C91:  BNE $9C96
+L9C91:  BNE LoadPositionFromTemp
 L9C93:  INC EnStatus,X
+
+LoadPositionFromTemp:
 L9C96:  LDA $08
 L9C98:  STA EnYRoomPos,X
 L9C9B:  LDA $09
@@ -614,6 +575,7 @@ L9CA2:  AND #$01
 L9CA4:  STA EnNameTable,X
 L9CA7:  RTS
 
+StorePositionToTemp:
 L9CA8:  LDA EnYRoomPos,X
 L9CAB:  STA $08
 L9CAD:  LDA EnXRoomPos,X

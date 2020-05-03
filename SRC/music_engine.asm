@@ -1735,7 +1735,7 @@ InitMusicTbl:
 
 ;Mother brain music(not used this memory page).
 LBD31:  .byte $0B, $FF, $F5, $00, $00
-IF BANK = 3 ;TOURIAN_AREA
+IF BANK = 3
 LBD36:  .word $B18C, $B18E, $B161, $0000
 ELSE
 LBD36:  .word $0100, $0300, $0500, $0000
@@ -1743,7 +1743,7 @@ ENDIF
 
 ;Escape music(not used this memory page).
 LBD3E:  .byte $0B, $FF, $00, $02, $02
-IF BANK = 3 ;TOURIAN_AREA
+IF BANK = 3
 LBD43:  .word $B04D, $B000, $B0CF, $B15A
 ELSE
 LBD43:  .word $0100, $0300, $0500, $0700
@@ -1751,7 +1751,7 @@ ENDIF
 
 ;Norfair music(not used this memory page).
 LBD4B:  .byte $0B, $FF, $F0, $04, $04
-IF BANK = 2 ;NORFAIR_AREA
+IF BANK = 2
 LBD50:  .word $B000, $B026, $B057, $B08B
 ELSE
 LBD50:  .word $0100, $0300, $0500, $0700

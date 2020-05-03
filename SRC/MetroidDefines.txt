@@ -385,19 +385,19 @@ StartContinue          = $0325   ;0=START selected, 1=CONTINUE selected.
 
 EnYRoomPos             = $0400   ;Enemy y position in room.(not actual screen position).
 EnXRoomPos             = $0401   ;Enemy x position in room.(not actual screen position).
-;                             = $0402
-;                             = $0403
-;                             = $0404
-;                             = $0405
+EnData02               = $0402   ; unknown
+EnData03               = $0403   ; unknown
+EnData04               = $0404   ; unknown
+EnData05               = $0405   ; unknown
 EnCounter              = $0406   ;Counts such things as explosion time.
-;                             = $0407
-;                             = $0408
+EnData07               = $0407   ; unknown
+EnData08               = $0408   ; unknown
 EnDelay                = $0409   ;Delay counter between enemy actions.
-;                             = $040A
+EnData0A               = $040A   ; unknown
 EnHitPoints            = $040B   ;Current hit points of enemy.
-;                             = $040C
-;                             = $040D
-;                             = $040E
+EnData0C               = $040C   ; unknown
+EnData0D               = $040D   ; unknown
+EnData0E               = $040E   ; unknown
 EnSpecialAttribs       = $040F   ;Bit 7 set=tough version of enemy, bit 6 set=mini boss.
 
 ;----------------------------------------------------------------------------------------------------
@@ -729,14 +729,14 @@ EnAnimDelay            = $6AF8   ;Number of frames to delay between animation fr
 EnResetAnimIndex       = $6AF9   ;Index to beginning of animation sequence.
 EnAnimIndex            = $6AFA   ;Index to current animation.
 EnNameTable            = $6AFB   ;#$00=Enemy on name table 0, #$01=Enemy on name table 3.
-;                             = $6AFC
-;                             = $6AFD
-;                             = $6AFE
-;                             = $6AFF
-;                             = $6B00
-;                             = $6B01
+EnData18               = $6AFC   ; Unknown
+EnData19               = $6AFD   ; Unknown
+EnData1A               = $6AFE   ; Unknown
+EnData1B               = $6AFF   ; Unknown
+EnData1C               = $6B00   ; Unknown
+EnData1D               = $6B01   ; Unknown
 EnDataIndex            = $6B02   ;Contains index into enemy data tables.
-;                             = $6B03
+EnData1F               = $6B03   ; Unknown
 
 ;-------------------------------------[ Intro sprite defines ]---------------------------------------
 

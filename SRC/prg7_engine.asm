@@ -9927,6 +9927,14 @@ LFD84:  lda $B6,x
 Lx402
  +      rts
 
+;-------------------------------------------------------------------------------
+; $02 is tempScrollDir 
+; $04 is tempYvel?
+; $05 is tempXvel?
+
+; $08 is tempY
+; $09 is tempX
+; $0B is tempNametable
 LFD8F:  lda ScrollDir
         and #$02
         sta $02
@@ -9974,11 +9982,11 @@ Lx408
         inc $0B
 Lx409
  +      sta $09
-        SecExit:
+
+SecExit:
         sec
         rts
-
-        ClcExit2:
+ClcExit2:
         clc
 Lx410
  +      rts
