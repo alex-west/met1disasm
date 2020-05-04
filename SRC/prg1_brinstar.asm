@@ -190,6 +190,7 @@ L977B:  .byte $64, $6C, $21, $01, $04, $00, $4C, $40, $04, $00, $00, $40, $40, $
 L978B:  .byte $00, $00, $64, $67, $69, $69, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L979B:  .byte $0C, $F4, $00, $00, $00, $00, $00, $00, $F4, $00, $00, $00
 
+; some pointer table
 L97A7:  .word $9965, $9974, $9983, $9992, $9D36, $9D3B, $9D40, $9D45
 L97B7:  .word $9D4A, $9D4F, $9D54, $9D59, $9D5E, $9D63, $9D6A, $9D6A
 L97C7:  .word $9D6A, $9D6A, $9D6A, $9D6A, $9D6A
@@ -267,10 +268,10 @@ L99A5:  BEQ $99B0
 L99A7:  CMP #$03
 L99A9:  BEQ $99B5
 L99AB:  LDA $00
-L99AD:  JMP $8000
+L99AD:  JMP CommonJump_00
 L99B0:  LDA $01
-L99B2:  JMP $8003
-L99B5:  JMP $8006
+L99B2:  JMP CommonJump_01
+L99B5:  JMP CommonJump_02
 
 ; Sidehopper Routine
 L99B8:  LDA #$09
@@ -301,6 +302,7 @@ L99DD:  BEQ $99E2
 L99DF:  JSR $801E
 L99E2:  JMP $99C8
 
+;-------------------------------------------------------------------------------
 ; Waver Routine
 L99E5:  LDA #$21
 L99E7:  STA $85
@@ -314,110 +316,73 @@ L99F7:  JMP $99C8
 
 ;-------------------------------------------------------------------------------
 ; SkreeRoutine
-SkreeRoutine:
-L99FA:  LDA $81
-L99FC:  CMP #$01
-L99FE:  BEQ L9A44
-L9A00:  CMP #$03
-L9A02:  BEQ L9A49
-L9A04:  LDA EnCounter,X
-L9A07:  CMP #$0F
-L9A09:  BCC L9A3F
-L9A0B:  CMP #$11
-L9A0D:  BCS L9A16
-L9A0F:  LDA #$3A
-L9A11:  STA $6B01,X
-L9A14:  BNE L9A3F
-L9A16:  DEC $6B01,X
-L9A19:  BNE L9A3F
-L9A1B:  LDA #$00
-L9A1D:  STA EnStatus,X
-L9A20:  LDY #$0C
-L9A22:  LDA #$0A
-L9A24:  STA $00A0,Y
-L9A27:  LDA EnYRoomPos,X
-L9A2A:  STA $00A1,Y
-L9A2D:  LDA EnXRoomPos,X
-L9A30:  STA $00A2,Y
-L9A33:  LDA EnNameTable,X
-L9A36:  STA $00A3,Y
-L9A39:  DEY 
-L9A3A:  DEY 
-L9A3B:  DEY 
-L9A3C:  DEY 
-L9A3D:  BPL L9A22
-
-L9A3F:  LDA #$02
-L9A41:  JMP $8000
-
-L9A44:  LDA #$08
-L9A46:  JMP $8003
-
-L9A49:  JMP $8006
+.include enemies/skree.asm
+; The crawler routine below depends upon two of the exit labels in skree.asm
 
 ;-------------------------------------------------------------------------------
 ; Zoomer Routine (crawler)
-L9A4C:  JSR $8009
+L9A4C:  JSR L8009
 L9A4F:  AND #$03
-L9A51:  BEQ $9A87
+L9A51:  BEQ L9A87
 L9A53:  LDA $81
 L9A55:  CMP #$01
-L9A57:  BEQ $9A44
+L9A57:  BEQ SkreeExitB
 L9A59:  CMP #$03
-L9A5B:  BEQ $9A49
+L9A5B:  BEQ SkreeExitC
 L9A5D:  LDA EnStatus,X
 L9A60:  CMP #$03
-L9A62:  BEQ $9A87
+L9A62:  BEQ L9A87
 L9A64:  LDA $040A,X
 L9A67:  AND #$03
 L9A69:  CMP #$01
-L9A6B:  BNE $9A7E
+L9A6B:  BNE L9A7E
 L9A6D:  LDY EnYRoomPos,X
 L9A70:  CPY #$E4
-L9A72:  BNE $9A7E
-L9A74:  JSR $9ABD
+L9A72:  BNE L9A7E
+L9A74:  JSR L9ABD
 L9A77:  LDA #$03
 L9A79:  STA $040A,X
-L9A7C:  BNE $9A84
+L9A7C:  BNE L9A84
 L9A7E:  JSR JumpByRTS
-L9A81:  JSR $9AA8
-L9A84:  JSR $9AC6
+L9A81:  JSR L9AA8
+L9A84:  JSR L9AC6
 L9A87:  LDA #$03
-L9A89:  JSR $800C
-L9A8C:  JMP $8006
+L9A89:  JSR L800C
+L9A8C:  JMP CommonJump_02
 L9A8F:  LDA EnData05,X
 L9A92:  LSR 
 L9A93:  LDA $040A,X
 L9A96:  AND #$03
 L9A98:  ROL 
 L9A99:  TAY 
-L9A9A:  LDA $9AA0,Y
-L9A9D:  JMP $800F
+L9A9A:  LDA L9AA0,Y
+L9A9D:  JMP L800F
 
 L9AA0:  .byte $35, $35, $3E, $38, $3B, $3B, $38, $3E 
 
 L9AA8:  LDX PageIndex
-L9AAA:  BCS $9AC5
+L9AAA:  BCS L9AC5
 L9AAC:  LDA $00
-L9AAE:  BNE $9ABD
+L9AAE:  BNE L9ABD
 L9AB0:  LDY $040A,X
 L9AB3:  DEY 
 L9AB4:  TYA 
 L9AB5:  AND #$03
 L9AB7:  STA $040A,X
-L9ABA:  JMP $9A8F
+L9ABA:  JMP L9A8F
+
 L9ABD:  LDA EnData05,X
 L9AC0:  EOR #$01
 L9AC2:  STA EnData05,X
 L9AC5:  RTS
 
-L9AC6:  JSR $9ADA
+L9AC6:  JSR L9ADA
 L9AC9:  JSR JumpByRTS
 L9ACC:  LDX PageIndex
-L9ACE:  BCC $9AD9
-L9AD0:  JSR $9ADA
+L9ACE:  BCC L9AD9
+L9AD0:  JSR L9ADA
 L9AD3:  STA $040A,X
-L9AD6:  JSR $9A8F
+L9AD6:  JSR L9A8F
 L9AD9:  RTS
 
 L9ADA:  LDY $040A,X
@@ -463,10 +428,10 @@ L9B1E:  BCS $9B25
 L9B20:  LDA #$00
 L9B22:  STA EnData1A,X
 L9B25:  LDA #$03
-L9B27:  JMP $8000
-L9B2A:  JMP $8006
+L9B27:  JMP CommonJump_00
+L9B2A:  JMP CommonJump_02
 L9B2D:  LDA #$08
-L9B2F:  JMP $8003
+L9B2F:  JMP CommonJump_01
 
 ;-------------------------------------------------------------------------------
 ZebRoutine: ; L9B32
@@ -481,10 +446,18 @@ ZebRoutine: ; L9B32
 
 ; Area Specific Routine
 ; -= Code not Data! =-
-L9D35:  .byte $60, $22, $FF, $FF, $FF, $FF, $22, $80, $81, $82, $83, $22, $84, $85, $86, $87
-L9D45:  .byte $22, $88, $89, $8A, $8B, $22, $8C, $8D, $8E, $8F, $22, $94, $95, $96, $97, $22
-L9D55:  .byte $9C, $9D, $9D, $9C, $22, $9E, $9F, $9F, $9E, $22, $90, $91, $92, $93, $32, $4E
-L9D65:  .byte $4E, $4E, $4E, $4E, $4E
+L9D35:  RTS ;.byte $60
+
+L9D36:  .byte $22, $FF, $FF, $FF, $FF
+L9D3B:  .byte $22, $80, $81, $82, $83
+L9D40:  .byte $22, $84, $85, $86, $87
+L9D45:  .byte $22, $88, $89, $8A, $8B
+L9D4A:  .byte $22, $8C, $8D, $8E, $8F
+L9D4F:  .byte $22, $94, $95, $96, $97
+L9D54:  .byte $22, $9C, $9D, $9D, $9C
+L9D59:  .byte $22, $9E, $9F, $9F, $9E
+L9D5D:  .byte $22, $90, $91, $92, $93
+L9D63:  .byte $32, $4E, $4E, $4E, $4E, $4E, $4E
 
 ;-----------------------------------[ Enemy animation data tables ]----------------------------------
 

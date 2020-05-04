@@ -33,6 +33,7 @@ StarPalSwitch          = $8AC7
 SamusEnterDoor         = $8B13
 AreaPointers           = $9598
 AreaRoutine            = $95C3
+ChooseEnemyRoutine     = $95E5
 EnemyHitPointTbl       = $962B
 EnemyInitDelayTbl      = $96BB
 DecSpriteYCoord        = $988A
@@ -4797,7 +4798,7 @@ Lx135:
         lda #$05
         sta EnStatus,x
         lda #$60
-        sta $040D,x
+        sta EnData0D,x
         lda RandomNumber1
         cmp #$10
         bcc LDD5B
@@ -7201,7 +7202,7 @@ LEB4D:  tay                             ;Save enemy position data in Y.
         lda #$01                        ;
         sta EnStatus,x                  ;Indicate object slot is taken.
         lda #$00
-        sta $0404,x
+        sta EnData04,x
         jsr GetNameTable                ;($EB85)Get name table to place enemy on.
         sta EnNameTable,x               ;Store name table.
         ldy EnDataIndex,x               ;Load A with index to enemy data.
@@ -8425,7 +8426,7 @@ Lx288
         jmp LF306
 Lx289
  +      lda #$81
-        sta $040E,x
+        sta EnData0E,x
         bne Lx291
 LF2B4:  bcs Lx290
         jsr IsScrewAttackActive         ;($CD9C)Check if screw attack active.
@@ -8442,19 +8443,19 @@ Lx290
 
 LF2CA:  bcs Lx293
         lda ObjAction,y
-        sta $040E,x
+        sta EnData0E,x
         jsr LF279
 Lx291
  +      jsr LF332
 Lx292
- +      ora $0404,x
-        sta $0404,x
+ +      ora EnData04,x
+        sta EnData04,x
 Lx293
  +      rts
 
 LF2DF:  lda $10
-        ora $0404,y
-        sta $0404,y
+        ora EnData04,y
+        sta EnData04,y
         rts
 
 LF2E8:  jsr LF340
@@ -8513,45 +8514,46 @@ LF340:  lda $10
         eor #$03
         rts
 
-; UpdateEnemies
-; =============
+;-------------------------------------------------------------------------------
+UpdateEnemies: ; LF345
+    ldx #$50                ;Load x with #$50
+@loop
+    jsr DoOneEnemy                  ;($F351)
+    ldx PageIndex
+    jsr Xminus16
+    bne @loop
+    ; After loop, DoOneEnemy for the case X=$00
 
-UpdateEnemies:
-LF345:  ldx #$50                ;Load x with #$50
-LxxA
- +      jsr DoOneEnemy                  ;($F351)
-        ldx PageIndex
-        jsr Xminus16
-        bne LxxA
-DoOneEnemy:
-LF351:  stx PageIndex                   ;PageIndex starts at $50 and is subtracted by #$0F each-->
-                                        ;iteration. There is a max of 6 enemies at a time.
-        ldy EnStatus,x
-        beq Lx296
-        cpy #$03
-        bcs Lx296
-        jsr LF37F
-Lx296
- +      jsr LF3AA
-        lda EnStatus,x
-        sta $81
-        cmp #$07
-        bcs Lx297
-        jsr ChooseRoutine
+;-------------------------------------------------------------------------------
+DoOneEnemy: ;LF351
+    stx PageIndex                   ;PageIndex starts at $50 and is subtracted by #$0F each-->
+                                    ;iteration. There is a max of 6 enemies at a time.
+    ldy EnStatus,x
+    beq @label
+    cpy #$03
+    bcs @label
+    jsr LF37F
+@label:
+    jsr LF3AA
+    lda EnStatus,x
+    sta $81
+    cmp #$07 
+    bcs @kill
+    jsr ChooseRoutine
 
-; Pointer table to code
+@EnemyStatusJumpTable:
+    .word ExitSub ; 00 ($C45C) rts
+    .word LF3BE ; 01 Inactive?
+    .word LF3E6 ; 02 Active?
+    .word LF40D ; 03 ActiveB?
+    .word LF43E ; 04 Frozen
+    .word LF483 ; 05 Pickup?
+    .word LF4EE ; 06 ?
 
-        .word ExitSub       ;($C45C) rts
-        .word $F3BE
-        .word $F3E6
-        .word $F40D
-        .word $F43E
-        .word $F483
-        .word $F4EE
-
-Lx297
- +      jmp KillObject                  ;($FA18)Free enemy data slot.
-
+@kill
+    jmp KillObject                  ;($FA18)Free enemy data slot.
+ 
+;-------------------------------------------------------------------------------
 LF37F:  lda $0405,x
         and #$02
         bne Lx298
@@ -8587,7 +8589,7 @@ LF3AA:  lda $0405,x
         ror
         sta $0405,x
         rts
-
+;---------------------------------------------
 LF3BE:  lda $0405,x
         asl
         bmi Lx299
@@ -8604,7 +8606,7 @@ LF3BE:  lda $0405,x
         jsr LF7BA
 Lx299
  +      jmp LF40A
-
+;------------------------------------------
 LF3E6:  lda $0405,x
         asl
         bmi LF40A
@@ -8622,8 +8624,9 @@ Lx300
         jsr LF51E
 LF40A:
       + jsr LF536
-        jmp $95E5
-
+LF40D:
+        jmp ChooseEnemyRoutine
+;-------------------------------------------
 LF410:  jsr UpdateEnemyAnim
         jsr $8058
 
@@ -8640,13 +8643,13 @@ Lx301
         jsr LDD8B
 LF42D:  ldx PageIndex
         lda #$00
-        sta $0404,x
-        sta $040E,x
+        sta EnData04,x
+        sta EnData0E,x
         rts
 
 LF438:  jsr UpdateEnemyAnim
 LF43B:  jmp LF416
-
+;-------------------------------------------
 LF43E:  jsr LF536
         lda EnStatus,x
         cmp #$03
@@ -8659,7 +8662,7 @@ Lx302
  +      lda FrameCount
         and #$07
         bne Lx303
-        dec $040D,x
+        dec EnData0D,x
         bne Lx303
         lda EnStatus,x
         cmp #$03
@@ -8668,9 +8671,9 @@ Lx302
         sta EnStatus,x
         ldy EnDataIndex,x
         lda $969B,y
-        sta $040D,x
+        sta EnData0D,x
 Lx303
- +      lda $040D,x
+ +      lda EnData0D,x
         cmp #$0B
         bcs Lx304
         lda FrameCount
@@ -8679,8 +8682,8 @@ Lx303
         asl ObjectCntrl
 Lx304
  +      jmp LF416
-
-LF483:  lda $0404,x
+;--------------------------------------
+LF483:  lda EnData04,x
         and #$24
         beq Lx310
         jsr KillObject                  ;($FA18)Free enemy data slot.
@@ -8730,7 +8733,7 @@ Lx310
  +      lda FrameCount
         and #$03
         bne Lx311
-        dec $040D,x
+        dec EnData0D,x
         bne Lx311
         jsr KillObject                  ;($FA18)Free enemy data slot.
 Lx311
@@ -8740,7 +8743,7 @@ Lx311
         ora #$A0
         sta ObjectCntrl
         jmp LF416
-
+;--------------------------------------------
 LF4EE:  dec EnSpecialAttribs,x
         bne Lx313
         lda $040C,x
@@ -8783,10 +8786,10 @@ Lx314
 
 LF536:  lda EnSpecialAttribs,x
         sta $0A
-        lda $0404,x
+        lda EnData04,x
         and #$20
         beq Lx315
-        lda $040E,x
+        lda EnData0E,x
         cmp #$03
         bne Lx317
         bit $0A
@@ -8796,7 +8799,7 @@ LF536:  lda EnSpecialAttribs,x
         beq Lx317
         jsr LF515
         lda #$40
-        sta $040D,x
+        sta EnData0D,x
         jsr $80B0
         and #$20
         beq Lx315
@@ -8843,7 +8846,7 @@ Lx319
         jsr $80B0
         and #$20
         beq Lx320
-        lda $040E,x
+        lda EnData0E,x
         cmp #$0B
         bne Lx316
 Lx320
@@ -8859,7 +8862,7 @@ Lx321
         jsr $80B0
         and #$20
         bne Lx322
-        ldy $040E,x
+        ldy EnData0E,x
         cpy #$0B
         beq Lx326
         cpy #$81
@@ -8877,7 +8880,7 @@ Lx323
         beq Lx324
         bit $0A
         bvc Lx325
-        ldy $040E,x
+        ldy EnData0E,x
         cpy #$0B
         bne Lx325
         dec EnHitPoints,x
@@ -8895,7 +8898,7 @@ Lx326
         sta EnStatus,x
         bit $0A
         bvs Lx327
-        lda $040E,x
+        lda EnData0E,x
         cmp #$02
         bcs Lx327
         lda #$00
@@ -8987,12 +8990,12 @@ LF6B9:  lda #$00
         beq Exit12
 Lx333
  +      tya
-        dec $040D,x
+        dec EnData0D,x
         bne Exit12
         pha
         ldy EnDataIndex,x
         lda $969B,y
-        sta $040D,x
+        sta EnData0D,x
         pla
         bpl Lx337
         lda #$FE
@@ -9152,13 +9155,13 @@ Lx349
         tay
         iny
         lda ($00),y
-        sta $0408,x
+        sta EnData08,x
         jsr $80B0
         bpl Lx351
         lda #$00
         sta EnCounter,x
         sta $0407,x
-        ldy $0408,x
+        ldy EnData08,x
         lda $972B,y
         sta $6AFE,x
         lda $973F,y
@@ -9205,7 +9208,7 @@ LF852:  txa
 
 LF85A:  ldy EnDataIndex,x
         lda $969B,y
-        sta $040D,x
+        sta EnData0D,x
         lda EnemyHitPointTbl,y          ;($962B)
         ldy EnSpecialAttribs,x
         bpl Lx353
@@ -9228,7 +9231,7 @@ LF870:  lda $0405,x
 Lx355
  +      jsr LF8E8
         bcs Lx357
-        sta $0404,y
+        sta EnData04,y
         jsr LF92C
         lda $0405,x
         lsr
@@ -9300,7 +9303,7 @@ LF8F8:  lda $85
         lda #$00
         sta EnDelay,y
         sta EnAnimDelay,y
-        sta $0408,y
+        sta EnData08,y
 Lx358
  +      rts
 
@@ -9344,11 +9347,11 @@ Lx360
 ; Pointer table to code
 
         .word ExitSub     ;($C45C) rts
-        .word $F96A
+        .word LF96A
         .word LF991       ; spit dragon's fireball
         .word ExitSub     ;($C45C) rts
-        .word $FA6B
-        .word $FA91
+        .word LFA6B
+        .word LFA91
 
 Exit19: rts
 
@@ -9363,11 +9366,12 @@ LF97C:  lda #$01
 LF97E:  jsr UpdateEnemyAnim
         jmp LDD8B
 Lx361
- +      inc $0408,x
-LF987:  inc $0408,x
+ +      inc EnData08,x
+LF987:  inc EnData08,x
         lda #$00
         sta EnDelay,x
         beq Lx362
+
 LF991:  jsr LFA5B
         lda $040A,x
         and #$FE
@@ -9377,11 +9381,11 @@ LF991:  jsr LFA5B
         lda $97A8,y
         sta $0B
 Lx362
- +      ldy $0408,x
+ +      ldy EnData08,x
         lda ($0A),y
         cmp #$FF
         bne Lx363
-        sta $0408,x
+        sta EnData08,x
         jmp LF987
 Lx363
  +      cmp EnDelay,x
@@ -9471,10 +9475,10 @@ LFA49:  lda $08
 Lx370
  +      rts
 
-LFA5B:  lda $0404,x
+LFA5B:  lda EnData04,x
         beq Exit20
 LFA60:  lda #$00
-        sta $0404,x
+        sta EnData04,x
         lda #$05
         sta EnStatus,x
 Exit20: rts
@@ -9578,7 +9582,7 @@ LFAFF:  sty PageIndex
         and #$02
         bne Exit13
 Lx380
- +      sta $0404,x
+ +      sta EnData04,x
         lda #$FF
         cmp EnDataIndex,x
         bne Lx381

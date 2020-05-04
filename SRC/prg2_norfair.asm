@@ -207,7 +207,7 @@ L9824:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $
 ;-------------------------------------------------------------------------------
 InvalidEnemy:
 L9833:  LDA #$00
-L9835:  STA $6AF4,X
+L9835:  STA EnStatus,X
 L9838:  RTS
 
 L9839:  LDA $81
@@ -227,9 +227,9 @@ GametRoutine: ; L9850
 
 ;-------------------------------------------------------------------------------
 ; Ripper routine
-L98C0:  LDA $6AF4,X
+L98C0:  LDA EnStatus,X
 L98C3:  CMP #$03
-L98C5:  BEQ $98CA
+L98C5:  BEQ L98CA
 L98C7:  JSR $801E
 L98CA:  LDA #$03
 L98CC:  STA $00
@@ -242,7 +242,7 @@ L98D3:  LDA #$03
 L98D5:  STA $00
 L98D7:  LDA #$08
 L98D9:  STA $01
-L98DB:  LDA $6AF4,X
+L98DB:  LDA EnStatus,X
 L98DE:  CMP #$01
 L98E0:  BNE $98EE
 L98E2:  LDA $0405,X
@@ -252,7 +252,7 @@ L98E9:  LDA #$01
 L98EB:  JSR $9954
 L98EE:  JSR $98F4
 L98F1:  JMP $9839
-L98F4:  LDA $6AF4,X
+L98F4:  LDA EnStatus,X
 L98F7:  CMP #$02
 L98F9:  BNE $9907
 L98FB:  LDA #$25
@@ -269,7 +269,7 @@ L990A:  CMP #$01
 L990C:  BEQ $991E
 L990E:  CMP #$03
 L9910:  BEQ $9951
-L9912:  LDA $6AF4,X
+L9912:  LDA EnStatus,X
 L9915:  CMP #$01
 L9917:  BNE $9923
 L9919:  LDA #$00
@@ -318,7 +318,7 @@ L997C:  STA $00
 L997E:  LDA $81
 L9980:  CMP #$02
 L9982:  BNE $9993
-L9984:  CMP $6AF4,X
+L9984:  CMP EnStatus,X
 L9987:  BNE $9993
 L9989:  JSR $8009
 L998C:  AND #$03
@@ -336,7 +336,7 @@ L999F:  CMP #$01
 L99A1:  BEQ $99D9
 L99A3:  CMP #$03
 L99A5:  BEQ $99D6
-L99A7:  LDA $6AF4,X
+L99A7:  LDA EnStatus,X
 L99AA:  CMP #$03
 L99AC:  BEQ $99D1
 L99AE:  LDA $040A,X
@@ -434,7 +434,7 @@ L9A63:  RTS
 L9A64:  LDA $81
 L9A66:  CMP #$01
 L9A68:  BNE $9A88
-L9A6A:  LDA $6AF4,X
+L9A6A:  LDA EnStatus,X
 L9A6D:  CMP #$03
 L9A6F:  BEQ $9ACA
 L9A71:  CMP #$02
@@ -446,7 +446,7 @@ L9A7E:  LDA #$40
 L9A80:  STA $6AFE,X
 L9A83:  LDA #$00
 L9A85:  STA $0406,X
-L9A88:  LDA $6AF4,X
+L9A88:  LDA EnStatus,X
 L9A8B:  CMP #$03
 L9A8D:  BEQ $9ACA
 L9A8F:  LDA $81
@@ -483,7 +483,7 @@ L9AD4:  INC $FA,X
 
 ;-------------------------------------------------------------------------------
 ; Bouncy Orb Routine (Multiviola?)
-L9AD6:  LDA $6AF4,X
+L9AD6:  LDA EnStatus,X
 L9AD9:  CMP #$02
 L9ADB:  BNE $9AE0
 L9ADD:  JSR $801E
@@ -494,7 +494,7 @@ L9AE6:  JMP $9839
 
 ;-------------------------------------------------------------------------------
 ; Lava Seahorse Routine
-L9AE9:  LDA $6AF4,X
+L9AE9:  LDA EnStatus,X
 L9AEC:  CMP #$01
 L9AEE:  BNE $9AF5
 L9AF0:  LDA #$E8
@@ -539,7 +539,7 @@ L9B45:  TAY
 L9B46:  LDA $9B62,Y
 L9B49:  JSR $800F
 L9B4C:  JMP $9B59
-L9B4F:  LDA $6AF4,X
+L9B4F:  LDA EnStatus,X
 L9B52:  CMP #$03
 L9B54:  BEQ $9B59
 L9B56:  JSR $801E

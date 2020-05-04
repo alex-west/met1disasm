@@ -96,7 +96,7 @@ L95A8:  .byte $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $
 L95B8:  .byte $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA
 
 AreaRoutine:
-L95C3:  JMP $9C49                       ;Area specific routine.
+L95C3:  JMP L9C49                       ;Area specific routine.
 
 TwosCompliment_:
 L95C6:  EOR #$FF                        ;
@@ -287,42 +287,8 @@ L9946:  JMP $992C
 
 ;-------------------------------------------------------------------------------
 ; Skree Routine
-L9949:  LDA $81
-L994B:  CMP #$01
-L994D:  BEQ $9993
-L994F:  CMP #$03
-L9951:  BEQ $9998
-L9953:  LDA $0406,X
-L9956:  CMP #$0F
-L9958:  BCC $998E
-L995A:  CMP #$11
-L995C:  BCS $9965
-L995E:  LDA #$3A
-L9960:  STA $6B01,X
-L9963:  BNE $998E
-L9965:  DEC $6B01,X
-L9968:  BNE $998E
-L996A:  LDA #$00
-L996C:  STA EnStatus,X
-L996F:  LDY #$0C
-L9971:  LDA #$0A
-L9973:  STA $00A0,Y
-L9976:  LDA $0400,X
-L9979:  STA $00A1,Y
-L997C:  LDA $0401,X
-L997F:  STA $00A2,Y
-L9982:  LDA $6AFB,X
-L9985:  STA $00A3,Y
-L9988:  DEY
-L9989:  DEY
-L998A:  DEY
-L998B:  DEY
-L998C:  BPL $9971
-L998E:  LDA #$02
-L9990:  JMP $8000
-L9993:  LDA #$08
-L9995:  JMP $8003
-L9998:  JMP CommonJump_02
+.include enemies/skree.asm
+; The crawler routine below depends upon two of the exit labels in skree.asm
 
 ;-------------------------------------------------------------------------------
 ; Crawler Routine
@@ -331,9 +297,9 @@ L999E:  AND #$03
 L99A0:  BEQ $99D6
 L99A2:  LDA $81
 L99A4:  CMP #$01
-L99A6:  BEQ $9993
+L99A6:  BEQ SkreeExitB
 L99A8:  CMP #$03
-L99AA:  BEQ $9998
+L99AA:  BEQ SkreeExitC
 L99AC:  LDA EnStatus,X
 L99AF:  CMP #$03
 L99B1:  BEQ $99D6
@@ -419,9 +385,9 @@ GeegaRoutine: ; L9A44
 ;  on removing it.
 
 ; Area Specific Routine
-; -= Code not Data! =-
-L9C49:  .byte $60
+L9C49:  RTS
 
+; What's this table?
 L9C4A:  .byte $22, $FF, $FF, $FF, $FF
 
 L9C4F:  .byte $22, $80, $81, $82, $83
