@@ -135,7 +135,7 @@ L95EB:  .word $97F9 ; 00 - metroid
 L95ED:  .word $97F9 ; 01 - same as 0
 L95EF:  .word $9A27 ; 02 - i dunno but it takes 30 damage with varia
 L95F1:  .word $97DC ; 03 - disappears
-L95F3:  .word $9A2C ; 04 - rinka
+L95F3:  .word $9A2C ; 04 - rinka ?
 L95F5:  .word $97DC ; 05 - same as 3
 L95F7:  .word $97DC ; 06 - same as 3
 L95F9:  .word $97DC ; 07 - same as 3
@@ -219,6 +219,9 @@ L97EE:  JMP $8000
 L97F1:  LDA $01
 L97F3:  JMP $8003
 L97F6:  JMP $8006
+
+;-------------------------------------------------------------------------------
+; Metroid Routine
 L97F9:  LDY $010B
 L97FC:  INY 
 L97FD:  BEQ $9804
@@ -466,8 +469,13 @@ L9A18:  RTS
 
 L9A19:  .byte $F8, $08, $30, $D0, $60, $A0, $02, $04, $00, $00, $00, $00, $00, $00
 
+;-------------------------------------------------------------------------------
+; ???
 L9A27:  LDA #$01
 L9A29:  JMP $8003
+
+;-------------------------------------------------------------------------------
+; Rinka Routine
 L9A2C:  LDY $6AF4,X
 L9A2F:  CPY #$02
 L9A31:  BNE $9AB0

@@ -8592,7 +8592,7 @@ LF3BE:  lda $0405,x
         asl
         bmi Lx299
         lda #$00
-        sta $6B01,x
+        sta EnData1D,x
         sta EnCounter,x
         sta $040A,x
         jsr LF6B9
@@ -8626,6 +8626,7 @@ LF40A:
 
 LF410:  jsr UpdateEnemyAnim
         jsr $8058
+
 LF416:  ldx PageIndex
         lda EnSpecialAttribs,x
         bpl Lx301
@@ -8944,7 +8945,7 @@ LF676:  jsr $80B0
         asl
         asl
         and #$C0
-        sta $6B03,x
+        sta EnData1F,x
         rts
 
 LF682:  jsr LF844
@@ -9222,7 +9223,7 @@ LF870:  lda $0405,x
         beq Lx354
         lda $87
         bpl Lx355
-        ldy $6B01,x
+        ldy EnData1D,x
         bne Lx354
 Lx355
  +      jsr LF8E8
@@ -9625,11 +9626,13 @@ LFB7B:  jsr $80B0
 Exit13: 
         rts                             ;Exit from multiple routines.
 
+;-------------------------------------------------------------------------------
+; Sidehopper AI ?
 LFB88:  ldx PageIndex
         jsr LF844
-        lda $6B01,x
-        inc $6B03,x
-        dec $6B03,x
+        lda EnData1D,x
+        inc EnData1F,x
+        dec EnData1F,x
         bne Lx382
         pha
         pla
@@ -9656,6 +9659,7 @@ Lx384
         cmp EnResetAnimIndex,x
         beq Exit13
         jmp LF68D
+;-------------------------------------------------------------------------------
 
 LFBCA:  ldx PageIndex
         jsr LF844

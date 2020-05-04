@@ -255,18 +255,18 @@ L95EB:  .word $98D7 ; 00 - swooper
 L95ED:  .word $990C ; 01 - becomes swooper ?
 L95EF:  .word $9847 ; 02 - dessgeegas
 L95F1:  .word $9862 ; 03 - ceiling dessgeegas
-L95F3:  .word $982A ; 04 - disappears
-L95F5:  .word $982A ; 05 - same as 4
+L95F3:  .word InvalidEnemy ; 04 - disappears
+L95F5:  .word InvalidEnemy ; 05 - same as 4
 L95F7:  .word $9967 ; 06 - crawler
 L95F9:  .word ZebboRoutine ; 07 - pipe bugs
-L95FB:  .word $982A ; 08 - same as 4
+L95FB:  .word InvalidEnemy ; 08 - same as 4
 L95FD:  .word $9A13 ; 09 - ridley
 L95FF:  .word $9A4A ; 0A - ridley fireball
-L9601:  .word $982A ; 0B - same as 4
+L9601:  .word InvalidEnemy ; 0B - same as 4
 L9603:  .word $9B03 ; 0C - bouncy orbs
-L9605:  .word $982A ; 0D - same as 4
+L9605:  .word InvalidEnemy ; 0D - same as 4
 L9607:  .word $9B16 ; 0E - ???
-L9609:  .word $982A ; 0F - same as 4
+L9609:  .word InvalidEnemy ; 0F - same as 4
 
 L960B:  .byte $23, $23, $23, $23, $3A, $3A, $3C, $3C, $00, $00, $00, $00, $56, $56, $65, $63
 
@@ -331,6 +331,8 @@ L980C:  .byte $07, $C2, $06, $A2, $05, $92, $05, $12, $06, $22, $07, $42, $50, $
 
 L981B:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $72, $FF
 
+;-------------------------------------------------------------------------------
+InvalidEnemy:
 L982A:  LDA #$00
 L982C:  STA $6AF4,X
 L982F:  RTS
@@ -345,6 +347,9 @@ L983C:  JMP $8000
 L983F:  LDA $01
 L9841:  JMP $8003
 L9844:  JMP $8006
+
+;-------------------------------------------------------------------------------
+; Sidehopper (dessgeega) Routine
 L9847:  LDA #$42
 L9849:  STA $85
 L984B:  STA $86
@@ -357,6 +362,9 @@ L9859:  STA $00
 L985B:  LDA #$08
 L985D:  STA $01
 L985F:  JMP $9830
+
+;-------------------------------------------------------------------------------
+; Ceiling Dessgeega
 L9862:  LDA #$48
 L9864:  JMP $9849
 
@@ -365,6 +373,7 @@ ZebboRoutine: ; L9867
 .include enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
+; Swooper Routine
 L98D7:  LDA #$03
 L98D9:  STA $00
 L98DB:  LDA #$08
@@ -389,6 +398,8 @@ L9906:  LDA #$1D
 L9908:  STA $6AF9,X
 L990B:  RTS
 
+;-------------------------------------------------------------------------------
+; Swooper 2 Routine
 L990C:  LDA $81
 L990E:  CMP #$01
 L9910:  BEQ $9922
@@ -429,6 +440,8 @@ L9962:  PLA
 L9963:  STA $040B,X
 L9966:  RTS
 
+;-------------------------------------------------------------------------------
+; Crawler Routine
 L9967:  JSR $8009
 L996A:  AND #$03
 L996C:  BEQ $99A2
@@ -511,12 +524,15 @@ L9A0E:  LDA $8048,Y
 L9A11:  PHA 
 L9A12:  RTS
 
+;-------------------------------------------------------------------------------
+; Ridley Routine
 L9A13:  LDA $6AF4,X
 L9A16:  CMP #$03
 L9A18:  BCC $9A33
 L9A1A:  BEQ $9A20
 L9A1C:  CMP #$05
 L9A1E:  BNE $9A41
+
 L9A20:  LDA #$00
 L9A22:  STA $6B04
 L9A25:  STA $6B14
@@ -524,16 +540,21 @@ L9A28:  STA $6B24
 L9A2B:  STA $6B34
 L9A2E:  STA $6B44
 L9A31:  BEQ $9A41
+
 L9A33:  LDA #$0B
 L9A35:  STA $85
 L9A37:  LDA #$0E
 L9A39:  STA $86
 L9A3B:  JSR $801B
 L9A3E:  JSR $9A79
+
 L9A41:  LDA #$03
 L9A43:  STA $00
 L9A45:  STA $01
 L9A47:  JMP $9830
+
+;-------------------------------------------------------------------------------
+; Ridley Fireball Routine
 L9A4A:  LDA $0405,X
 L9A4D:  PHA 
 L9A4E:  LDA #$02
@@ -558,6 +579,8 @@ L9A73:  LDA #$00
 L9A75:  STA $6AF4,X
 L9A78:  RTS
 
+;-------------------------------------------------------------------------------
+; Ridley Subroutine
 L9A79:  LDY $80
 L9A7B:  BNE $9A7F
 L9A7D:  LDY #$60
@@ -632,6 +655,8 @@ L9AFD:  LDA $09
 L9AFF:  STA EnXRoomPos,X
 L9B02:  RTS
 
+;-------------------------------------------------------------------------------
+; Bouncy Orb Routine
 L9B03:  LDA $6AF4,X
 L9B06:  CMP #$02
 L9B08:  BNE $9B0D
@@ -640,6 +665,9 @@ L9B0D:  LDA #$02
 L9B0F:  STA $00
 L9B11:  STA $01
 L9B13:  JMP $9830
+
+;-------------------------------------------------------------------------------
+; Polyp (beta?) Routine
 L9B16:  LDA #$00
 L9B18:  STA $6AF5,X
 L9B1B:  STA $6AF6,X

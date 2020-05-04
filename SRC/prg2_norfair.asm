@@ -125,19 +125,19 @@ L95E8:  JSR $8024
 L95EB:  .word $98D3 ; 00 - swooper
 L95ED:  .word $9908 ; 01 - becomes swooper?
 L95EF:  .word $98C0 ; 02 - ripper
-L95F1:  .word $9833 ; 03 - disappears
-L95F3:  .word $9833 ; 04 - same as 3
-L95F5:  .word $9833 ; 05 - same as 3
+L95F1:  .word InvalidEnemy ; 03 - disappears
+L95F3:  .word InvalidEnemy ; 04 - same as 3
+L95F5:  .word InvalidEnemy ; 05 - same as 3
 L95F7:  .word $9996 ; 06 - crawler
 L95F9:  .word GametRoutine ; 07 - pipe bug
-L95FB:  .word $9833 ; 08 - same as 3
-L95FD:  .word $9833 ; 09 - same as 3
-L95FF:  .word $9833 ; 0A - same as 3
+L95FB:  .word InvalidEnemy ; 08 - same as 3
+L95FD:  .word InvalidEnemy ; 09 - same as 3
+L95FF:  .word InvalidEnemy ; 0A - same as 3
 L9601:  .word $9A64 ; 0B - lava jumper
 L9603:  .word $9AD6 ; 0C - bouncy orb
 L9605:  .word $9AE9 ; 0D - seahorse
 L9607:  .word $9B64 ; 0E - rock launcher thing
-L9609:  .word $9833 ; 0F - same as 3
+L9609:  .word InvalidEnemy ; 0F - same as 3
 
 L960B:  .byte $28, $28, $28, $28, $30, $30, $00, $00, $00, $00, $00, $00, $75, $75, $84, $82
 
@@ -204,6 +204,8 @@ L9815:  .byte $07, $C2, $06, $A2, $05, $92, $05, $12, $06, $22, $07, $42, $50, $
 
 L9824:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $72, $FF
 
+;-------------------------------------------------------------------------------
+InvalidEnemy:
 L9833:  LDA #$00
 L9835:  STA $6AF4,X
 L9838:  RTS
@@ -224,6 +226,7 @@ GametRoutine: ; L9850
 .include enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
+; Ripper routine
 L98C0:  LDA $6AF4,X
 L98C3:  CMP #$03
 L98C5:  BEQ $98CA
@@ -232,6 +235,9 @@ L98CA:  LDA #$03
 L98CC:  STA $00
 L98CE:  STA $01
 L98D0:  JMP $9839
+
+;-------------------------------------------------------------------------------
+; Swooper routine
 L98D3:  LDA #$03
 L98D5:  STA $00
 L98D7:  LDA #$08
@@ -256,6 +262,8 @@ L9902:  LDA #$22
 L9904:  STA $6AF9,X
 L9907:  RTS
 
+;-------------------------------------------------------------------------------
+; Swooper Routine 2?
 L9908:  LDA $81
 L990A:  CMP #$01
 L990C:  BEQ $991E
@@ -317,6 +325,9 @@ L998C:  AND #$03
 L998E:  BNE $9993
 L9990:  JMP $984D
 L9993:  JMP $9839
+
+;-------------------------------------------------------------------------------
+; Crawler Routine
 L9996:  JSR $8009
 L9999:  AND #$03
 L999B:  BEQ $99D1
@@ -418,6 +429,8 @@ L9A5E:  LDA $09
 L9A60:  STA EnXRoomPos,X
 L9A63:  RTS
 
+;-------------------------------------------------------------------------------
+; Lava Jumper Routine
 L9A64:  LDA $81
 L9A66:  CMP #$01
 L9A68:  BNE $9A88
@@ -467,6 +480,9 @@ L9ACC:  JMP $8003
 L9ACF:  JMP $8006
 L9AD2:  INC $F8,X
 L9AD4:  INC $FA,X
+
+;-------------------------------------------------------------------------------
+; Bouncy Orb Routine (Multiviola?)
 L9AD6:  LDA $6AF4,X
 L9AD9:  CMP #$02
 L9ADB:  BNE $9AE0
@@ -475,6 +491,9 @@ L9AE0:  LDA #$02
 L9AE2:  STA $00
 L9AE4:  STA $01
 L9AE6:  JMP $9839
+
+;-------------------------------------------------------------------------------
+; Lava Seahorse Routine
 L9AE9:  LDA $6AF4,X
 L9AEC:  CMP #$01
 L9AEE:  BNE $9AF5
@@ -529,6 +548,9 @@ L9B5B:  STA $00
 L9B5D:  STA $01
 L9B5F:  JMP $9839
 L9B62:  EOR $49
+
+;-------------------------------------------------------------------------------
+; Polyp Routine (mini volcano)
 L9B64:  LDA #$00
 L9B66:  STA $6AF5,X
 L9B69:  STA $6AF6,X

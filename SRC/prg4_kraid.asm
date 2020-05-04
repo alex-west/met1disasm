@@ -95,6 +95,7 @@ L95A6:  .word EnemyAnimIndexTbl         ;($9C86)Index to values in addr tables f
 L95A8:  .byte $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60
 L95B8:  .byte $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA
 
+AreaRoutine:
 L95C3:  JMP $9C49                       ;Area specific routine.
 
 TwosCompliment_:
@@ -119,7 +120,7 @@ L95D9:  .byte $6E                       ;Samus start verticle screen position.
 
 L95DA:  .byte $06, $00, $03, $43, $00, $00, $00, $00, $00, $00, $64
 
-L95E5:  LDA $6B02,X
+L95E5:  LDA EnDataIndex,X
 L95E8:  JSR $8024
 
 L95EB:  .word $991C ; 00 - sidehopper
@@ -130,9 +131,9 @@ L95F3:  .word $9949 ; 04 - skree
 L95F5:  .word $999B ; 05 - crawler
 L95F7:  .word $95CB ; 06 - same as 2
 L95F9:  .word GeegaRoutine ; 07 - pipe bug
-L95FB:  .word $9AB4 ; 08 - kraid
-L95FD:  .word $9AE4 ; 09 - kraid projectile?
-L95FF:  .word $9B2C ; 0a - kraid projectile?
+L95FB:  .word KraidRoutine ; 08 - kraid
+L95FD:  .word KraidLint ; 09 - kraid projectile? lint or nail?
+L95FF:  .word KraidNail ; 0a - kraid projectile?
 L9601:  .word $95CB ; 0b - same as 2
 L9603:  .word $95CB ; 0c - same as 2
 L9605:  .word $95CB ; 0d - same as 2
@@ -252,26 +253,40 @@ L990F:  LDA $00
 L9911:  JMP $8000
 L9914:  LDA $01
 L9916:  JMP $8003
-L9919:  JMP $8006
+L9919:  JMP CommonJump_02
+
+;-------------------------------------------------------------------------------
+; Sidehopper Routine
 L991C:  LDA #$09
 L991E:  STA $85
 L9920:  STA $86
-L9922:  LDA $6AF4,X
+L9922:  LDA EnStatus,X
 L9925:  CMP #$03
 L9927:  BEQ $992C
 L9929:  JSR $801B
 L992C:  LDA #$06
 L992E:  STA $00
+
+CommonEnemyStub:
 L9930:  LDA #$08
 L9932:  STA $01
 L9934:  JMP $9905
+
+;-------------------------------------------------------------------------------
+; Ceiling Sidehopper Routine
 L9937:  LDA #$0F
 L9939:  JMP $991E
-L993C:  LDA $6AF4,X
+
+;-------------------------------------------------------------------------------
+; Ripper Routine
+L993C:  LDA EnStatus,X
 L993F:  CMP #$03
 L9941:  BEQ $9946
 L9943:  JSR $801E
 L9946:  JMP $992C
+
+;-------------------------------------------------------------------------------
+; Skree Routine
 L9949:  LDA $81
 L994B:  CMP #$01
 L994D:  BEQ $9993
@@ -288,7 +303,7 @@ L9963:  BNE $998E
 L9965:  DEC $6B01,X
 L9968:  BNE $998E
 L996A:  LDA #$00
-L996C:  STA $6AF4,X
+L996C:  STA EnStatus,X
 L996F:  LDY #$0C
 L9971:  LDA #$0A
 L9973:  STA $00A0,Y
@@ -307,7 +322,10 @@ L998E:  LDA #$02
 L9990:  JMP $8000
 L9993:  LDA #$08
 L9995:  JMP $8003
-L9998:  JMP $8006
+L9998:  JMP CommonJump_02
+
+;-------------------------------------------------------------------------------
+; Crawler Routine
 L999B:  JSR $8009
 L999E:  AND #$03
 L99A0:  BEQ $99D6
@@ -316,7 +334,7 @@ L99A4:  CMP #$01
 L99A6:  BEQ $9993
 L99A8:  CMP #$03
 L99AA:  BEQ $9998
-L99AC:  LDA $6AF4,X
+L99AC:  LDA EnStatus,X
 L99AF:  CMP #$03
 L99B1:  BEQ $99D6
 L99B3:  LDA $040A,X
@@ -334,9 +352,9 @@ L99CD:  JSR $9A31
 L99D0:  JSR $99F7
 L99D3:  JSR $9A15
 L99D6:  LDA #$03
-L99D8:  JSR $800C
-L99DB:  JMP $8006
-L99DE:  LDA $0405,X
+L99D8:  JSR CommonJump_UpdateEnemyAnim
+L99DB:  JMP CommonJump_02
+L99DE:  LDA EnData05,X
 L99E1:  LSR 
 L99E2:  LDA $040A,X
 L99E5:  AND #$03
@@ -357,9 +375,9 @@ L9A03:  TYA
 L9A04:  AND #$03
 L9A06:  STA $040A,X
 L9A09:  JMP $99DE
-L9A0C:  LDA $0405,X
+L9A0C:  LDA EnData05,X
 L9A0F:  EOR #$01
-L9A11:  STA $0405,X
+L9A11:  STA EnData05,X
 L9A14:  RTS
 
 L9A15:  JSR $9A29
@@ -377,7 +395,7 @@ L9A2D:  TYA
 L9A2E:  AND #$03
 L9A30:  RTS
 
-L9A31:  LDY $0405,X
+L9A31:  LDY EnData05,X
 L9A34:  STY $00
 L9A36:  LSR $00
 L9A38:  ROL 
@@ -394,201 +412,14 @@ GeegaRoutine: ; L9A44
 .include enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
-L9AB4:  LDA $6AF4,X
-L9AB7:  CMP #$03
-L9AB9:  BCC $9AD4
-L9ABB:  BEQ $9AC1
-L9ABD:  CMP #$05
-L9ABF:  BNE $9ADD
-L9AC1:  LDA #$00
-L9AC3:  STA $6B04
-L9AC6:  STA $6B14
-L9AC9:  STA $6B24
-L9ACC:  STA $6B34
-L9ACF:  STA $6B44
-L9AD2:  BEQ $9ADD
-L9AD4:  JSR $9B2F
-L9AD7:  JSR $9BE0
-L9ADA:  JSR $9C19
-L9ADD:  LDA #$0A
-L9ADF:  STA $00
-L9AE1:  JMP $9930
-L9AE4:  LDA $0405,X
-L9AE7:  AND #$02
-L9AE9:  BEQ $9AF2
-L9AEB:  LDA $6AF4,X
-L9AEE:  CMP #$03
-L9AF0:  BNE $9AF9
-L9AF2:  LDA #$00
-L9AF4:  STA $6AF4,X
-L9AF7:  BEQ $9B24
-L9AF9:  LDA $0405,X
-L9AFC:  ASL 
-L9AFD:  BMI $9B24
-L9AFF:  LDA $6AF4,X
-L9B02:  CMP #$02
-L9B04:  BNE $9B24
-L9B06:  JSR $802D
-L9B09:  LDX $4B
-L9B0B:  LDA $00
-L9B0D:  STA $0402,X
-L9B10:  JSR $8030
-L9B13:  LDX $4B
-L9B15:  LDA $00
-L9B17:  STA $0403,X
-L9B1A:  JSR $8033
-L9B1D:  BCS $9B24
-L9B1F:  LDA #$03
-L9B21:  STA $6AF4,X
-L9B24:  LDA #$01
-L9B26:  JSR $800C
-L9B29:  JMP $8006
-L9B2C:  JMP $9AE4
-L9B2F:  LDX #$50
-L9B31:  JSR $9B3C
-L9B34:  TXA 
-L9B35:  SEC 
-L9B36:  SBC #$10
-L9B38:  TAX 
-L9B39:  BNE $9B31
-L9B3B:  RTS
+; Kraid Routine
+.include enemies/kraid.asm
+; Note: For this bank the functions StorePositionToTemp and LoadPositionFromTemp
+;  are in are in kraid.asm. Extract those functions from that file if you plan
+;  on removing it.
 
-L9B3C:  LDY $6AF4,X
-L9B3F:  BEQ $9B67
-L9B41:  LDA $6B02,X
-L9B44:  CMP #$0A
-L9B46:  BEQ $9B4C
-L9B48:  CMP #$09
-L9B4A:  BNE $9BBB
-L9B4C:  LDA $0405,X
-L9B4F:  AND #$02
-L9B51:  BEQ $9B67
-L9B53:  DEY 
-L9B54:  BEQ $9B72
-L9B56:  CPY #$02
-L9B58:  BEQ $9B67
-L9B5A:  CPY #$03
-L9B5C:  BNE $9BBB
-L9B5E:  LDA $040C,X
-L9B61:  CMP #$01
-L9B63:  BNE $9BBB
-L9B65:  BEQ $9B72
-L9B67:  LDA #$00
-L9B69:  STA $6AF4,X
-L9B6C:  STA $040F,X
-L9B6F:  JSR $802A
-L9B72:  LDA $0405
-L9B75:  STA $0405,X
-L9B78:  LSR 
-L9B79:  PHP 
-L9B7A:  TXA 
-L9B7B:  LSR 
-L9B7C:  LSR 
-L9B7D:  LSR 
-L9B7E:  LSR 
-L9B7F:  TAY 
-L9B80:  LDA $9BCB,Y
-L9B83:  STA $04
-L9B85:  LDA $9BDA,Y
-L9B88:  STA $6B02,X
-L9B8B:  TYA 
-L9B8C:  PLP 
-L9B8D:  ROL 
-L9B8E:  TAY 
-L9B8F:  LDA $9BCF,Y
-L9B92:  STA $05
-L9B94:  TXA 
-L9B95:  PHA 
-L9B96:  LDX #$00
-L9B98:  JSR StorePositionToTemp
-L9B9B:  PLA 
-L9B9C:  TAX 
-L9B9D:  JSR $8027
-L9BA0:  BCC $9BBB
-L9BA2:  LDA $6AF4,X
-L9BA5:  BNE LoadPositionFromTemp
-L9BA7:  INC $6AF4,X
-
-LoadPositionFromTemp:
-L9BAA:  LDA $08
-L9BAC:  STA EnYRoomPos,X
-L9BAF:  LDA $09
-L9BB1:  STA EnXRoomPos,X
-L9BB4:  LDA $0B
-L9BB6:  AND #$01
-L9BB8:  STA EnNameTable,X
-L9BBB:  RTS
-
-StorePositionToTemp:
-L9BBC:  LDA EnYRoomPos,X
-L9BBF:  STA $08
-L9BC1:  LDA EnXRoomPos,X
-L9BC4:  STA $09
-L9BC6:  LDA EnNameTable,X
-L9BC9:  STA $0B
-L9BCB:  RTS
-
-L9BCC:  .byte $F5, $FD, $05, $F6, $FE, $0A, $F6, $0C, $F4, $0E, $F2, $F8, $08, $F4, $0C, $09
-L9BDC:  .byte $09, $09, $0A, $0A
-
-L9BE0:  LDY $7E
-L9BE2:  BNE $9BE6
-L9BE4:  LDY #$80
-L9BE6:  LDA $2D
-L9BE8:  AND #$02
-L9BEA:  BNE $9C18
-L9BEC:  DEY 
-L9BED:  STY $7E
-L9BEF:  TYA 
-L9BF0:  ASL 
-L9BF1:  BMI $9C18
-L9BF3:  AND #$0F
-L9BF5:  CMP #$0A
-L9BF7:  BNE $9C18
-L9BF9:  LDA #$01
-L9BFB:  LDX #$10
-L9BFD:  CMP $6AF4,X
-L9C00:  BEQ $9C13
-L9C02:  LDX #$20
-L9C04:  CMP $6AF4,X
-L9C07:  BEQ $9C13
-L9C09:  LDX #$30
-L9C0B:  CMP $6AF4,X
-L9C0E:  BEQ $9C13
-L9C10:  INC $7E
-L9C12:  RTS
-
-L9C13:  LDA #$08
-L9C15:  STA $0409,X
-L9C18:  RTS
-
-L9C19:  LDY $7F
-L9C1B:  BNE $9C1F
-L9C1D:  LDY #$60
-L9C1F:  LDA $2D
-L9C21:  AND #$02
-L9C23:  BNE $9C48
-L9C25:  DEY 
-L9C26:  STY $7F
-L9C28:  TYA 
-L9C29:  ASL 
-L9C2A:  BMI $9C48
-L9C2C:  AND #$0F
-L9C2E:  BNE $9C48
-L9C30:  LDA #$01
-L9C32:  LDX #$40
-L9C34:  CMP $6AF4,X
-L9C37:  BEQ $9C43
-L9C39:  LDX #$50
-L9C3B:  CMP $6AF4,X
-L9C3E:  BEQ $9C43
-L9C40:  INC $7F
-L9C42:  RTS
-
-L9C43:  LDA #$08
-L9C45:  STA $0409,X
-L9C48:  RTS 
-
+; Area Specific Routine
+; -= Code not Data! =-
 L9C49:  .byte $60
 
 L9C4A:  .byte $22, $FF, $FF, $FF, $FF

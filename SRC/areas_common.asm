@@ -20,30 +20,53 @@
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
+CommonJump_00:
 L8000:  JMP $F410
+CommonJump_01:
 L8003:  JMP $F438
+CommonJump_02:
 L8006:  JMP $F416
+CommonJump_03:
 L8009:  JMP $F852
+CommonJump_UpdateEnemyAnim:
 L800C:  JMP UpdateEnemyAnim             ;($E094)
+CommonJump_05:
 L800F:  JMP $F68D
+CommonJump_06:
 L8012:  JMP $F83E
+CommonJump_07:
 L8015:  JMP $F85A
+CommonJump_08:
 L8018:  JMP $FBB9
+CommonJump_09:
 L801B:  JMP $FB88
+CommonJump_0A:
 L801E:  JMP $FBCA
+CommonJump_0B:
 L8021:  JMP $F870
 CommonJump_ChooseRoutine:
 L8024:  JMP ChooseRoutine               ;($C27C)
+CommonJump_0D:
 L8027:  JMP $FD8F
+CommonJump_0E:
 L802A:  JMP $EB6E
+CommonJump_0F:
 L802D:  JMP $8244
+CommonJump_10:
 L8030:  JMP $8318
+CommonJump_11:
 L8033:  JMP $FA1E
+CommonJump_12:
 L8036:  JMP $833F
+CommonJump_13:
 L8039:  JMP $8395
+CommonJump_14:
 L803C:  JMP $DD8B
+CommonJump_15:
 L803F:  JMP $FEDC
+CommonJump_SubtractHealth:
 L8042:  JMP SubtractHealth              ;($CE92)
+CommonJump_Base10Subtract:
 L8045:  JMP Base10Subtract              ;($C3FB)
 
 L8048:  .word $84FD, $84A6, $844A, $844A, $84A6, $84FD, $83F4, $83F4
@@ -94,11 +117,14 @@ L80AB:  DEC $66
 L80AD:  BNE L80A5
 L80AF:
       + RTS
- 
+
+;-------------------------------------------------------------------------------
+; A = TableAtL977B[EnemyType]*2
 L80B0:  LDY EnDataIndex,X
-L80B3:  LDA $977B,Y
+L80B3:  LDA L977B,Y
 L80B6:  ASL                             ;*2 
 L80B7:  RTS
+;-------------------------------------------------------------------------------
 
 L80B8:  LDX PageIndex
 L80BA:  BCS $80FA
