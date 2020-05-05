@@ -30,6 +30,7 @@ Startup                = $C01A
 NMI                    = $C0D9
 ChooseRoutine          = $C27C
 Adiv32                 = $C2BE
+Adiv16                 = $C2BF
 Amul16                 = $C2C5
 TwosCompliment         = $C3D4
 Base10Subtract         = $C3FB
@@ -50,7 +51,7 @@ L8D60:
 
 ;Brinstar enemy tile patterns.
 L9160:
-.include "brinstar/sprite_tiles.asm"
+.include brinstar/sprite_tiles.asm
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -94,11 +95,20 @@ L95A2:  .word EnemyFramePtrTbl2         ;($9EE0)tables needed to accommodate all
 L95A4:  .word EnemyPlacePtrTbl          ;($9F0E)Pointers to enemy frame placement data.
 L95A6:  .word EnemyAnimIndexTbl         ;($9D6A)index to values in addr tables for enemy animations.
 
-L95A8:  .byte $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60 
-L95B8:  .byte $EA, $EA, $60, $EA, $EA, $60, $EA, $EA, $60, $EA, $EA
+; Tourian-specific jump table (dummied out in other banks)
+;  Each line is RTS, NOP, NOP in this bank
+L95A8:  .byte $60, $EA, $EA
+L95AB:  .byte $60, $EA, $EA
+L95AE:  .byte $60, $EA, $EA
+L95B1:  .byte $60, $EA, $EA
+L95B4:  .byte $60, $EA, $EA
+L95B7:  .byte $60, $EA, $EA
+L95BA:  .byte $60, $EA, $EA
+L95BD:  .byte $60, $EA, $EA
+L95C0:  .byte $60, $EA, $EA
 
-AreaRoutine:
-L95C3:  JMP $9D35                       ;Area specific routine.
+AreaRoutine: ; L95C3
+    JMP AreaRoutineStub ; Just an RTS
 
 TwosCompliment_:
 L95C6:  EOR #$FF                        ;
@@ -133,7 +143,7 @@ L95EF:  .word $99E5 ; 02 - Waver
 L95F1:  .word $99D8 ; 03 - Ripper
 L95F3:  .word SkreeRoutine ; 04 - Skree
 L95F5:  .word $9A4C ; 05 - Wallcrawler
-L95F7:  .word $9AF5 ; 06 - Rio (swoopers)
+L95F7:  .word RioRoutine ; 06 - Rio (swoopers)
 L95F9:  .word ZebRoutine ; 07 - Pipe bugs
 L95FB:  .word KraidRoutine ; 08 - Kraid (crashes dug to bug)
 L95FD:  .word KraidLint ; 09 - Kraid's lint (crashes)
@@ -144,60 +154,82 @@ L9605:  .word $0000 ; 0D - Null
 L9607:  .word $0000 ; 0E - Null
 L9609:  .word $0000 ; 0F - Null
 
+; Animation related table ?
 L960B:  .byte $27, $27, $29, $29, $2D, $2B, $31, $2F, $33, $33, $41, $41, $4B, $4B, $55, $53
-
 L961B:  .byte $72, $74, $00, $00, $00, $00, $69, $69, $69, $69, $00, $00, $00, $00, $00, $00
 
 EnemyHitPointTbl:
 L962B:  .byte $08, $08, $04, $FF, $02, $02, $04, $01, $20, $FF, $FF, $04, $01, $00, $00, $00
 
+; ResetAnimIndex table
 L963B:  .byte $05, $05, $0B, $0B, $17, $13, $1B, $19, $23, $23, $35, $35, $48, $48, $59, $57 
-
 L964B:  .byte $6C, $6F, $5B, $5D, $62, $67, $69, $69, $69, $69, $00, $00, $00, $00, $00, $00
 
+; another ResetAnimIndex table
 L965B:  .byte $05, $05, $0B, $0B, $17, $13, $1B, $19, $23, $23, $35, $35, $48, $48, $50, $4D
-
 L966B:  .byte $6C, $6F, $5B, $5D, $5F, $64, $69, $69, $69, $69, $00, $00, $00, $00, $00, $00
 
+;another animation related table
 L967B:  .byte $00, $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $00, $80, $00, $00, $00 
 
+; Screw attack vulnerability? Hit sound?
 L968B:  .byte $01, $01, $01, $00, $86, $04, $89, $80, $81, $00, $00, $00, $82, $00, $00, $00 
 
+; EnData0D table (set upon load, and a couple other times)
 L969B:  .byte $01, $01, $01, $01, $01, $01, $01, $01, $20, $01, $01, $01, $40, $00, $00, $00 
 
+; Some table referenced when loading an enemy
 L96AB:  .byte $00, $00, $06, $00, $83, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $00 
 
 EnemyInitDelayTbl:
 L96BB:  .byte $08, $08, $01, $01, $01, $01, $10, $08, $10, $00, $00, $01, $01, $00, $00, $00
 
+; Index to a table starting a L97D1
 L96CB:  .byte $00, $03, $06, $08, $0A, $10, $0C, $0E, $14, $17, $19, $10, $12, $00, $00, $00
 
-L96DB:  .word $97EF, $97F2, $97F5, $97F5, $97F5, $97F5, $97F5, $97F5
-L96EB:  .word $97F5, $97F5, $97F5, $9840, $988B, $988E, $9891, $98A5
-L96FB:  .word $98B9, $98B9, $98B9, $98B9, $98B9, $98B9, $98B9, $98B9
-L970B:  .word $98B9, $98C0, $98C7, $98CE, $98D5, $98D8, $98DB, $98F2
-L971B:  .word $9909, $9920, $9937, $994E
+; EnData08*2 + one of the low bits of EnData05 is used as an index to this pointer table
+L96DB:  .word L97EF, L97F2, L97F5, L97F5, L97F5, L97F5, L97F5, L97F5
+L96EB:  .word L97F5, L97F5, L97F5, L9840, L988B, L988E, L9891, L98A5
+L96FB:  .word L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9
+L970B:  .word L98B9, L98C0, L98C7, L98CE, L98D5, L98D8, L98DB, L98F2
+L971B:  .word L9909, L9920, L9937, L994E
+; Unused padding to the above?
+L9723:  .byte $00, $00, $00, $00, $00, $00, $00, $00
 
-L9723:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $7F, $40, $30, $C0, $D0, $00, $00, $7F
-L9733:  .byte $80, $00, $54, $70, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-L9743:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-L9753:  .byte $F6, $FC, $FE, $04, $02, $00, $00, $00, $0C, $FC, $FC, $00, $00, $00, $00, $00
-L9763:  .byte $00, $00, $00, $00, $00, $02, $02, $02, $02, $00, $00, $00, $02, $00, $02, $02
-L9773:  .byte $00, $00, $00, $00, $00, $00, $00, $00
+; I think these next for tables each have 4 unused bytes at the end
+; EnData1A table
+L922B:  .byte $7F, $40, $30, $C0, $D0, $00, $00, $7F, $80, $00, $54, $70, $00, $00, $00, $00, $00, $00, $00, $00
+; EnData1B table
+L973F:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+; EnData02 table
+L9753:  .byte $F6, $FC, $FE, $04, $02, $00, $00, $00, $0C, $FC, $FC, $00, $00, $00, $00, $00, $00, $00, $00, $00
+; EnData03 table
+L9767:  .byte $00, $02, $02, $02, $02, $00, $00, $00, $02, $00, $02, $02, $00, $00, $00, $00, $00, $00, $00, $00
 
+; Death Related Table?
 L977B:  .byte $64, $6C, $21, $01, $04, $00, $4C, $40, $04, $00, $00, $40, $40, $00, $00, $00 
 
+; Enemy animation related table?
 L978B:  .byte $00, $00, $64, $67, $69, $69, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L979B:  .byte $0C, $F4, $00, $00, $00, $00, $00, $00, $F4, $00, $00, $00
 
-; some pointer table
-L97A7:  .word $9965, $9974, $9983, $9992, $9D36, $9D3B, $9D40, $9D45
-L97B7:  .word $9D4A, $9D4F, $9D54, $9D59, $9D5E, $9D63, $9D6A, $9D6A
-L97C7:  .word $9D6A, $9D6A, $9D6A, $9D6A, $9D6A
+; some pointer table related to enemy delays?
+L97A7:  .word L9965, L9974, L9983, L9992, L9D36, L9D3B, L9D40, L9D45
+L97B7:  .word L9D4A, L9D4F, L9D54, L9D59, L9D5D, L9D63, L9D6A, L9D6A
+L97C7:  .word L9D6A, L9D6A, L9D6A, L9D6A, L9D6A
 
+; If I'm reading the code correctly, this table is accessed with this formula:
+;  EnData08 = L97D1[(L97D1[L96CB[EnemyDataIndex]] and (FrameCount xor RandomNumber1))+1]
 L97D1:  .byte $01, $01, $02, $01, $03, $04, $00, $05, $00, $06, $00, $07, $00, $08, $00, $09
 L97E1:  .byte $00, $00, $00, $0B, $01, $0C, $0D, $00, $0E, $03, $0F, $10, $11, $0F
 
+;-------------------------------------------------------------------------------
+;I believe this is the point where the level banks don't need to match addresses
+;-------------------------------------------------------------------------------
+
+;-------------------------------------------------------------------------------
+; Instruction (?) strings of some type pointed to by the table L96DB
+; These are decoded/read starting at about L8244 in areas_common.asm
 L97EF:  .byte $20, $22, $FE
 
 L97F2:  .byte $20, $2A, $FE
@@ -254,6 +286,9 @@ L9947:  .byte $05, $52, $04, $62, $50, $72, $FF
 L994E:  .byte $02, $FA, $04, $EA, $04, $DA, $05, $BA, $03, $9A, $04, $0A, $05, $1A, $03, $3A
 L995E:  .byte $05, $5A, $04, $6A, $50, $7A, $FF
 
+;-------------------------------------------------------------------------------
+
+; Instruction (?) strings of a different type pointed to by L97A7
 L9965:  .byte $04, $B3, $05, $A3, $06, $93, $07, $03, $06, $13, $05, $23, $50, $33, $FF
 
 L9974:  .byte $09, $C2, $08, $A2, $07, $92, $07, $12, $08, $22, $09, $42, $50, $72, $FF
@@ -262,15 +297,20 @@ L9983:  .byte $07, $C2, $06, $A2, $05, $92, $05, $12, $06, $22, $07, $42, $50, $
 
 L9992:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $72, $FF
 
+;-------------------------------------------------------------------------------
+
 L99A1:  LDA $81
 L99A3:  CMP #$01
 L99A5:  BEQ $99B0
 L99A7:  CMP #$03
 L99A9:  BEQ $99B5
+
 L99AB:  LDA $00
 L99AD:  JMP CommonJump_00
+
 L99B0:  LDA $01
 L99B2:  JMP CommonJump_01
+
 L99B5:  JMP CommonJump_02
 
 ; Sidehopper Routine
@@ -279,8 +319,8 @@ L99BA:  STA $85
 L99BC:  STA $86
 L99BE:  LDA EnStatus,X
 L99C1:  CMP #$03
-L99C3:  BEQ $99C8
-L99C5:  JSR $801B
+L99C3:  BEQ L99C8
+L99C5:  JSR L801B
 
 L99C8:  LDA #$06
 L99CA:  STA $00
@@ -299,7 +339,7 @@ L99D5:  JMP $99BA
 L99D8:  LDA EnStatus,X
 L99DB:  CMP #$03
 L99DD:  BEQ $99E2
-L99DF:  JSR $801E
+L99DF:  JSR L801E
 L99E2:  JMP $99C8
 
 ;-------------------------------------------------------------------------------
@@ -311,7 +351,7 @@ L99EB:  STA $86
 L99ED:  LDA EnStatus,X
 L99F0:  CMP #$03
 L99F2:  BEQ $99F7
-L99F4:  JSR $801B
+L99F4:  JSR CommonJump_09
 L99F7:  JMP $99C8
 
 ;-------------------------------------------------------------------------------
@@ -406,30 +446,43 @@ L9AF4:  RTS
 
 ;-------------------------------------------------------------------------------
 ; Rio/Swooper Routine
+RioRoutine:
 L9AF5:  LDA $81
 L9AF7:  CMP #$01
-L9AF9:  BEQ $9B2D
+L9AF9:  BEQ RioExitC
+
 L9AFB:  CMP #$03
-L9AFD:  BEQ $9B2A
+L9AFD:  BEQ RioExitB
+
 L9AFF:  LDA #$80
 L9B01:  STA EnData1A,X
-L9B04:  LDA $0402,X
-L9B07:  BMI $9B25
+L9B04:  LDA EnData02,X
+L9B07:  BMI RioExitA
+
 L9B09:  LDA EnData05,X
 L9B0C:  AND #$10
-L9B0E:  BEQ $9B25
+L9B0E:  BEQ RioExitA
+
 L9B10:  LDA EnYRoomPos,X
 L9B13:  SEC 
-L9B14:  SBC $030D
-L9B17:  BPL $9B1C
-L9B19:  JSR $95C6
+L9B14:  SBC ObjectY ; Compare with Samus' Y position
+L9B17:  BPL RioBranch
+L9B19:  JSR TwosCompliment_
+
+RioBranch:
 L9B1C:  CMP #$10
-L9B1E:  BCS $9B25
+L9B1E:  BCS RioExitA
 L9B20:  LDA #$00
 L9B22:  STA EnData1A,X
+
+RioExitA:
 L9B25:  LDA #$03
 L9B27:  JMP CommonJump_00
+
+RioExitB:
 L9B2A:  JMP CommonJump_02
+
+RioExitC:
 L9B2D:  LDA #$08
 L9B2F:  JMP CommonJump_01
 
@@ -444,10 +497,10 @@ ZebRoutine: ; L9B32
 ;  are in are in kraid.asm. Extract those functions from that file if you plan
 ;  on removing it.
 
-; Area Specific Routine
-; -= Code not Data! =-
-L9D35:  RTS ;.byte $60
+AreaRoutineStub: ;L9D35
+    RTS
 
+; More strings pointed to by L97A7
 L9D36:  .byte $22, $FF, $FF, $FF, $FF
 L9D3B:  .byte $22, $80, $81, $82, $83
 L9D40:  .byte $22, $84, $85, $86, $87

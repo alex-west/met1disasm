@@ -30,6 +30,7 @@ Startup                = $C01A
 NMI                    = $C0D9
 ChooseRoutine          = $C27C
 Adiv32                 = $C2BE
+Adiv16                 = $C2BF
 Amul16                 = $C2C5
 TwosCompliment         = $C3D4
 Base10Subtract         = $C3FB
@@ -92,23 +93,29 @@ L95A2:  .word EnemyFramePtrTbl2         ;($A52C)tables needed to accommodate all
 L95A4:  .word EnemyPlacePtrTbl          ;($A540)Pointers to enemy frame placement data.
 L95A6:  .word EnemyAnimIndexTbl         ;($A406)Index to values in addr tables for enemy animations.
 
+; Special Tourian Routines
 L95A8:  JMP $A320 
 L95AB:  JMP $A315
 L95AE:  JMP $9C6F
+TourianCannonHandler:
 L95B1:  JMP $9CE6
+TourianMotherBrainHandler:
 L95B4:  JMP $9D21
+TourianZebetiteHandler:
 L95B7:  JMP $9D3D
+TourianRinkaHandler:
 L95BA:  JMP $9D6C
 L95BD:  JMP $A0C6
 L95C0:  JMP $A142
 
 AreaRoutine:
-L95C3:  JMP $9B25                       ;Area specific routine.
+L95C3:  JMP L9B25                       ;Area specific routine.
 
 TwosCompliment_:
 L95C6:  EOR #$FF                        ;
 L95C8:  CLC                             ;The following routine returns the twos-->
 L95C9:  ADC #$01                        ;compliment of the value stored in A.
+Exit__:
 L95CB:  RTS                             ;
 
 L95CC:  .byte $FF                       ;Not used.
@@ -475,7 +482,7 @@ L9A27:  LDA #$01
 L9A29:  JMP $8003
 
 ;-------------------------------------------------------------------------------
-; Rinka Routine
+; Rinka Routine??
 L9A2C:  LDY $6AF4,X
 L9A2F:  CPY #$02
 L9A31:  BNE $9AB0
@@ -601,12 +608,16 @@ L9B22:  ASL
 L9B23:  ASL 
 L9B24:  RTS
 
-L9B25:  JSR $9B37
-L9B28:  JSR $9DD4
-L9B2B:  JSR $A1E7
-L9B2E:  JSR $A238
-L9B31:  JSR $A28B
-L9B34:  JMP $A15E
+;-------------------------------------------------------------------------------
+; Tourian specific routine -- called every active frame
+L9B25:  JSR L9B37
+L9B28:  JSR L9DD4
+L9B2B:  JSR LA1E7
+L9B2E:  JSR LA238
+L9B31:  JSR LA28B
+L9B34:  JMP LA15E
+
+;-------------------------------------------------------------------------------
 L9B37:  LDX #$78
 L9B39:  JSR $9B44
 L9B3C:  LDA $97
@@ -749,6 +760,7 @@ L9C6B:  BCS $9C6E
 L9C6D:  INY 
 L9C6E:  RTS
 
+;-------------------------------------------------------------------------------
 L9C6F:  STY $02
 L9C71:  LDY #$00
 L9C73:  LDA $6BF7,Y
@@ -811,6 +823,8 @@ L9CE1:  LDA #$FF
 L9CE3:  STA $8B,X
 L9CE5:  RTS
 
+;-------------------------------------------------------------------------------
+; Tourian Cannon Handler
 L9CE6:  LDX #$00
 L9CE8:  LDA $6BF4,X
 L9CEB:  BEQ $9CF6
@@ -839,7 +853,9 @@ L9D17:  STA $6BF6,X
 L9D1A:  JSR $9D88
 L9D1D:  STA $6BF7,X
 L9D20:  RTS
- 
+
+;-------------------------------------------------------------------------------
+; Mother Brain Handler
 L9D21:  LDA #$01
 L9D23:  STA MotherBrainStatus
 L9D25:  JSR $9D88
@@ -856,6 +872,8 @@ L9D3A:  RTS
 
 L9D3B:  .byte $02, $01 
 
+;-------------------------------------------------------------------------------
+; Zebetite Handler
 L9D3D:  LDA ($00),Y
 L9D3F:  AND #$F0
 L9D41:  LSR
@@ -881,6 +899,8 @@ L9D68:  ASL
 L9D69:  ORA #$61
 L9D6B:  RTS
 
+;-------------------------------------------------------------------------------
+; Rinka Handler
 L9D6C:  LDX #$03
 L9D6E:  JSR $9D75
 L9D71:  BMI $9D87
@@ -905,10 +925,28 @@ L9D9F:  .byte $FD, $03, $02, $01, $FF, $00, $07, $06, $FE, $05, $04, $FE, $05, $
 L9DAF:  .byte $02, $03, $FC, $04, $05, $06, $05, $FC, $04, $03, $FF, $02, $03, $FC, $04, $03
 L9DBF:  .byte $FF, $06, $05, $FC, $04, $05, $FF, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $09
 
-L9DCF:  .byte $F7, $00, $09, $09, $0B, $A5, $98, $F0, $19, $20, $24, $80, $CB, $95, $22, $9E
-L9DDF:  .byte $36, $9E, $52, $9E, $86, $9E, $02, $9F, $49, $9F, $C0, $9F, $02, $9F, $DA, $9F
-L9DEF:  .byte $CB, $95, $60
+L9DCF:  .byte $F7, $00, $09, $09, $0B
 
+;-------------------------------------------------------------------------------
+; This is code:
+L9DD4:
+    LDA MotherBrainStatus
+    BEQ $9DF1
+    JSR CommonJump_ChooseRoutine
+    .word Exit__    ;#$00=Mother brain not in room, 
+    .word L9E22     ;#$01=Mother brain in room
+    .word L9E36     ;#$02=Mother brain hit
+    .word L9E52     ;#$03=Mother brain dying
+    .word L9E86     ;#$04=Mother brain dissapearing
+    .word L9F02     ;#$05=Mother brain gone
+    .word L9F49     ;#$06=Time bomb set, 
+    .word L9FC0     ;#$07=Time bomb exploded
+    .word L9F02     ;#$08=Initialize mother brain
+    .word L9FDA     ;#$09
+    .word Exit__    ;#$0A=Mother brain already dead.
+L9DF1:  RTS
+
+;-------------------------------------------------------------------------------
 L9DF2:  LDA $030C
 L9DF5:  EOR $9D
 L9DF7:  BNE $9DF1
@@ -931,16 +969,19 @@ L9E18:  STA $6F
 L9E1A:  LDA #$38
 L9E1C:  STA $030A
 L9E1F:  JMP $8042
-L9E22:  JSR $9DF2
-L9E25:  JSR $9FED
-L9E28:  JSR $A01B
-L9E2B:  JSR $A02E
-L9E2E:  JSR $A041
+
+;-------------------------------------------------------------------------------
+L9E22:  JSR L9DF2
+L9E25:  JSR L9FED
+L9E28:  JSR LA01B
+L9E2B:  JSR LA02E
+L9E2E:  JSR LA041
 L9E31:  LDA #$00
 L9E33:  STA $9E
 L9E35:  RTS
 
-L9E36:  JSR $9E43
+;-------------------------------------------------------------------------------
+L9E36:  JSR L9E43
 L9E39:  LDA $9E41,Y
 L9E3C:  STA $1C
 L9E3E:  JMP $9E31
@@ -957,7 +998,8 @@ L9E4F:  LSR
 L9E50:  TAY 
 L9E51:  RTS
 
-L9E52:  JSR $9E43
+;-------------------------------------------------------------------------------
+L9E52:  JSR L9E43
 L9E55:  LDA $9E41,Y
 L9E58:  STA $1C
 L9E5A:  TYA 
@@ -983,12 +1025,14 @@ L9E7B:  LDA $0680
 L9E7E:  ORA #$01
 L9E80:  STA $0680
 L9E83:  JMP $9E2E
+
+;-------------------------------------------------------------------------------
 L9E86:  LDA #$10
 L9E88:  ORA $0680
 L9E8B:  STA $0680
 L9E8E:  JSR $A072
 L9E91:  INC $9A
-L9E93:  JSR $9E43
+L9E93:  JSR L9E43
 L9E96:  LDX #$00
 L9E98:  LDA $6AF4,X
 L9E9B:  CMP #$05
@@ -1048,6 +1092,8 @@ L9EFE:  RTS
 L9EFF:  .byte $60
 
 L9F00:  ORA #$0A
+
+;-------------------------------------------------------------------------------
 L9F02:  LDA MotherBrainHits
 L9F04:  BMI $9F33
 L9F06:  CMP #$08
@@ -1078,10 +1124,9 @@ L9F35:  RTS
 L9F36:  INC MotherBrainStatus
 L9F38:  RTS
 
-L9F39:  .byte $00, $40, $08, $48, $80, $C0, $88, $C8, $08, $02, $09, $03, $0A, $04, $0B
+L9F39:  .byte $00, $40, $08, $48, $80, $C0, $88, $C8, $08, $02, $09, $03, $0A, $04, $0B, $05
 
-L9F48:  ORA $20
-L9F4A:  ADC #$9F
+L9F49:  JSR $9F69
 L9F4C:  BCS $9F64
 L9F4E:  LDA #$00
 L9F50:  STA MotherBrainStatus
@@ -1135,6 +1180,8 @@ L9FB6:  STA $0509
 L9FB9:  LDA #$00
 L9FBB:  STA $4B
 L9FBD:  JMP $803F
+
+;-------------------------------------------------------------------------------
 L9FC0:  LDA #$10
 L9FC2:  ORA $0680
 L9FC5:  STA $0680
@@ -1148,6 +1195,7 @@ L9FD5:  LDA #$01
 L9FD7:  STA $1C
 L9FD9:  RTS
 
+;-------------------------------------------------------------------------------
 L9FDA:  JSR $9F69
 L9FDD:  BCS $9FEC
 L9FDF:  LDA $9D
@@ -1158,6 +1206,7 @@ L9FE9:  DEY
 L9FEA:  STY MotherBrainStatus
 L9FEC:  RTS
 
+;-------------------------------------------------------------------------------
 L9FED:  LDA $9E
 L9FEF:  BEQ $A01A
 L9FF1:  LDA $0684
@@ -1181,6 +1230,7 @@ LA016:  STY MotherBrainStatus
 LA018:  STA $9F
 LA01A:  RTS
 
+;-------------------------------------------------------------------------------
 LA01B:  DEC $9A
 LA01D:  BNE $A02D
 LA01F:  LDA $2E
@@ -1193,6 +1243,7 @@ LA02A:  LSR
 LA02B:  STA $9A
 LA02D:  RTS
 
+;-------------------------------------------------------------------------------
 LA02E:  DEC $9B
 LA030:  LDA $9B
 LA032:  ASL 
@@ -1205,6 +1256,7 @@ LA03C:  EOR $9B
 LA03E:  STA $9B
 LA040:  RTS
 
+;-------------------------------------------------------------------------------
 LA041:  LDA #$E0
 LA043:  STA $4B
 LA045:  LDA $9D
@@ -1257,6 +1309,7 @@ LA0A3:  .byte $00, $02, $04, $06, $08, $40, $80, $C0, $48, $88, $C8, $FF, $42, $
 LA0B3:  .byte $FF, $82, $43, $25, $47, $FF, $C2, $C4, $C6, $FF, $84, $45, $86, $FF, $00, $0C
 LA0C3:  .byte $11, $16, $1A
 
+;-------------------------------------------------------------------------------
 LA0C6:  LDA $71
 LA0C8:  BEQ $A13E
 LA0CA:  LDX $4B
@@ -1320,6 +1373,7 @@ LA13F:  PLA
 LA140:  CLC 
 LA141:  RTS
 
+;-------------------------------------------------------------------------------
 LA142:  TAY 
 LA143:  LDA $71
 LA145:  BEQ $A15C
@@ -1336,6 +1390,7 @@ LA15A:  STA $9E
 LA15C:  TYA 
 LA15D:  RTS
 
+;-------------------------------------------------------------------------------
 LA15E:  LDY $010B
 LA161:  INY 
 LA162:  BNE $A1DA
@@ -1398,6 +1453,7 @@ LA1DA:  RTS
 
 LA1DB:  .byte $22, $2A, $2A, $BA, $B2, $2A, $C4, $2A, $C8, $BA, $BA, $BA
 
+;-------------------------------------------------------------------------------
 LA1E7:  LDY $010B
 LA1EA:  INY 
 LA1EB:  BEQ $A237
@@ -1434,6 +1490,7 @@ LA233:  LDA #$0B
 LA235:  STA $1C
 LA237:  RTS
 
+;-------------------------------------------------------------------------------
 LA238:  LDA $010D
 LA23B:  BEQ $A28A
 LA23D:  LDA $010C
@@ -1477,6 +1534,7 @@ LA285:  ORA #$A0
 LA287:  STA $0209,X
 LA28A:  RTS
 
+;-------------------------------------------------------------------------------
 LA28B:  LDA #$10
 LA28D:  STA $4B
 LA28F:  LDX #$20
@@ -1549,7 +1607,7 @@ LA31A:  DEY
 LA31B:  BPL $A317
 LA31D:  STA $92
 LA31F:  RTS
-
+;-----------------
 LA320:  TXA 
 LA321:  JSR $9B1B
 LA324:  TAY 

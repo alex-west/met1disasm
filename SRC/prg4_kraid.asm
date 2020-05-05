@@ -30,6 +30,7 @@ Startup                = $C01A
 NMI                    = $C0D9
 ChooseRoutine          = $C27C
 Adiv32                 = $C2BE
+Adiv16                 = $C2BF
 Amul16                 = $C2C5
 TwosCompliment         = $C3D4
 Base10Subtract         = $C3FB
