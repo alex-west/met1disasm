@@ -173,7 +173,7 @@ L80CC:  LDA EnData1F,X
 L80CF:  BEQ L80C1
 
 L80D1:  BPL L80D8
-L80D3:  JSR L81B1
+L80D3:  JSR SetBit5OfEnData05_AndClearEnData1A
 L80D6:  BEQ L80E2
 
 L80D8:  SEC 
@@ -214,7 +214,7 @@ L8117:  ROR EnData02,X
 L811A:  ROR EnCounter,X
 L811D:  JMP L812F
 
-L8120:  JSR L81B1
+L8120:  JSR SetBit5OfEnData05_AndClearEnData1A
 L8123:  LDA L977B,Y
 L8126:  LSR 
 L8127:  LSR 
@@ -245,7 +245,7 @@ L8150:  ROR EnData03,X
 L8153:  ROR EnData07,X
 L8156:  JMP L8169
 
-L8159:  JSR L81C0
+L8159:  JSR SetBit5OfEnData05_AndClearEnData1B
 L815C:  BEQ L8169
 L815E:  LDA $977B,Y
 L8161:  LSR 
@@ -271,7 +271,7 @@ L817F:  JMP L81AC
 L8182:  LDA EnData1F,X
 L8185:  BEQ L817C
 L8187:  BPL L818E
-L8189:  JSR L81C0
+L8189:  JSR SetBit5OfEnData05_AndClearEnData1B
 L818C:  BEQ L8198
 L818E:  SEC 
 L818F:  ROR EnData03,X
@@ -293,18 +293,21 @@ L81AE:  STA $66
 L81B0:  RTS
 
 ;-------------------------------------------------------------------------------
-L81B1:  JSR L81B8
+SetBit5OfEnData05_AndClearEnData1A:
+L81B1:  JSR SetBit5OfEnData05
 L81B4:  STA EnData1A,X
 L81B7:  RTS
 
 ;-------------------------------------------------------------------------------
+SetBit5OfEnData05:
 L81B8:  LDA #$20
-L81BA:  JSR $F744 ; EnData05 = EnData05 | A
+L81BA:  JSR $F744 ; OrEnData05
 L81BD:  LDA #$00
 L81BF:  RTS
 
 ;-------------------------------------------------------------------------------
-L81C0:  JSR L81B8
+SetBit5OfEnData05_AndClearEnData1B:
+L81C0:  JSR SetBit5OfEnData05
 L81C3:  STA EnData1B,X
 L81C6:  RTS
 
@@ -361,7 +364,7 @@ L822A:  RTS
 
 ;-------------------------------------------------------------------------------
 ; Loads a pointer from this table to $81 and $82
-LoadTableAt96DB:
+LoadEnemyMovementPtr:
 L822B:  LDA EnData05,X
 L822E:  BPL L8232
 
@@ -374,9 +377,9 @@ L8236:  ROL
 L8237:  ASL 
 L8238:  TAY 
 
-L8239:  LDA L96DB,Y
+L8239:  LDA EnemyMovementPtrs,Y
 L823C:  STA $81
-L823E:  LDA L96DB+1,Y
+L823E:  LDA EnemyMovementPtrs+1,Y
 L8241:  STA $82
 L8243:  RTS
 
@@ -393,8 +396,9 @@ L824F:  AND #$20
 L8251:  EOR #$20
 L8253:  BEQ L82A2
 
-L8255:  JSR LoadTableAt96DB ; Puts a pointer at $81
+L8255:  JSR LoadEnemyMovementPtr ; Puts a pointer at $81
 L8258:  LDY EnCounter,X
+VertMoveProc_ReadByte:
 L825B:  LDA ($81),Y
 
 ;CommonCase
@@ -434,28 +438,37 @@ VertMoveProc_JumpToCaseFA: ; L827C
 
 ;---------------------------------------
 VertMoveProc_CommonCase:
+; Take the value from memory
+; Branch ahead if velocityString[EnCounter] - EnDelay != 0
 L827F:  SEC 
 L8280:  SBC EnDelay,X
 L8283:  BNE L8290
 
 L8285:  STA EnDelay,X
+; EnCounter += 2
 L8288:  INY 
 L8289:  INY 
 L828A:  TYA 
 L828B:  STA EnCounter,X
-L828E:  BNE L825B
+L828E:  BNE VertMoveProc_ReadByte ; Handle another byte
 
+; Increment EnDelay
 L8290:  INC EnDelay,X
+
+; Read the sign/magnitude of the speed from the next byte
 L8293:  INY 
 L8294:  LDA ($81),Y
+; Save the sign bit to the carry flag
 L8296:  ASL 
 L8297:  PHP 
+; Get the magnitude
 L8298:  JSR Adiv32                      ;($C2BE)Divide by 32.
+; Negate the magnitude if necessary
 L829B:  PLP 
 L829C:  BCC L82A2
 L829E:  EOR #$FF
-L82A0:  ADC #$00
-
+L82A0:  ADC #$00 ; Since carry is set in this branch, this increments A
+; Store this frame's delta-y in temp
 L82A2:  STA $00
 L82A4:  RTS
 
@@ -465,8 +478,9 @@ L82A5:  INC EnCounter,X
 L82A8:  INY 
 L82A9:  LDA #$00
 L82AB:  STA EnData1D,X
-L82AE:  BEQ L825B
+L82AE:  BEQ VertMoveProc_ReadByte ; Branch always
 
+;---------------------------------------
 ; Double RTS !?
 VertMoveProc_CaseFB:
 L82B0:  PLA 
@@ -481,6 +495,7 @@ L82B8:  JSR EnemyCheckMoveUp
 L82BB:  JMP L82C3
 L82BE:  BEQ L82D2
 L82C0:  JSR EnemyCheckMoveDown
+
 L82C3:  LDX PageIndex
 L82C5:  BCS L82D2
 L82C7:  LDY EnCounter,X
@@ -494,7 +509,7 @@ L82D5:  DEY
 L82D6:  DEY 
 L82D7:  TYA 
 L82D8:  STA EnCounter,X
-L82DB:  JMP L825B
+L82DB:  JMP VertMoveProc_ReadByte
 
 ;---------------------------------------
 VertMoveProc_CaseFE:
@@ -523,7 +538,7 @@ L830D:  AND #$1F
 L830F:  STA EnData05,X
 
 VertMoveProc_CaseFA:
-L8312:  JSR L81B1
+L8312:  JSR SetBit5OfEnData05_AndClearEnData1A
 L8315:  JMP L82A2
 
 ;-------------------------------------------------------------------------------
@@ -533,19 +548,25 @@ L8318:  JSR LoadTableAt977B
 L831B:  BPL L8320
 L831D:  JMP L8395
 
+; If bit 5 of EnData05 is clear, don't move horizontally
 L8320:  LDA EnData05,X
 L8323:  AND #$20
 L8325:  EOR #$20
 L8327:  BEQ L833C
+
+; Read the same velocity byte as in VertMoveProc
 L8329:  LDY EnCounter,X
 L832C:  INY 
 L832D:  LDA ($81),Y ; $81/$82 were loaded during VertMoveProc earlier
 L832F:  TAX 
+; Save the sign bit to the processor flags
 L8330:  AND #$08
 L8332:  PHP 
 L8333:  TXA 
+; Get the lower three bits
 L8334:  AND #$07
 L8336:  PLP 
+; Negate, according to the sign bit
 L8337:  BEQ L833C
 L8339:  JSR TwosCompliment
 

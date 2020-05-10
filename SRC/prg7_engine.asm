@@ -8660,10 +8660,10 @@ LF40D:
 ;-------------------------------------------
 ; This procedure is called by a lot of enemy AI routines, with three different
 ;  entry points
-; Entry Point 1
+; Entry Point 1 ; CommonJump_00
 LF410:  jsr UpdateEnemyAnim
         jsr $8058
-; Entry Point 2
+; Entry Point 2 ; CommonJump_02
 LF416:  ldx PageIndex
         lda EnSpecialAttribs,x
         bpl Lx301
@@ -8680,7 +8680,7 @@ LF42D:  ldx PageIndex
         sta EnData04,x
         sta EnData0E,x
         rts
-; Entry Point 3
+; Entry Point 3 ; CommonJump_01
 LF438:  jsr UpdateEnemyAnim
 LF43B:  jmp LF416
 ;-------------------------------------------
@@ -9074,7 +9074,7 @@ Lx336
         jsr LF744
         lsr
         ror
-        eor $0403,x
+        eor EnData03,x
         bpl Lx337
         jsr $81DA
 Lx337
@@ -9109,6 +9109,7 @@ Lx340
         bpl Lx341
         jmp $820F
 
+;-------------------------------------------------------------------------------
 LF744:  ora EnData05,x
         sta EnData05,x
 Lx341
@@ -9314,7 +9315,7 @@ Lx355
         and EnData05,x
         tax
         lda Table15,x
-        sta $0403,y
+        sta EnData03,y
         lda #$00
         sta EnData02,y
         ldx PageIndex
@@ -9446,23 +9447,27 @@ LF991:  jsr LFA5B
 Lx362
  +      ldy EnData08,x
         lda ($0A),y
-        cmp #$FF
+        cmp #$FF ; If FF, restart string
         bne Lx363
         sta EnData08,x
         jmp LF987
+        
 Lx363
- +      cmp EnDelay,x
+ +      cmp EnDelay,x ; Move onto the next instruction if EnDelay == array value
         beq Lx361
+        
         inc EnDelay,x
         iny
         lda ($0A),y
-        jsr $8296
+        jsr $8296 ; Get the y velocity from this byte
         ldx PageIndex
         sta EnData02,x
+        
         lda ($0A),y
-        jsr $832F
+        jsr $832F ; Get the x velocity from this byte
         ldx PageIndex
-        sta $0403,x
+        sta EnData03,x
+        
         tay
         lda EnData0A,x
         lsr
@@ -9470,7 +9475,7 @@ Lx363
         bcc Lx364
         tya
         jsr TwosCompliment              ;($C3D4)
-        sta $0403,x
+        sta EnData03,x
 Lx364
  +      plp
         bne Lx365
@@ -9521,7 +9526,7 @@ Lx368
         bcc Lx370
         ldx PageIndex
 Lx369
- +      lda $0403,x
+ +      lda EnData03,x
         sta $05
         lda EnData02,x
         sta $04

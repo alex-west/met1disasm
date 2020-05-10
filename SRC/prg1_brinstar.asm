@@ -188,7 +188,8 @@ L96BB:  .byte $08, $08, $01, $01, $01, $01, $10, $08, $10, $00, $00, $01, $01, $
 L96CB:  .byte $00, $03, $06, $08, $0A, $10, $0C, $0E, $14, $17, $19, $10, $12, $00, $00, $00
 
 ; EnData08*2 + one of the low bits of EnData05 is used as an index to this pointer table
-; Pointer table to enemy vertical movement strings?
+; Pointer table to enemy movement strings
+EnemyMovementPtrs:
 L96DB:  .word L97EF, L97F2, L97F5, L97F5, L97F5, L97F5, L97F5, L97F5
 L96EB:  .word L97F5, L97F5, L97F5, L9840, L988B, L988E, L9891, L98A5
 L96FB:  .word L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9
@@ -214,7 +215,8 @@ L977B:  .byte $64, $6C, $21, $01, $04, $00, $4C, $40, $04, $00, $00, $40, $40, $
 L978B:  .byte $00, $00, $64, $67, $69, $69, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L979B:  .byte $0C, $F4, $00, $00, $00, $00, $00, $00, $F4, $00, $00, $00
 
-; some pointer table related to enemy delays?
+; Another movement pointer table?
+; Referenced using EnData0A
 L97A7:  .word L9965, L9974, L9983, L9992, L9D36, L9D3B, L9D40, L9D45
 L97B7:  .word L9D4A, L9D4F, L9D54, L9D59, L9D5D, L9D63, L9D6A, L9D6A
 L97C7:  .word L9D6A, L9D6A, L9D6A, L9D6A, L9D6A
@@ -229,8 +231,21 @@ L97E1:  .byte $00, $00, $00, $0B, $01, $0C, $0D, $00, $0E, $03, $0F, $10, $11, $
 ;-------------------------------------------------------------------------------
 
 ;-------------------------------------------------------------------------------
-; Instruction (?) strings of some type pointed to by the table L96DB
-; These are decoded/read starting at about L8244 in areas_common.asm
+; Enemy movement strings (pointed to by the table L96DB)
+;  These are decoded/read starting at about L8244 in areas_common.asm
+;  An enemy may use these if bit 6 of their value on the table at L977B is set
+;  EnCounter determined the offset within the string to be read
+;
+; Format
+; values <0xF0 specify a duration in frames, followed by a bitpacked velocity vector
+; 0xFA-0xFE are control codes I haven't deciphered yet
+; 0xFF is "restart"
+;
+; Velocity is packed as such: YyyyXxxx
+; Y - Vertical direction
+; yyy - Y Speed (magnitude)
+; X - Horizontal direction
+; xxx - X Speed (magnitude)
 L97EF:  .byte $20, $22, $FE
 
 L97F2:  .byte $20, $2A, $FE
