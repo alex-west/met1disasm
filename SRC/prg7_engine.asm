@@ -6552,23 +6552,27 @@ LE76F:
 
 ;-----------------------------------------------------------------------------------------------------
 
+EnemyCheckMoveUp:
 LE770:  ldx PageIndex
         lda EnRadY,x
         clc
         adc #$08
         jmp LE783
 
+EnemyCheckMoveDown:
 LE77B:  ldx PageIndex
         lda #$00
         sec
         sbc EnRadY,x
+
 LE783:  sta $02
         lda #$08
         sta $04
-        jsr LE792
+        jsr StoreEnemyPositionToTemp
         lda EnRadX,x
         jmp LE7BD
 
+StoreEnemyPositionToTemp:
 LE792:  lda EnXRoomPos,x
         sta $09     ; X coord
         lda EnYRoomPos,x
@@ -6577,14 +6581,14 @@ LE792:  lda EnXRoomPos,x
         sta $0B     ; hi coord
         rts
 
-CheckMoveUp:
+CheckMoveUp:; For Samus, et al
 LE7A2:  ldx PageIndex
         lda ObjRadY,x
         clc
         adc #$08
         jmp Lx197
 
-CheckMoveDown:
+CheckMoveDown: ; For Samus
         ldx PageIndex
         lda #$00
         sec
@@ -6593,6 +6597,7 @@ Lx197:
  +      sta $02
         jsr LE8BE
         lda ObjRadX,x
+
 LE7BD:  bne Lx198
         sec
         rts
@@ -6727,6 +6732,7 @@ Lx207
  +      sta $03
         jsr LE8BE
         ldy ObjRadY,x
+
 LE89B:  bne Lx208
         sec
         rts
@@ -6756,6 +6762,7 @@ LE8BE:  lda ObjectHi,x
         sta $09
         rts
 
+;--------------------------------------------------------
 LE8CE:  eor #$FF
         clc
         adc #$01
@@ -6782,22 +6789,28 @@ Lx211
         clc
         adc $04
         rts
-
+;-----------------------------------------------------------
+        
+EnemyCheckMoveLeft:
 LE8F1:  ldx PageIndex
         lda EnRadX,x
         clc
         adc #$08
         jmp LE904
 
+EnemyCheckMoveRight:
 LE8FC:  ldx PageIndex
         lda #$00
         sec
         sbc EnRadX,x
+        
 LE904:  sta $03
-        jsr LE792
+        jsr StoreEnemyPositionToTemp
         ldy EnRadY,x
         jmp LE89B
 
+;----------------------------------------------
+; $02 stores some sort of adjusted temp hitbox radius ?
 LE90F:  lda $02
         bpl Lx213
         jsr LE95F
@@ -6847,6 +6860,7 @@ Lx215
 Lx216
  +      rts
 
+;---------------------------------------------
 LE95F:  lda $08
         sec
         sbc $02
@@ -8564,6 +8578,7 @@ DoOneEnemy: ;LF351
 LF37F:  lda EnData05,x
         and #$02
         bne Lx298
+        ; Store Enemy Position/Hitbox to Temp
         lda EnYRoomPos,x     ; Y coord
         sta $0A
         lda EnXRoomPos,x     ; X coord
@@ -8643,9 +8658,12 @@ DoActiveEnemy_BranchB: ; LF40A
 LF40D:
     jmp ChooseEnemyRoutine
 ;-------------------------------------------
+; This procedure is called by a lot of enemy AI routines, with three different
+;  entry points
+; Entry Point 1
 LF410:  jsr UpdateEnemyAnim
         jsr $8058
-
+; Entry Point 2
 LF416:  ldx PageIndex
         lda EnSpecialAttribs,x
         bpl Lx301
@@ -8662,7 +8680,7 @@ LF42D:  ldx PageIndex
         sta EnData04,x
         sta EnData0E,x
         rts
-
+; Entry Point 3
 LF438:  jsr UpdateEnemyAnim
 LF43B:  jmp LF416
 ;-------------------------------------------
@@ -9087,7 +9105,7 @@ Lx340
         lsr
         lsr
         ror
-        eor $0402,x
+        eor EnData02,x
         bpl Lx341
         jmp $820F
 
@@ -9298,7 +9316,7 @@ Lx355
         lda Table15,x
         sta $0403,y
         lda #$00
-        sta $0402,y
+        sta EnData02,y
         ldx PageIndex
         jsr LF8F8
         lda EnData05,x
@@ -9353,11 +9371,11 @@ Lx358
  +      rts
 
 LF91D:  ldx PageIndex
-        jsr LE792
+        jsr StoreEnemyPositionToTemp
         tya
         tax
         jsr LFD8F
-        jmp LFA49
+        jmp LoadEnemyPositionFromTemp
 
 ; Table used by above subroutine
 
@@ -9440,7 +9458,7 @@ Lx363
         lda ($0A),y
         jsr $8296
         ldx PageIndex
-        sta $0402,x
+        sta EnData02,x
         lda ($0A),y
         jsr $832F
         ldx PageIndex
@@ -9456,7 +9474,7 @@ Lx363
 Lx364
  +      plp
         bne Lx365
-        lda $0402,x
+        lda EnData02,x
         beq Lx365
         bmi Lx365
         ldy EnData0A,x
@@ -9505,11 +9523,13 @@ Lx368
 Lx369
  +      lda $0403,x
         sta $05
-        lda $0402,x
+        lda EnData02,x
         sta $04
-LFA41:  jsr LE792
+LFA41:  jsr StoreEnemyPositionToTemp
         jsr LFD8F
         bcc KillObject                  ;($FA18)Free enemy data slot.
+
+LoadEnemyPositionFromTemp:
 LFA49:  lda $08
         sta EnYRoomPos,x
         lda $09

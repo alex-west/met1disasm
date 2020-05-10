@@ -18,6 +18,14 @@
 
 ;Common area code (shared between banks)
 
+;--------------------------------------[ Forward declarations ]--------------------------------------
+
+;TODO: Gather the forward declarations of all the banks to here:
+EnemyCheckMoveUp     = $E770
+EnemyCheckMoveDown   = $E77B
+EnemyCheckMoveLeft   = $E8F1
+EnemyCheckMoveRight  = $E8FC
+
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
 ; These first three all jump to different points within the same procedure
@@ -75,198 +83,243 @@ L8045:  JMP Base10Subtract              ;($C3FB)
 L8048:  .word L84FE-1, L84A7-1, L844B-1, L844B-1, L84A7-1, L84FE-1, L83F5-1, L83F5-1
 
 ;-------------------------------------------------------------------------------
+; A common enemy AI/movement routine
+; called by F410 in the engine, via CommonJump_00
+CommonEnemyAI:
+; Set x to point to enemy
 L8058:  LDX PageIndex
+; Exit if bit 6 of EnData05 is set
 L805A:  LDA EnData05,X
 L805D:  ASL 
-L805E:  BMI L80AF
+L805E:  BMI CommonEnemyAI_Exit
+; Exit if enemy is not active
 L8060:  LDA EnStatus,X
 L8063:  CMP #$02
-L8065:  BNE L80AF
-L8067:  JSR L8244
+L8065:  BNE CommonEnemyAI_Exit
+
+L8067:  JSR VertMoveProc
 L806A:  LDA $00
-L806C:  BPL L807D
+L806C:  BPL CommonEnemyAI_BranchA
 L806E:  JSR TwosCompliment              ;($C3D4)
 L8071:  STA $66
-L8073:
-      + JSR L83F5
+
+; Up Movement
+CommonEnemyAI_LoopA:
+L8073:  JSR L83F5
 L8076:  JSR L80B8
 L8079:  DEC $66
-L807B:  BNE L8073
-L807D:
-      + BEQ L808B
+L807B:  BNE CommonEnemyAI_LoopA
+
+CommonEnemyAI_BranchA:
+L807D:  BEQ CommonEnemyAI_BranchB
 L807F:  STA $66
-L8081:
-      + JSR L844B
+
+; Down Movement
+CommonEnemyAI_LoopB
+L8081:  JSR L844B
 L8084:  JSR L80FB
 L8087:  DEC $66
-L8089:  BNE L8081
-L808B:
-      + JSR L8318
+L8089:  BNE CommonEnemyAI_LoopB
+
+CommonEnemyAI_BranchB:
+L808B:  JSR HoriMoveProc
 L808E:  LDA $00
-L8090:  BPL L80A1
+L8090:  BPL CommonEnemyAI_BranchC
 L8092:  JSR TwosCompliment              ;($C3D4)
 L8095:  STA $66
-L8097:
-      + JSR L84A7
+
+; Left Movement
+CommonEnemyAI_LoopC:
+L8097:  JSR L84A7
 L809A:  JSR L816E
 L809D:  DEC $66
-L809F:  BNE L8097
-L80A1:
-      + BEQ L80AF
+L809F:  BNE CommonEnemyAI_LoopC
+
+CommonEnemyAI_BranchC:
+L80A1:  BEQ CommonEnemyAI_Exit
 L80A3:  STA $66
-L80A5:
-      + JSR L84FE
+
+; Right Movement
+CommonEnemyAI_LoopD:
+L80A5:  JSR L84FE
 L80A8:  JSR L8134
 L80AB:  DEC $66
-L80AD:  BNE L80A5
-L80AF:
-      + RTS
+L80AD:  BNE CommonEnemyAI_LoopD
+
+CommonEnemyAI_Exit:
+L80AF:  RTS
 
 ;-------------------------------------------------------------------------------
 ; A = TableAtL977B[EnemyType]*2
-L80B0:  LDY EnDataIndex,X
-L80B3:  LDA L977B,Y
-L80B6:  ASL                             ;*2 
-L80B7:  RTS
+LoadTableAt977B: ; L80B0
+    LDY EnDataIndex,X
+    LDA L977B,Y
+    ASL                             ;*2 
+    RTS
 
 ;-------------------------------------------------------------------------------
-
+; Up movement related ?
 L80B8:  LDX PageIndex
-L80BA:  BCS $80FA
+L80BA:  BCS L80FA
 L80BC:  LDA EnData05,X
-L80BF:  BPL $80C7
-L80C1:  JSR $81FC
-L80C4:  JMP $80F6
-L80C7:  JSR $80B0
-L80CA:  BPL $80EA
+L80BF:  BPL L80C7
+
+L80C1:  JSR L81FC
+L80C4:  JMP L80F6
+
+L80C7:  JSR LoadTableAt977B
+L80CA:  BPL L80EA
 L80CC:  LDA EnData1F,X
-L80CF:  BEQ $80C1
-L80D1:  BPL $80D8
-L80D3:  JSR $81B1
-L80D6:  BEQ $80E2
+L80CF:  BEQ L80C1
+
+L80D1:  BPL L80D8
+L80D3:  JSR L81B1
+L80D6:  BEQ L80E2
+
 L80D8:  SEC 
 L80D9:  ROR EnData02,X
 L80DC:  ROR EnCounter,X
-L80DF:  JMP $80F6
+L80DF:  JMP L80F6
+
 L80E2:  STA EnData02,X
 L80E5:  STA EnCounter,X
-L80E8:  BEQ $80F6
-L80EA:  LDA $977B,Y
+L80E8:  BEQ L80F6
+
+L80EA:  LDA L977B,Y
 L80ED:  LSR 
 L80EE:  LSR 
-L80EF:  BCC $80F6
+L80EF:  BCC L80F6
 L80F1:  LDA #$04
-L80F3:  JSR $856B
+L80F3:  JSR XorEnData05
+
 L80F6:  LDA #$01
 L80F8:  STA $66
+
 L80FA:  RTS
- 
+;-------------------------------------------------------------------------------
+; Down movement related?
 L80FB:  LDX PageIndex
-L80FD:  BCS $8133
+L80FD:  BCS L8133
 L80FF:  LDA EnData05,X
-L8102:  BPL $810A
-L8104:  JSR $81FC
-L8107:  JMP $812F
-L810A:  JSR $80B0
-L810D:  BPL $8123
+L8102:  BPL L810A
+L8104:  JSR L81FC
+L8107:  JMP L812F
+L810A:  JSR LoadTableAt977B
+L810D:  BPL L8123
 L810F:  LDA EnData1F,X
-L8112:  BEQ $8104
-L8114:  BPL $8120
+L8112:  BEQ L8104
+L8114:  BPL L8120
 L8116:  CLC 
 L8117:  ROR EnData02,X
 L811A:  ROR EnCounter,X
-L811D:  JMP $812F
-L8120:  JSR $81B1
-L8123:  LDA $977B,Y
+L811D:  JMP L812F
+
+L8120:  JSR L81B1
+L8123:  LDA L977B,Y
 L8126:  LSR 
 L8127:  LSR 
-L8128:  BCC $812F
+L8128:  BCC L812F
 L812A:  LDA #$04
-L812C:  JSR $856B
+L812C:  JSR XorEnData05
+
 L812F:  LDA #$01
 L8131:  STA $66
 L8133:  RTS
- 
+
+;-------------------------------------------------------------------------------
+; Right movement related ?
 L8134:  LDX PageIndex
-L8136:  BCS $816D
-L8138:  JSR $80B0
-L813B:  BPL $815E
+L8136:  BCS L816D
+
+L8138:  JSR LoadTableAt977B
+L813B:  BPL L815E
 L813D:  LDA EnData05,X
-L8140:  BMI $8148
-L8142:  JSR $81C7
-L8145:  JMP $8169
+L8140:  BMI L8148
+L8142:  JSR L81C7
+L8145:  JMP L8169
 L8148:  LDA EnData1F,X
-L814B:  BEQ $8142
-L814D:  BPL $8159
+L814B:  BEQ L8142
+L814D:  BPL L8159
 L814F:  CLC 
 L8150:  ROR EnData03,X
 L8153:  ROR EnData07,X
-L8156:  JMP $8169
-L8159:  JSR $81C0
-L815C:  BEQ $8169
+L8156:  JMP L8169
+
+L8159:  JSR L81C0
+L815C:  BEQ L8169
 L815E:  LDA $977B,Y
 L8161:  LSR 
 L8162:  BCC $8169
 L8164:  LDA #$01
-L8166:  JSR $856B
+L8166:  JSR XorEnData05
+
 L8169:  LDA #$01
 L816B:  STA $66
+
 L816D:  RTS
 
+;-------------------------------------------------------------------------------
+; Left Movement related?
 L816E:  LDX PageIndex
-L8170:  BCS $81B0
-L8172:  JSR $80B0
-L8175:  BPL $81A0
+L8170:  BCS L81B0
+L8172:  JSR LoadTableAt977B
+L8175:  BPL L81A0
 L8177:  LDA EnData05,X
-L817A:  BMI $8182
-L817C:  JSR $81C7
-L817F:  JMP $81AC
+L817A:  BMI L8182
+L817C:  JSR L81C7
+L817F:  JMP L81AC
 L8182:  LDA EnData1F,X
-L8185:  BEQ $817C
-L8187:  BPL $818E
-L8189:  JSR $81C0
-L818C:  BEQ $8198
+L8185:  BEQ L817C
+L8187:  BPL L818E
+L8189:  JSR L81C0
+L818C:  BEQ L8198
 L818E:  SEC 
 L818F:  ROR EnData03,X
 L8192:  ROR EnData07,X
-L8195:  JMP $81AC
+L8195:  JMP L81AC
+
 L8198:  STA EnData03,X
 L819B:  STA EnData07,X
-L819E:  BEQ $81AC
-L81A0:  JSR $80B0
+L819E:  BEQ L81AC
+L81A0:  JSR LoadTableAt977B
 L81A3:  LSR 
 L81A4:  LSR 
-L81A5:  BCC $81AC
+L81A5:  BCC L81AC
 L81A7:  LDA #$01
-L81A9:  JSR $856B
+L81A9:  JSR XorEnData05
+
 L81AC:  LDA #$01
 L81AE:  STA $66
 L81B0:  RTS
- 
-L81B1:  JSR $81B8
+
+;-------------------------------------------------------------------------------
+L81B1:  JSR L81B8
 L81B4:  STA EnData1A,X
 L81B7:  RTS
 
+;-------------------------------------------------------------------------------
 L81B8:  LDA #$20
-L81BA:  JSR $F744
+L81BA:  JSR $F744 ; EnData05 = EnData05 | A
 L81BD:  LDA #$00
 L81BF:  RTS
 
-L81C0:  JSR $81B8
+;-------------------------------------------------------------------------------
+L81C0:  JSR L81B8
 L81C3:  STA EnData1B,X
 L81C6:  RTS
 
-L81C7:  JSR $81F6
-L81CA:  BNE $81F5
+;-------------------------------------------------------------------------------
+L81C7:  JSR LoadBit5ofTableAt968B
+L81CA:  BNE L81F5
 L81CC:  LDA #$01
-L81CE:  JSR $856B
+L81CE:  JSR XorEnData05
 L81D1:  LDA EnData1B,X
-L81D4:  JSR $C3D4
+L81D4:  JSR TwosCompliment
 L81D7:  STA EnData1B,X
 
-L81DA:  JSR $81F6
-L81DD:  BNE $81F5
-L81DF:  JSR $80B0
+L81DA:  JSR LoadBit5ofTableAt968B
+L81DD:  BNE L81F5
+L81DF:  JSR LoadTableAt977B
 L81E2:  SEC 
 L81E3:  BPL $81ED
 L81E5:  LDA #$00
@@ -275,23 +328,27 @@ L81EA:  STA EnData07,X
 L81ED:  LDA #$00
 L81EF:  SBC EnData03,X
 L81F2:  STA EnData03,X
+
 L81F5:  RTS
 
-L81F6:  JSR $F74B
+;-------------------------------------------------------------------------------
+LoadBit5ofTableAt968B:
+L81F6:  JSR $F74B ;ReadTableAt968B
 L81F9:  AND #$20
 L81FB:  RTS
 
-L81FC:  JSR $81F6
-L81FF:  BNE $81F5
+;-------------------------------------------------------------------------------
+L81FC:  JSR LoadBit5ofTableAt968B
+L81FF:  BNE L81F5
 L8201:  LDA #$04
-L8203:  JSR $856B
+L8203:  JSR XorEnData05
 L8206:  LDA EnData1A,X
-L8209:  JSR $C3D4
+L8209:  JSR TwosCompliment
 L820C:  STA EnData1A,X
 
-L820F:  JSR $81F6
+L820F:  JSR LoadBit5ofTableAt968B
 L8212:  BNE $822A
-L8214:  JSR $80B0
+L8214:  JSR LoadTableAt977B
 L8217:  SEC 
 L8218:  BPL $8222
 L821A:  LDA #$00
@@ -302,59 +359,92 @@ L8224:  SBC EnData02,X
 L8227:  STA EnData02,X
 L822A:  RTS 
 
+;-------------------------------------------------------------------------------
+; Loads a pointer from this table to $81 and $82
+LoadTableAt96DB:
 L822B:  LDA EnData05,X
-L822E:  BPL $8232
+L822E:  BPL L8232
+
 L8230:  LSR 
 L8231:  LSR 
+
 L8232:  LSR 
-L8233:  LDA $0408,X
+L8233:  LDA EnData08,X
 L8236:  ROL 
 L8237:  ASL 
 L8238:  TAY 
-L8239:  LDA $96DB,Y
+
+L8239:  LDA L96DB,Y
 L823C:  STA $81
-L823E:  LDA $96DC,Y
+L823E:  LDA L96DB+1,Y
 L8241:  STA $82
 L8243:  RTS
 
 ;-------------------------------------------------------------------------------
-L8244:  JSR $80B0
-L8247:  BPL $824C
-L8249:  JMP $833F
+; Vertical Movement Related ?
+VertMoveProc:
+L8244:  JSR LoadTableAt977B
+L8247:  BPL L824C
+
+L8249:  JMP L833F
+
 L824C:  LDA EnData05,X
 L824F:  AND #$20
 L8251:  EOR #$20
-L8253:  BEQ $82A2
-L8255:  JSR $822B
+L8253:  BEQ L82A2
+
+L8255:  JSR LoadTableAt96DB ; Puts a pointer at $81
 L8258:  LDY EnCounter,X
 L825B:  LDA ($81),Y
+
+;CommonCase
+; Branch if the value is <$F0
 L825D:  CMP #$F0
-L825F:  BCC $827F
+L825F:  BCC VertMoveProc_CommonCase
+
+;CaseFA
 L8261:  CMP #$FA
-L8263:  BEQ $827C
+L8263:  BEQ VertMoveProc_JumpToCaseFA
+
+;CaseFB
 L8265:  CMP #$FB
-L8267:  BEQ $82B0
+L8267:  BEQ VertMoveProc_CaseFB
+
+;CaseFC
 L8269:  CMP #$FC
-L826B:  BEQ $82B3
+L826B:  BEQ VertMoveProc_CaseFC
+
+;CaseFD
 L826D:  CMP #$FD
-L826F:  BEQ $82A5
+L826F:  BEQ VertMoveProc_CaseFD
+
+;CaseFE
 L8271:  CMP #$FE
-L8273:  BEQ $82DE
+L8273:  BEQ VertMoveProc_CaseFE
+
+;Default case
+; Reset enemy counter
 L8275:  LDA #$00
 L8277:  STA EnCounter,X
-L827A:  BEQ $8258
+L827A:  BEQ L8258
 
-L827C:  JMP $8312
+;---------------------------------------
+VertMoveProc_JumpToCaseFA: ; L827C
+    JMP VertMoveProc_CaseFA
 
+;---------------------------------------
+VertMoveProc_CommonCase:
 L827F:  SEC 
 L8280:  SBC EnDelay,X
-L8283:  BNE $8290
+L8283:  BNE L8290
+
 L8285:  STA EnDelay,X
 L8288:  INY 
 L8289:  INY 
 L828A:  TYA 
 L828B:  STA EnCounter,X
-L828E:  BNE $825B
+L828E:  BNE L825B
+
 L8290:  INC EnDelay,X
 L8293:  INY 
 L8294:  LDA ($81),Y
@@ -362,87 +452,109 @@ L8296:  ASL
 L8297:  PHP 
 L8298:  JSR Adiv32                      ;($C2BE)Divide by 32.
 L829B:  PLP 
-L829C:  BCC $82A2
+L829C:  BCC L82A2
 L829E:  EOR #$FF
 L82A0:  ADC #$00
+
 L82A2:  STA $00
 L82A4:  RTS
 
+;---------------------------------------
+VertMoveProc_CaseFD:
 L82A5:  INC EnCounter,X
 L82A8:  INY 
 L82A9:  LDA #$00
 L82AB:  STA EnData1D,X
-L82AE:  BEQ $825B
+L82AE:  BEQ L825B
+
+; Double RTS !?
+VertMoveProc_CaseFB:
 L82B0:  PLA 
 L82B1:  PLA 
 L82B2:  RTS
 
+;---------------------------------------
+VertMoveProc_CaseFC:
 L82B3:  LDA EnData1F,X
-L82B6:  BPL $82BE
-L82B8:  JSR $E770
-L82BB:  JMP $82C3
-L82BE:  BEQ $82D2
-L82C0:  JSR $E77B
+L82B6:  BPL L82BE
+L82B8:  JSR EnemyCheckMoveUp
+L82BB:  JMP L82C3
+L82BE:  BEQ L82D2
+L82C0:  JSR EnemyCheckMoveDown
 L82C3:  LDX PageIndex
-L82C5:  BCS $82D2
+L82C5:  BCS L82D2
 L82C7:  LDY EnCounter,X
 L82CA:  INY 
 L82CB:  LDA #$00
 L82CD:  STA EnData1F,X
-L82D0:  BEQ $82D7
+L82D0:  BEQ L82D7
 
 L82D2:  LDY EnCounter,X
 L82D5:  DEY 
 L82D6:  DEY 
 L82D7:  TYA 
 L82D8:  STA EnCounter,X
-L82DB:  JMP $825B
+L82DB:  JMP L825B
 
+;---------------------------------------
+VertMoveProc_CaseFE:
 L82DE:  DEY 
 L82DF:  DEY 
 L82E0:  TYA 
 L82E1:  STA EnCounter,X
 L82E4:  LDA EnData1F,X
-L82E7:  BPL $82EF
-L82E9:  JSR $E770
-L82EC:  JMP $82F4
-L82EF:  BEQ $82FB
-L82F1:  JSR $E77B
+L82E7:  BPL L82EF
+L82E9:  JSR EnemyCheckMoveUp
+L82EC:  JMP L82F4
+L82EF:  BEQ L82FB
+L82F1:  JSR EnemyCheckMoveDown
 L82F4:  LDX PageIndex
-L82F6:  BCC $82FB
-L82F8:  JMP $8258
+L82F6:  BCC L82FB
+L82F8:  JMP L8258
+
 L82FB:  LDY EnDataIndex,X
-L82FE:  LDA $968B,Y
+L82FE:  LDA L968B,Y
 L8301:  AND #$20
-L8303:  BEQ $8312
+L8303:  BEQ L8312
 L8305:  LDA EnData05,X
 L8308:  EOR #$05
-L830A:  ORA $968B,Y
+L830A:  ORA L968B,Y
 L830D:  AND #$1F
 L830F:  STA EnData05,X
-L8312:  JSR $81B1
-L8315:  JMP $82A2
-L8318:  JSR $80B0
-L831B:  BPL $8320
-L831D:  JMP $8395
+
+VertMoveProc_CaseFA:
+L8312:  JSR L81B1
+L8315:  JMP L82A2
+
+;-------------------------------------------------------------------------------
+; Horizontal Movement Related?
+HoriMoveProc:
+L8318:  JSR LoadTableAt977B
+L831B:  BPL L8320
+L831D:  JMP L8395
+
 L8320:  LDA EnData05,X
 L8323:  AND #$20
 L8325:  EOR #$20
-L8327:  BEQ $833C
+L8327:  BEQ L833C
 L8329:  LDY EnCounter,X
 L832C:  INY 
-L832D:  LDA ($81),Y
+L832D:  LDA ($81),Y ; $81/$82 were loaded during VertMoveProc earlier
 L832F:  TAX 
 L8330:  AND #$08
 L8332:  PHP 
 L8333:  TXA 
 L8334:  AND #$07
 L8336:  PLP 
-L8337:  BEQ $833C
-L8339:  JSR $C3D4
+L8337:  BEQ L833C
+L8339:  JSR TwosCompliment
+
 L833C:  STA $00
 L833E:  RTS
 
+;-------------------------------------------------------------------------------
+; Nonsense with counters and velocity to substitute for a lack of subpixels?
+; Vertical case?
 L833F:  LDY #$0E
 L8341:  LDA EnData1A,X
 L8344:  BMI L835E
@@ -453,10 +565,12 @@ L834D:  LDA EnData02,X
 L8350:  ADC #$00
 L8352:  STA EnData02,X
 L8355:  BPL L8376
-L8357:  JSR $C3D4
+
+L8357:  JSR TwosCompliment
 L835A:  LDY #$F2
 L835C:  BNE L8376
-L835E:  JSR $C3D4
+
+L835E:  JSR TwosCompliment
 L8361:  SEC 
 L8362:  STA $00
 L8364:  LDA EnCounter,X
@@ -466,12 +580,14 @@ L836C:  LDA EnData02,X
 L836F:  SBC #$00
 L8371:  STA EnData02,X
 L8374:  BMI L8357
+
 L8376:  CMP #$0E
 L8378:  BCC L8383
 L837A:  LDA #$00
 L837C:  STA EnCounter,X
 L837F:  TYA 
 L8380:  STA EnData02,X
+
 L8383:  LDA EnData18,X
 L8386:  CLC 
 L8387:  ADC EnCounter,X
@@ -481,6 +597,9 @@ L838F:  ADC EnData02,X
 L8392:  STA $00
 L8394:  RTS
 
+;-------------------------------------------------------------------------------
+; Nonsense with counters and velocity to substitute for a lack of subpixels?
+; Horizontal case?
 L8395:  LDA #$00
 L8397:  STA $00
 L8399:  STA $02
@@ -494,12 +613,12 @@ L83A8:  STA EnData07,X
 L83AB:  STA $04
 L83AD:  LDA #$00
 L83AF:  LDY EnData1B,X
-L83B2:  BPL $83B6
+L83B2:  BPL L83B6
 L83B4:  LDA #$FF
 L83B6:  ADC EnData03,X
 L83B9:  STA EnData03,X
 L83BC:  TAY 
-L83BD:  BPL $83D0
+L83BD:  BPL L83D0
 L83BF:  LDA #$00
 L83C1:  SEC 
 L83C2:  SBC EnData07,X
@@ -512,7 +631,7 @@ L83D0:  LDA $04
 L83D2:  CMP $02
 L83D4:  TYA 
 L83D5:  SBC $03
-L83D7:  BCC $83E3
+L83D7:  BCC L83E3
 L83D9:  LDA $00
 L83DB:  STA EnData07,X
 L83DE:  LDA $01
@@ -527,6 +646,7 @@ L83F2:  STA $00
 L83F4:  RTS
 
 ;-------------------------------------------------------------------------------
+; Up movement related
 L83F5:  LDX PageIndex
 L83F7:  LDA EnYRoomPos,X
 L83FA:  SEC 
@@ -534,43 +654,57 @@ L83FB:  SBC EnRadY,X
 L83FE:  AND #$07
 L8400:  SEC 
 L8401:  BNE L8406
-L8403:  JSR $E770
+L8403:  JSR EnemyCheckMoveUp
+
 L8406:  LDY #$00
 L8408:  STY $00
 L840A:  LDX PageIndex
 L840C:  BCC L844A
 L840E:  INC $00
+
 L8410:  LDY EnYRoomPos,X
 L8413:  BNE L8429
+
 L8415:  LDY #$F0
 L8417:  LDA $49
 L8419:  CMP #$02
 L841B:  BCS L8429
+
 L841D:  LDA $FC
 L841F:  BEQ L844A
+
 L8421:  JSR GetOtherNameTableIndex
 L8424:  BEQ L844A
-L8426:  JSR L855A
+
+L8426:  JSR SwitchEnemyNameTable
+
 L8429:  DEY 
 L842A:  TYA 
 L842B:  STA EnYRoomPos,X
 L842E:  CMP EnRadY,X
-L8431:  BNE $8441
+L8431:  BNE L8441
+
 L8433:  LDA $FC
-L8435:  BEQ $843C
+L8435:  BEQ L843C
+
 L8437:  JSR GetOtherNameTableIndex
-L843A:  BNE $8441
+L843A:  BNE L8441
+
 L843C:  INC EnYRoomPos,X
 L843F:  CLC 
 L8440:  RTS
 
 L8441:  LDA EnData05,X
-L8444:  BMI $8449
+L8444:  BMI L8449
+
 L8446:  INC EnData1D,X
-L8449:  SEC 
+
+L8449:  SEC
+ 
 L844A:  RTS
 
 ;-------------------------------------------------------------------------------
+; Down movement related ?
 L844B:  LDX PageIndex
 L844D:  LDA EnYRoomPos,X
 L8450:  CLC 
@@ -578,7 +712,8 @@ L8451:  ADC EnRadY,X
 L8454:  AND #$07
 L8456:  SEC 
 L8457:  BNE L845C
-L8459:  JSR $E77B
+L8459:  JSR EnemyCheckMoveDown
+
 L845C:  LDY #$00
 L845E:  STY $00
 L8460:  LDX PageIndex
@@ -595,7 +730,7 @@ L8475:  LDA $FC
 L8477:  BEQ L84A6
 L8479:  JSR GetOtherNameTableIndex
 L847C:  BNE L84A6
-L847E:  JSR L855A
+L847E:  JSR SwitchEnemyNameTable
 L8481:  INY 
 L8482:  TYA 
 L8483:  STA EnYRoomPos,X
@@ -617,6 +752,7 @@ L84A5:  SEC
 L84A6:  RTS
 
 ;-------------------------------------------------------------------------------
+; Left movement related
 L84A7:  LDX PageIndex
 L84A9:  LDA EnXRoomPos,X
 L84AC:  SEC 
@@ -624,7 +760,7 @@ L84AD:  SBC EnRadX,X
 L84B0:  AND #$07
 L84B2:  SEC 
 L84B3:  BNE $84B8
-L84B5:  JSR $E8F1
+L84B5:  JSR EnemyCheckMoveLeft
 L84B8:  LDY #$00
 L84BA:  STY $00
 L84BC:  LDX PageIndex
@@ -640,7 +776,7 @@ L84CF:  BEQ $84D4
 L84D1:  JSR GetOtherNameTableIndex
 L84D4:  CLC 
 L84D5:  BEQ L84FD
-L84D7:  JSR $855A
+L84D7:  JSR SwitchEnemyNameTable
 L84DA:  DEC EnXRoomPos,X
 L84DD:  LDA EnXRoomPos,X
 L84E0:  CMP EnRadX,X
@@ -653,72 +789,85 @@ L84EE:  INC EnXRoomPos,X
 L84F1:  CLC 
 L84F2:  BCC L84FD
 L84F4:  LDA EnData05,X
-L84F7:  BPL $84FC
+L84F7:  BPL L84FC
 L84F9:  INC EnData1D,X
 L84FC:  SEC 
 L84FD:  RTS
 
 ;-------------------------------------------------------------------------------
+; Right movement related
 L84FE:  LDX PageIndex
+; if ((xpos + xrad) % 8) == 0, then EnemyCheckMoveRight()
 L8500:  LDA EnXRoomPos,X
 L8503:  CLC 
 L8504:  ADC EnRadX,X
 L8507:  AND #$07
 L8509:  SEC 
-L850A:  BNE $850F
-L850C:  JSR $E8FC
+L850A:  BNE L850F
+L850C:  JSR EnemyCheckMoveRight
+
 L850F:  LDY #$00
 L8511:  STY $00
 L8513:  LDX PageIndex
-L8515:  BCC $8559
+L8515:  BCC L8559
 L8517:  INC $00
 L8519:  INC EnXRoomPos,X
-L851C:  BNE $8536
+L851C:  BNE L8536
 L851E:  LDA $49
 L8520:  CMP #$02
-L8522:  BCC $8536
+L8522:  BCC L8536
 L8524:  LDA $FD
-L8526:  BEQ $852D
+L8526:  BEQ L852D
 L8528:  JSR GetOtherNameTableIndex
-L852B:  BEQ $8533
+
+L852B:  BEQ L8533
 L852D:  DEC EnXRoomPos,X
-L8530:  CLC 
-L8531:  BCC $8559
-L8533:  JSR $855A
+L8530:  CLC
+ 
+L8531:  BCC L8559
+L8533:  JSR SwitchEnemyNameTable
+
 L8536:  LDA EnXRoomPos,X
 L8539:  CLC 
 L853A:  ADC EnRadX,X
 L853D:  CMP #$FF
-L853F:  BNE $8550
+L853F:  BNE L8550
 L8541:  LDA $FD
-L8543:  BEQ $854A
+L8543:  BEQ L854A
 L8545:  JSR GetOtherNameTableIndex
-L8548:  BEQ $8550
+L8548:  BEQ L8550
 L854A:  DEC EnXRoomPos,X
 L854D:  CLC 
-L854E:  BCC $8559
+L854E:  BCC L8559
+
 L8550:  LDA EnData05,X
-L8553:  BPL $8558
+L8553:  BPL L8558
 L8555:  DEC EnData1D,X
 L8558:  SEC 
+
 L8559:  RTS
 
-L855A:  LDA EnNameTable,X
-L855D:  EOR #$01
-L855F:  STA EnNameTable,X
-L8562:  RTS
+;-------------------------------------------------------------------------------
+SwitchEnemyNameTable: ; L855A
+    LDA EnNameTable,X
+    EOR #$01
+    STA EnNameTable,X
+    RTS
 
 ;-------------------------------------------------------------------------------
 ; Returns the index to the other nametable in A
-GetOtherNameTableIndex:
+GetOtherNameTableIndex: ; L8562
     LDA EnNameTable,X
     EOR $FF
     AND #$01
     RTS
 
-L856B:  EOR EnData05,X
-L856E:  STA EnData05,X
-L8571:  RTS 
+;-------------------------------------------------------------------------------
+; XORs the contents of EnData05 with the bitmask in A
+XorEnData05: ; L856B
+    EOR EnData05,X
+    STA EnData05,X
+    RTS 
 
 ;---------------------------------[ Object animation data tables ]----------------------------------
 ;----------------------------[ Sprite drawing pointer tables ]--------------------------------------

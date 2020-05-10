@@ -188,6 +188,7 @@ L96BB:  .byte $08, $08, $01, $01, $01, $01, $10, $08, $10, $00, $00, $01, $01, $
 L96CB:  .byte $00, $03, $06, $08, $0A, $10, $0C, $0E, $14, $17, $19, $10, $12, $00, $00, $00
 
 ; EnData08*2 + one of the low bits of EnData05 is used as an index to this pointer table
+; Pointer table to enemy vertical movement strings?
 L96DB:  .word L97EF, L97F2, L97F5, L97F5, L97F5, L97F5, L97F5, L97F5
 L96EB:  .word L97F5, L97F5, L97F5, L9840, L988B, L988E, L9891, L98A5
 L96FB:  .word L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9, L98B9
@@ -206,7 +207,7 @@ L9753:  .byte $F6, $FC, $FE, $04, $02, $00, $00, $00, $0C, $FC, $FC, $00, $00, $
 ; EnData03 table
 L9767:  .byte $00, $02, $02, $02, $02, $00, $00, $00, $02, $00, $02, $02, $00, $00, $00, $00, $00, $00, $00, $00
 
-; Death Related Table?
+; Behavior-Related Table?
 L977B:  .byte $64, $6C, $21, $01, $04, $00, $4C, $40, $04, $00, $00, $40, $40, $00, $00, $00 
 
 ; Enemy animation related table?
@@ -301,9 +302,9 @@ L9992:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $
 
 L99A1:  LDA $81
 L99A3:  CMP #$01
-L99A5:  BEQ $99B0
+L99A5:  BEQ L99B0
 L99A7:  CMP #$03
-L99A9:  BEQ $99B5
+L99A9:  BEQ L99B5
 
 L99AB:  LDA $00
 L99AD:  JMP CommonJump_00
@@ -328,19 +329,19 @@ L99CA:  STA $00
 CommonEnemyStub:
 L99CC:  LDA #$08
 L99CE:  STA $01
-L99D0:  JMP $99A1
+L99D0:  JMP L99A1
 
 ; Ceiling Sidehopper Routine
 L99D3:  LDA #$0F
-L99D5:  JMP $99BA
+L99D5:  JMP L99BA
 
 ;-------------------------------------------------------------------------------
 ; RipperRoutine
 L99D8:  LDA EnStatus,X
 L99DB:  CMP #$03
-L99DD:  BEQ $99E2
+L99DD:  BEQ L99E2
 L99DF:  JSR L801E
-L99E2:  JMP $99C8
+L99E2:  JMP L99C8
 
 ;-------------------------------------------------------------------------------
 ; Waver Routine
@@ -350,9 +351,9 @@ L99E9:  LDA #$1E
 L99EB:  STA $86
 L99ED:  LDA EnStatus,X
 L99F0:  CMP #$03
-L99F2:  BEQ $99F7
+L99F2:  BEQ L99F7
 L99F4:  JSR CommonJump_09
-L99F7:  JMP $99C8
+L99F7:  JMP L99C8
 
 ;-------------------------------------------------------------------------------
 ; SkreeRoutine
@@ -372,7 +373,7 @@ L9A5B:  BEQ SkreeExitC
 L9A5D:  LDA EnStatus,X
 L9A60:  CMP #$03
 L9A62:  BEQ L9A87
-L9A64:  LDA $040A,X
+L9A64:  LDA EnData0A,X
 L9A67:  AND #$03
 L9A69:  CMP #$01
 L9A6B:  BNE L9A7E
@@ -381,7 +382,7 @@ L9A70:  CPY #$E4
 L9A72:  BNE L9A7E
 L9A74:  JSR L9ABD
 L9A77:  LDA #$03
-L9A79:  STA $040A,X
+L9A79:  STA EnData0A,X
 L9A7C:  BNE L9A84
 L9A7E:  JSR JumpByRTS
 L9A81:  JSR L9AA8
@@ -391,7 +392,7 @@ L9A89:  JSR L800C
 L9A8C:  JMP CommonJump_02
 L9A8F:  LDA EnData05,X
 L9A92:  LSR 
-L9A93:  LDA $040A,X
+L9A93:  LDA EnData0A,X
 L9A96:  AND #$03
 L9A98:  ROL 
 L9A99:  TAY 
@@ -404,11 +405,11 @@ L9AA8:  LDX PageIndex
 L9AAA:  BCS L9AC5
 L9AAC:  LDA $00
 L9AAE:  BNE L9ABD
-L9AB0:  LDY $040A,X
+L9AB0:  LDY EnData0A,X
 L9AB3:  DEY 
 L9AB4:  TYA 
 L9AB5:  AND #$03
-L9AB7:  STA $040A,X
+L9AB7:  STA EnData0A,X
 L9ABA:  JMP L9A8F
 
 L9ABD:  LDA EnData05,X
@@ -421,11 +422,11 @@ L9AC9:  JSR JumpByRTS
 L9ACC:  LDX PageIndex
 L9ACE:  BCC L9AD9
 L9AD0:  JSR L9ADA
-L9AD3:  STA $040A,X
+L9AD3:  STA EnData0A,X
 L9AD6:  JSR L9A8F
 L9AD9:  RTS
 
-L9ADA:  LDY $040A,X
+L9ADA:  LDY EnData0A,X
 L9ADD:  INY 
 L9ADE:  TYA 
 L9ADF:  AND #$03
@@ -438,9 +439,9 @@ L9AE7:  LSR $00
 L9AE9:  ROL 
 L9AEA:  ASL 
 L9AEB:  TAY 
-L9AEC:  LDA $8049,Y
+L9AEC:  LDA L8048+1,Y
 L9AEF:  PHA 
-L9AF0:  LDA $8048,Y
+L9AF0:  LDA L8048,Y
 L9AF3:  PHA 
 L9AF4:  RTS
 
@@ -456,7 +457,7 @@ L9AFD:  BEQ RioExitB
 
 L9AFF:  LDA #$80
 L9B01:  STA EnData1A,X
-L9B04:  LDA EnData02,X
+L9B04:  LDA EnData02,X ; y speed?
 L9B07:  BMI RioExitA
 
 L9B09:  LDA EnData05,X

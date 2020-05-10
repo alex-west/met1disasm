@@ -39,21 +39,21 @@ PipeBugBranchA:
     LDA EnStatus,X
     CMP #$02
     BNE PipeBugBranchC
-    JSR $8036
+    JSR CommonJump_12
     PHA 
-    JSR $8039
+    JSR CommonJump_13
     STA $05
     PLA 
     STA $04
     JSR StorePositionToTemp
-    JSR $8027 ; Check if onscreen?
+    JSR CommonJump_0D ; Check if onscreen?
     BCC PipeBugDelete
     JSR LoadPositionFromTemp
 
 ;Exit 1
 PipeBugBranchC:
     LDA #$03
-    JMP $8003 ; Common Enemy Handler
+    JMP CommonJump_01 ; Common Enemy Handler
 
 ;Exit 2
 PipeBugDelete: ; Set enemy status to 0
