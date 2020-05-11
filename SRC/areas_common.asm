@@ -105,8 +105,8 @@ L8071:  STA $66
 
 ; Up Movement
 CommonEnemyAI_LoopA:
-L8073:  JSR L83F5
-L8076:  JSR L80B8
+L8073:  JSR L83F5 ; Move one pixel
+L8076:  JSR L80B8 ; Determine something about the next pixel moved (?0)
 L8079:  DEC $66
 L807B:  BNE CommonEnemyAI_LoopA
 
@@ -160,7 +160,8 @@ LoadTableAt977B: ; L80B0
 ;-------------------------------------------------------------------------------
 ; Up movement related ?
 L80B8:  LDX PageIndex
-L80BA:  BCS L80FA
+L80BA:  BCS L80FA ; If MoveUpOnePixel returned the carry flag, exit
+; Otherwise, do stuff, and make sure it doesn't move anymore pixels the rest of this frame
 L80BC:  LDA EnData05,X
 L80BF:  BPL L80C7
 
@@ -312,6 +313,7 @@ L81C3:  STA EnData1B,X
 L81C6:  RTS
 
 ;-------------------------------------------------------------------------------
+; Horizontal Movement Related
 L81C7:  JSR LoadBit5ofTableAt968B
 L81CA:  BNE L81F5
 L81CC:  LDA #$01
@@ -324,10 +326,12 @@ L81DA:  JSR LoadBit5ofTableAt968B
 L81DD:  BNE L81F5
 L81DF:  JSR LoadTableAt977B
 L81E2:  SEC 
-L81E3:  BPL $81ED
+L81E3:  BPL L81ED
+; Decrement EnCounterX
 L81E5:  LDA #$00
 L81E7:  SBC EnData07,X
 L81EA:  STA EnData07,X
+; Decrement EnSpeedX (if carry is set)
 L81ED:  LDA #$00
 L81EF:  SBC EnData03,X
 L81F2:  STA EnData03,X
@@ -341,8 +345,9 @@ L81F9:  AND #$20
 L81FB:  RTS
 
 ;-------------------------------------------------------------------------------
+; Vertical Movement Related
 L81FC:  JSR LoadBit5ofTableAt968B
-L81FF:  BNE L81F5
+L81FF:  BNE L81F5 ; Exit if bit 5 is set
 L8201:  LDA #$04
 L8203:  JSR XorEnData05
 L8206:  LDA EnData1A,X
@@ -350,13 +355,15 @@ L8209:  JSR TwosCompliment
 L820C:  STA EnData1A,X
 
 L820F:  JSR LoadBit5ofTableAt968B
-L8212:  BNE $822A
+L8212:  BNE L822A ; Exit if bit 5 is set
 L8214:  JSR LoadTableAt977B
 L8217:  SEC 
-L8218:  BPL $8222
+L8218:  BPL L8222
+; Decrement EnCounter
 L821A:  LDA #$00
 L821C:  SBC EnCounter,X
 L821F:  STA EnCounter,X
+; Decrement EnSpeedY (if EnCounter rolls over)
 L8222:  LDA #$00
 L8224:  SBC EnData02,X
 L8227:  STA EnData02,X
@@ -385,6 +392,7 @@ L8243:  RTS
 
 ;-------------------------------------------------------------------------------
 ; Vertical Movement Related ?
+; Determines y-delta for a given frame
 VertMoveProc:
 L8244:  JSR LoadTableAt977B
 L8247:  BPL L824C
@@ -473,6 +481,7 @@ L82A2:  STA $00
 L82A4:  RTS
 
 ;---------------------------------------
+; Clear EnData1D, move on to next byte in the stream
 VertMoveProc_CaseFD:
 L82A5:  INC EnCounter,X
 L82A8:  INY 
@@ -481,48 +490,64 @@ L82AB:  STA EnData1D,X
 L82AE:  BEQ VertMoveProc_ReadByte ; Branch always
 
 ;---------------------------------------
-; Double RTS !?
+; Don't move, and don't advance the movement counter
+; HALT, perhaps?
 VertMoveProc_CaseFB:
+; Double RTS !?
 L82B0:  PLA 
 L82B1:  PLA 
 L82B2:  RTS
+; Retruns back to F416 in the engine bank
 
 ;---------------------------------------
+; Repeat Previous Movement Until [Condition?]
 VertMoveProc_CaseFC:
+; If bit 7 of EnData1F is set, then check if you can move up and then jump ahead
 L82B3:  LDA EnData1F,X
 L82B6:  BPL L82BE
 L82B8:  JSR EnemyCheckMoveUp
 L82BB:  JMP L82C3
+; If EnData1F is non-zero, check if you can move down and then jump ahead
 L82BE:  BEQ L82D2
 L82C0:  JSR EnemyCheckMoveDown
 
+; If the movement check [succeeded? failed?] move on to the next byte
 L82C3:  LDX PageIndex
 L82C5:  BCS L82D2
 L82C7:  LDY EnCounter,X
 L82CA:  INY 
 L82CB:  LDA #$00
 L82CD:  STA EnData1F,X
-L82D0:  BEQ L82D7
+L82D0:  BEQ L82D7 ; Branch always
 
+; Else, repeat the previous two bytes
 L82D2:  LDY EnCounter,X
 L82D5:  DEY 
 L82D6:  DEY 
+
+; Save EnCounter
 L82D7:  TYA 
 L82D8:  STA EnCounter,X
+; Read the next bytes
 L82DB:  JMP VertMoveProc_ReadByte
 
 ;---------------------------------------
+; Repeat previous until ???
 VertMoveProc_CaseFE:
+; Move EnCounter back to the previous movement
 L82DE:  DEY 
 L82DF:  DEY 
 L82E0:  TYA 
 L82E1:  STA EnCounter,X
+; Then do some other stuff
 L82E4:  LDA EnData1F,X
 L82E7:  BPL L82EF
 L82E9:  JSR EnemyCheckMoveUp
 L82EC:  JMP L82F4
+
 L82EF:  BEQ L82FB
 L82F1:  JSR EnemyCheckMoveDown
+
 L82F4:  LDX PageIndex
 L82F6:  BCC L82FB
 L82F8:  JMP L8258
@@ -537,9 +562,13 @@ L830A:  ORA L968B,Y
 L830D:  AND #$1F
 L830F:  STA EnData05,X
 
+;---------------------------------------
+;SetBit5OfEnData05_AndClearEnData1A
+; Move horizontally indefinitely (???)
+; Is this even used?
 VertMoveProc_CaseFA:
 L8312:  JSR SetBit5OfEnData05_AndClearEnData1A
-L8315:  JMP L82A2
+L8315:  JMP L82A2 ; Set delta-y to zero and exit
 
 ;-------------------------------------------------------------------------------
 ; Horizontal Movement Related?
@@ -668,6 +697,7 @@ L83F4:  RTS
 
 ;-------------------------------------------------------------------------------
 ; Up movement related
+; Move one pixel?
 L83F5:  LDX PageIndex
 L83F7:  LDA EnYRoomPos,X
 L83FA:  SEC 

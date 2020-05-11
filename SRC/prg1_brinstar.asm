@@ -173,6 +173,7 @@ L966B:  .byte $6C, $6F, $5B, $5D, $5F, $64, $69, $69, $69, $69, $00, $00, $00, $
 L967B:  .byte $00, $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $00, $80, $00, $00, $00 
 
 ; Screw attack vulnerability? Hit sound?
+; Bit 5 (0x20) determines something about how it computes velocity
 L968B:  .byte $01, $01, $01, $00, $86, $04, $89, $80, $81, $00, $00, $00, $82, $00, $00, $00 
 
 ; EnData0D table (set upon load, and a couple other times)
