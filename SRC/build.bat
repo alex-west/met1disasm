@@ -13,5 +13,3 @@ asm6f_32.exe .\prg7_engine.asm ..\BIN\bank7.bin
 copy /b ..\BIN\header.bin+..\BIN\bank* ..\test.nes
 
 fc /b ..\test.nes ..\METROID.NES
-
-:exit

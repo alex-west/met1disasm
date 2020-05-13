@@ -11,10 +11,6 @@
 ; 
 ;Commented by Dirty McDingus (nmikstas@yahoo.com)
 ;Disassembled using TRaCER.
-;Can be reassembled using Ophis.
-;Last updated: 3/9/2010
-
-;Hosted on wiki.metroidconstruction.com, with possible additions by wiki contributors.
 
 ;Brinstar (memory page 1)
 
@@ -130,7 +126,8 @@ L95D7:  .byte $03                       ;Samus start x coord on world map.
 L95D8:  .byte $0E                       ;Samus start y coord on world map.
 L95D9:  .byte $B0                       ;Samus start verticle screen position.
 
-L95DA:  .byte $01, $00, $03, $43, $00, $00, $00, $00, $00, $00, $69 
+L95DA:  .byte $01, $00, $03, $43, $00
+L95E0:  .byte $00, $00, $00, $00, $00, $69 
 
 ; Enemy AI jump table
 ChooseEnemyRoutine:
@@ -201,7 +198,7 @@ L9723:  .byte $00, $00, $00, $00, $00, $00, $00, $00
 
 ; I think these next for tables each have 4 unused bytes at the end
 ; EnData1A table
-L922B:  .byte $7F, $40, $30, $C0, $D0, $00, $00, $7F, $80, $00, $54, $70, $00, $00, $00, $00, $00, $00, $00, $00
+L972B:  .byte $7F, $40, $30, $C0, $D0, $00, $00, $7F, $80, $00, $54, $70, $00, $00, $00, $00, $00, $00, $00, $00
 ; EnData1B table
 L973F:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 ; EnData02 table

@@ -11,10 +11,7 @@
 ; 
 ;Commented by Dirty McDingus (nmikstas@yahoo.com)
 ;Disassembled using TRaCER.
-;Can be reassembled using Ophis.
-;Last updated: 3/9/2010
-
-;Hosted on wiki.metroidconstruction.com, with possible additions by wiki contributors.
+;Can be reassembled using asm6f
 
 ;Common area code (shared between banks)
 
@@ -35,7 +32,6 @@ CommonJump_01:
 L8003:  JMP $F438
 CommonJump_02:
 L8006:  JMP $F416
-
 CommonJump_03:
 L8009:  JMP $F852
 CommonJump_UpdateEnemyAnim:

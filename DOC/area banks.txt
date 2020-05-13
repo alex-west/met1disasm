@@ -1,9 +1,9 @@
-https://github.com/ZaneDubya/MetroidMMC3/blob/master/Documentation/area_banks.txt
+# Metroid NES ROM Documentation
+# Area ROM Banks
 
-Metroid NES ROM Documentation
-Area ROM Banks
+Adapted from: https://github.com/ZaneDubya/MetroidMMC3/blob/master/Documentation/area_banks.txt
 
-==============================[ 1. Introduction ]===============================
+## 1. Introduction
 The events of Metroid NES occur on the planet Zebes, which is divided into five
 distinct Areas: Brinstar, Norfair, Tourian, Kraid's Hideout, and Ridley's
 Hideout. The data for each of these Areas is located in a separate 16kb ROM bank
@@ -19,114 +19,193 @@ $B200-$BFFF) and the portion that is different for each Area bank ($8D60-$B1FF).
 
     Table 1.1: Area ROM bank portions.
     ROM Addr.       Size in bytes   Name            Documented in...
-    $8000-$8D5F     $0D60 (3424)    Common I        Section 2
-    $8F60-$B1FF     $24A0 (9376)    Area Specific   Section 4
-    $B200-$BFFF     $0E00 (3584)    Sound Engine    Disassembly
+    $8000-$8D5F     $0D60 (3424)    Common          Section 2
+    $8F60-$B1FF     $24A0 (9376)    Area Specific   Section 3
+    $B000-$BFFF     $0E00 (3584)    Sound Engine    Section 4
 
-================================[ 2. Common I ]=================================
+## 2. Common
 This portion of the Area ROM bank is common to each Area bank. It begins at
 $8000 and runs for $0D60 (3424) bytes. Much of the data in this section has been
 documented in the disassembly, but the routines in this section remain
 undocumented.
 
     Table 2.1: Common I Routines & Data
-    ROM Addr.   Size in bytes   Name/Purpose                Documented in...
-    $8000       72              Jump Table                  2.1
-    $8048       1306            Unknown routines/data       2.2
-    $8572                       Object Anim Data Tables     Disassembly
-    $860B                       Sprite Draw Ptr Tables      Disassembly
-    $86FD                       Sprite Placement Dat Tables Disassembly
-    $87CB                       Sprite Frame Data Tables    Disassembly
-    $8B13                       Samus Enter Door Routine    Disassembly
-    $8B79                       Unknown routines/data       2.3
+    ROM Addr.   Name/Purpose                Documented in...
+    $8000       Jump Table                  2.1
+    $8048       Zoomer Jump Table           2.2
+    $8058       Enemy Movement Routines     2.3
+    $8572       Object Anim Data Tables     Disassembly
+    $860B       Sprite Draw Ptr Tables      Disassembly
+    $86FD       Sprite Placement Dat Tables Disassembly
+    $87CB       Sprite Frame Data Tables    Disassembly
+    $8B13       Samus Enter Door Routine    Disassembly
+    $8B79       Unknown routines/data       2.4
 
-------------------------------[ 2.1 Jump Table  ]-------------------------------
+### 2.1 Jump Table
 The Jump Table consists of 24 "JMP $XXXX" instructions. These jumps all point to
 addresses in the always-present Game Engine bank ($C000-$FFFF) or addresses in
 this first Common I section ($8000-$8D5F).
 
-It would be interesting to note where these instructions point to (only 4 of the
-24 addresses are currently named/documented), and where these instructions are
+It would be interesting to note where these instructions point to (only a few of
+the addresses are currently named/documented), and where these instructions are
 called from. What is their purpose?
 
-------------------------[ 2.2 Unknown routines/data  ]--------------------------
+### 2.2 Zoomer Jump Table
 
-2.2.A: 8 WORDS
-This section starts with 8 words (16 bytes). Interestingly, each of the words is
-repeated once (the pattern is 0,1,2,2,1,0,3,3), and each of the words is the
-address of a 'RTS' instruction at the end of a currently undocumented routine in
-this common section.
-    $84FD       RTS     Address 0
-    $84A6       RTS     Address 1
-    $844A       RTS     Address 2
-    $844A       RTS     Address 2 (repeat)
-    $84A6       RTS     Address 1 (repeat)
-    $84FD       RTS     Address 0 (repeat)
-    $83F4       RTS     Address 3 (repeat)
-    $83F4       RTS     Address 3 (repeat)
+These are 8 16-bit pointers that point to 4 different functions that zoomers
+(the crawling enemies) use to move forward. They point the the address of the
+function in question minus one, because they are called via the "RTS trick". For
+information of this trick, please reference the NESdev wiki:
+
+http://wiki.nesdev.com/w/index.php/RTS_Trick
+
+The list of the jump table, in order, is as follows:
+
+    84FE - Move right one pixel
+    84A7 - Move left one pixel
+    844B - Move down one pixel
+    844B - Move down one pixel
+    84A7 - Move left one pixel
+    84FE - Move right one pixel
+    83F5 - Move up one pixel
+    83F5 - Move up one pixel
+
+TODO: Verify that that's what those routines actually do
     
-2.2.B: Unknown routines
-There are a number of routines in this section. I do not know what the purpose
-of any of them are.
+### 2.3 Enemy movement routines
+There are a number of routines in this section. They all appear to be related to
+enemy AI and movement. Names and descriptions of these functions are provisional
+given that most enemy variables are still poorly understood.
 
-Unknown routine         8058
-...                     80B0
-                        80B8
-                        80FB
-                        8134
-                        816E
-                        81B1
-                        81B8
-                        81C0
-                        81C7
-                        81DA
-                        81F6
-                        81FC
-                        820F
-                        822B
-                        8244
-                        82A5
-                        82B3
-                        833F
-                        8395
-                        83F5
-                        8441
-                        8441
-                        844B
-                        84A7
-                        84FE
-                        855A
-                        8563
-                        856B
-                        
-------------------------[ 2.3 Unknown routines/data  ]--------------------------
+    8058 - Common Enemy AI handler (called at $F413 in bank 7)
+    80B0 - Loads from table at $977B
+    
+    80B8 - Up movement related function
+    80FB - Down movement related
+    8134 - Right movement related
+    816E - Left movement related
+    
+    81B1 - SetBit5OfEnData05_AndClearEnData1A
+    81B8 - SetBit5OfEnData05
+    81C0 - SetBit5OfEnData05_AndClearEnData1B
+    
+    81C7 - Horizontal acceleration related
+    81DA - alternate entry point for the previous function
+    81F6 - LoadBit5ofTableAt968B
+    81FC - Vertical acceleration related
+    820F - alternate entry point for the previous function
+    
+    822B - Loads pointer to an enemy movement string
+    8244 - Vertical Movement Function (handles enemy movement strings)
+    8318 - Horizontal Movement Function (also reads enemy movement strings)
+    
+    833F - Vertical movement related
+    8395 - Horizontal movement related
+    
+    83F5 - Move up one pixel
+    844B - Move down one pixel
+    84A7 - Move left one pixel
+    84FE - Move right one pixel
+    
+    855A - Switch enemy nametable
+    8563 - Get other nametable index for enemy
+    856B - XOR EnData05
+
+Note that bank 7 has several more routines that help handle enemies and such.
+
+A good project to eventually do would be to be refactor the enemy movement code
+so that it uses acceleration and subpixels, rather than the weird table and
+counter approach that it currently uses.
+    
+### 2.4 Unknown routines/data
 There are four routines in this section. I do not know what the purpose of any
 of them are.
 
-Unknown routine         8B79
-...                     8B8C
-                        8B9D
-Unknown data            8BD1 (four byts of data).
-Unknown routine         8BD5
-Unknown data            8D3A (38 bytes of data)
+    8B79 - Unknown routine
+    8B8C - ...
+    8B9D - ...
+    8BD1 - Unknown data
+    8BD5 - Unknown routine
+    8D3A - Unknown data
 
-
-==============================[ 3. Area Specific ]==============================
+## 3. Area Specific
 This is the largest of the three sections of an Area Specific ROM Bank. It
 contains graphics data and routines that area only called in this Area, and a
 small amount of common data.
 
-Graphics Data           8D60    
-Palette Ptr Table       9560
-Area Ptr Table          9598    8 word pointers
-Secondary JMP table?    95A8    9 jump instructions - all but Tourian are all
-                                "JMP $EAEA" - expect that these are unused.
-AreaRoutine Ptr         95C3    JMP to area specific routine (9D35 in Brinstar).
-TwosCompliment_         95C6
-Special room value      95CC
-Music init value        95CD
-Base damage value       95CE    2bytes - CE is low health, CF is high health.
-Item rooms              95D0    7 x 1byte used to start item room music
-Samus position          95D7    3bytes - X, Y, vertical screen pos.
-????                    95DA    11 bytes of data?
-                        ...
+The following parts must be located at these exact addresses, due to code in the
+game engine that expects them to be at this location:
+
+    8D60 - CHR data (2kB, does not have to pertain to the area in question)
+    
+    9560 - Palette Ptr Table
+    9598 - Area Pointer Table (8 pointers to things at non-fixed addresses)
+    
+    95A8 - Tourian Jump Table (RTSes in all other areas)
+    95C3 - Area specific routine (jumps to an RTS in all non-Tourian areas)
+    
+    95C6 - Two's compliment rountine
+    
+    95CC - Special room value
+    95CD - Music init value
+    95CE - Base damage value (1 word, little-endian)
+    95D0 - Item music room indices (7 byte)
+    95D7 - Samus starting position (map X, map Y, screen Y) (no screen X)
+    
+    95DA - Unknown (palette switching related)
+    95DB - Unused byte?
+    95DC - Unknown (animation related?)
+    95DD - Unknown (animation related?)
+    95DE - Unused byte?
+    95DF - Unused byte?
+    95E0 - Unknown table (animation related?)
+    
+    95E5 - ChooseEnemyRoutine
+    95EB - Enemy AI Jump Table (used by the above routine) (16 entries)
+    
+    960B - Unknown enemy related table (32 bytes)
+    962B - Enemy hitpoint table (16 bytes)
+    963B - ResetAnimIndex table (32 bytes)
+    965B - another ResetAnimIndex table ?? (32 bytes)
+    967B - unknown table (16 bytes)
+    968B - unknown table (determines enemy hit sound?) (16 bytes)
+    969B - EnData05 table ? (16 bytes)
+    96AB - unknown enemy-related table (16 bytes)
+    96BB - EnemyInitDelayTbl ? (16 bytes)
+    96CB - table of indices to a table at 97D1 ? (16 bytes)
+    
+    96DB - enemy movement pointers (40 words?)
+    
+    972B - EnData1A table (20 bytes?)
+    973F - EnData1B table (20 bytes?)
+    9753 - EnData02 (y speed?) table (20 bytes?)
+    9767 - EnData03 (x speed?) table (20 bytes?)
+    977B - enemy movement behavior table (16 bytes)
+    978B - unknown table
+    
+    97A7 - another table of enemy movement pointers (20 words)
+    97D1 - unknown table (length varies between banks)
+    
+After this point, area-specific data can be located anywhere. This includes:
+    - Enemy movement strings
+    - Enemy AI routines
+    - Area specific routines
+    - Enemy animation data tables
+    - Enemy sprite drawing pointer tables
+    - Enemy sprite placement data tables
+    - Palette data
+    - Room pointer tables
+    - Structure pointer tables
+    - Special item tables
+    - Room data
+    - Metatile data
+
+## 4. Music and Sound Engine
+
+Area specific music typically starts at B000, but doesn't have to.
+
+The music engine starts at B200, and also includes all the general purpose music.
+
+Between the area specific music and the music engine are some random Mother Brain
+tiles. These appear to be unused, and are likely a remnant of the original build
+process.

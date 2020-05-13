@@ -11,10 +11,6 @@
 ;
 ;Commented by Dirty McDingus (nmikstas@yahoo.com)
 ;Disassembled using TRaCER.
-;Can be reassembled using Ophis.
-;Last updated: 3/9/2010
-
-;Hosted on wiki.metroidconstruction.com, with possible additions by wiki contributors.
 
 ;Kraid hideout (memory page 4)
 
