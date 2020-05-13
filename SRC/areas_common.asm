@@ -17,11 +17,22 @@
 
 ;--------------------------------------[ Forward declarations ]--------------------------------------
 
-;TODO: Gather the forward declarations of all the banks to here:
-EnemyCheckMoveUp     = $E770
-EnemyCheckMoveDown   = $E77B
-EnemyCheckMoveLeft   = $E8F1
-EnemyCheckMoveRight  = $E8FC
+Startup                = $C01A
+NMI                    = $C0D9
+ChooseRoutine          = $C27C
+Adiv32                 = $C2BE
+Adiv16                 = $C2BF
+Amul16                 = $C2C5
+TwosCompliment         = $C3D4
+Base10Subtract         = $C3FB
+SubtractHealth         = $CE92
+SetProjectileAnim      = $D2FA
+UpdateEnemyAnim        = $E094
+VerticalRoomCentered   = $E21B
+EnemyCheckMoveUp       = $E770
+EnemyCheckMoveDown     = $E77B
+EnemyCheckMoveLeft     = $E8F1
+EnemyCheckMoveRight    = $E8FC
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 

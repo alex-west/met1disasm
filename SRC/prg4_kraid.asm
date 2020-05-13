@@ -20,21 +20,6 @@
 
 BANK = 4
 
-;--------------------------------------[ Forward declarations ]--------------------------------------
-
-Startup                = $C01A
-NMI                    = $C0D9
-ChooseRoutine          = $C27C
-Adiv32                 = $C2BE
-Adiv16                 = $C2BF
-Amul16                 = $C2C5
-TwosCompliment         = $C3D4
-Base10Subtract         = $C3FB
-SubtractHealth         = $CE92
-SetProjectileAnim      = $D2FA
-UpdateEnemyAnim        = $E094
-VerticalRoomCentered   = $E21B
-
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
 .include "areas_common.asm"
