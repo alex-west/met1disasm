@@ -38,8 +38,7 @@ undocumented.
     $860B       Sprite Draw Ptr Tables      Disassembly
     $86FD       Sprite Placement Dat Tables Disassembly
     $87CB       Sprite Frame Data Tables    Disassembly
-    $8B13       Samus Enter Door Routine    Disassembly
-    $8B79       Unknown routines/data       2.4
+    $8B13       Door Routines/Data          2.4
 
 ### 2.1 Jump Table
 The Jump Table consists of 24 "JMP $XXXX" instructions. These jumps all point to
@@ -117,16 +116,13 @@ A good project to eventually do would be to be refactor the enemy movement code
 so that it uses acceleration and subpixels, rather than the weird table and
 counter approach that it currently uses.
     
-### 2.4 Unknown routines/data
-There are four routines in this section. I do not know what the purpose of any
-of them are.
+### 2.4 Door Routines
+These are various routines pertaining to doors.
 
-    8B79 - Unknown routine
-    8B8C - ...
-    8B9D - ...
-    8BD1 - Unknown data
-    8BD5 - Unknown routine
-    8D3A - Unknown data
+    8B13 - SamusEnterDoor
+    - Some subroutines
+    8B79 - DisplayDoors
+    - Various subroutines
 
 ## 3. Area Specific
 This is the largest of the three sections of an Area Specific ROM Bank. It

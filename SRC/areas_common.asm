@@ -992,184 +992,206 @@ L8B76:  STA DoorStatus                  ;entered a door.
 L8B78:  RTS                             ;
 
 ;----------------------------------------------------------------------------------------------------
-
+DisplayDoors:
 L8B79:  LDX #$B0
-L8B7B:
-      + JSR $8B87
+
+L8B7B:  JSR DoorRoutine
 L8B7E:  LDA PageIndex
 L8B80:  SEC 
 L8B81:  SBC #$10
 L8B83:  TAX 
 L8B84:  BMI L8B7B
+
 L8B86:  RTS
 
+DoorRoutine:
 L8B87:  STX PageIndex
 L8B89:  LDA ObjAction,X
 L8B8C:  JSR ChooseRoutine               ;($C27C)
 
-L8B8F:  .word $C45C
-L8B91:  .word $8B9D
-L8B93:  .word $8BD5
-L8B95:  .word $8C01
-L8B97:  .word $8C84
-L8B99:  .word $8CC6
-L8B9B:  .word $8CF0
+L8B8F:  .word $C45C ; ExitSub
+L8B91:  .word DoorAction0
+L8B93:  .word DoorAction1
+L8B95:  .word DoorAction2
+L8B97:  .word DoorAction3
+L8B99:  .word DoorAction4
+L8B9B:  .word DoorAction5
 
-L8B9D:  INC $0300,X
+DoorAction0:
+L8B9D:  INC ObjAction,X
 L8BA0:  LDA #$30
 L8BA2:  JSR SetProjectileAnim           ;($D2FA)
-L8BA5:  JSR $8CFB
-L8BA8:  LDY $0307,X
-L8BAB:  LDA $8BD1,Y
+L8BA5:  JSR ObjActionSubRoutine8CFB
+L8BA8:  LDY $0307,X ; Unsure if $0307 is semantically comparable to SamusOnElevator
+L8BAB:  LDA ObjActionAnimTable,Y
 L8BAE:  STA $030F,X
+ObjActionSubRoutine8BB1:
 L8BB1:  LDA $0307,X
 L8BB4:  CMP #$03
-L8BB6:  BNE $8BBA
+L8BB6:  BNE L8BBA
 L8BB8:  LDA #$01
 L8BBA:  ORA #$A0
 L8BBC:  STA ObjectCntrl
 L8BBE:  LDA #$00
-L8BC0:  STA $030A,X
+L8BC0:  STA $030A,X ; SamusHit (DoorHit?)
 L8BC3:  TXA 
 L8BC4:  AND #$10
 L8BC6:  EOR #$10
 L8BC8:  ORA ObjectCntrl
 L8BCA:  STA ObjectCntrl
 L8BCC:  LDA #$06
-L8BCE:  JMP $DE47
+L8BCE:  JMP $DE47 ; AnimDrawObject
 
+ObjActionAnimTable:
 L8BD1:  .byte $05, $01, $0A, $01
 
+DoorAction1:
 L8BD5:  LDA $030A,X
 L8BD8:  AND #$04
-L8BDA:  BEQ $8BB1
+L8BDA:  BEQ ObjActionSubRoutine8BB1
 L8BDC:  DEC $030F,X
-L8BDF:  BNE $8BB1
+L8BDF:  BNE ObjActionSubRoutine8BB1
 L8BE1:  LDA #$03
 L8BE3:  CMP $0307,X
-L8BE6:  BNE $8BEE
+L8BE6:  BNE L8BEE
 L8BE8:  LDY $010B
 L8BEB:  INY 
-L8BEC:  BNE $8BB1
-L8BEE:  STA $0300,X
+L8BEC:  BNE ObjActionSubRoutine8BB1
+L8BEE:  STA ObjAction,X
 L8BF1:  LDA #$50
 L8BF3:  STA $030F,X
 L8BF6:  LDA #$2C
 L8BF8:  STA $0305,X
 L8BFB:  SEC 
 L8BFC:  SBC #$03
-L8BFE:  JMP $8C7E
+L8BFE:  JMP ObjActionSubRoutine8C7E
+
+DoorAction2:
 L8C01:  LDA DoorStatus
-L8C03:  BEQ $8C1D
-L8C05:  LDA $030C
+L8C03:  BEQ L8C1D
+L8C05:  LDA $030C ; ObjNametable
 L8C08:  EOR $030C,X
 L8C0B:  LSR 
-L8C0C:  BCS $8C1D
+L8C0C:  BCS L8C1D
 L8C0E:  LDA $030E
 L8C11:  EOR $030E,X
-L8C14:  BMI $8C1D
+L8C14:  BMI L8C1D
 L8C16:  LDA #$04
-L8C18:  STA $0300,X
-L8C1B:  BNE $8C73
+L8C18:  STA ObjAction,X
+L8C1B:  BNE L8C73
 L8C1D:  LDA $0306,X
 L8C20:  CMP $0305,X
-L8C23:  BCC $8C73
+L8C23:  BCC L8C73
 L8C25:  LDA $030F,X
 L8C28:  CMP #$50
-L8C2A:  BNE $8C57
-L8C2C:  JSR $8CF7
+L8C2A:  BNE L8C57
+L8C2C:  JSR ObjActionSubRoutine8CF7
 L8C2F:  LDA $0307,X
 L8C32:  CMP #$01
-L8C34:  BEQ $8C57
+L8C34:  BEQ L8C57
 L8C36:  CMP #$03
-L8C38:  BEQ $8C57
+L8C38:  BEQ L8C57
 L8C3A:  LDA #$0A
 L8C3C:  STA $09
 L8C3E:  LDA $030C,X
 L8C41:  STA $08
 L8C43:  LDY $50
 L8C45:  TXA 
-L8C46:  JSR $C2C5
-L8C49:  BCC $8C4C
+L8C46:  JSR $C2C5 ;Amul16
+L8C49:  BCC L8C4C
 L8C4B:  DEY 
 L8C4C:  TYA 
-L8C4D:  JSR $DC1E
+L8C4D:  JSR $DC1E ; MapScrollRoutine
 L8C50:  LDA #$00
-L8C52:  STA $0300,X
-L8C55:  BEQ $8C73
+L8C52:  STA ObjAction,X
+L8C55:  BEQ L8C73
 L8C57:  LDA $2D
 L8C59:  LSR 
-L8C5A:  BCS $8C73
+L8C5A:  BCS L8C73
 L8C5C:  DEC $030F,X
-L8C5F:  BNE $8C73
+L8C5F:  BNE L8C73
+ObjActionSubRoutine8C61:
 L8C61:  LDA #$01
 L8C63:  STA $030F,X
-L8C66:  JSR $8CFB
+L8C66:  JSR ObjActionSubRoutine8CFB
 L8C69:  LDA #$02
-L8C6B:  STA $0300,X
-L8C6E:  JSR $8C76
+L8C6B:  STA ObjAction,X
+L8C6E:  JSR ObjActionSubRoutine8C76
+ObjActionSubRoutine8C71:
 L8C71:  LDX PageIndex
-L8C73:  JMP $8BB1
+L8C73:  JMP ObjActionSubRoutine8BB1
+
+ObjActionSubRoutine8C76:
 L8C76:  LDA #$30
 L8C78:  STA $0305,X
 L8C7B:  SEC 
 L8C7C:  SBC #$02
-L8C7E:  JSR $D2FD
-L8C81:  JMP $CBDA
+ObjActionSubRoutine8C7E:
+L8C7E:  JSR $D2FD ;SetProjectileAnim2
+L8C81:  JMP $CBDA ;SFX_Door
+
+DoorAction3:
 L8C84:  LDA DoorStatus
 L8C86:  CMP #$05
 L8C88:  BCS $8CC3
-L8C8A:  JSR $8CFB
-L8C8D:  JSR $8C76
+L8C8A:  JSR ObjActionSubRoutine8CFB
+L8C8D:  JSR ObjActionSubRoutine8C76
 L8C90:  LDX PageIndex
 L8C92:  LDA $91
-L8C94:  BEQ $8CA7
+L8C94:  BEQ L8CA7
 L8C96:  TXA 
-L8C97:  JSR $C2BF
+L8C97:  JSR $C2BF ;Adiv16
 L8C9A:  EOR $91
 L8C9C:  LSR 
-L8C9D:  BCC $8CA7
+L8C9D:  BCC L8CA7
 L8C9F:  LDA $76
 L8CA1:  EOR #$07
 L8CA3:  STA $76
 L8CA5:  STA $1C
-L8CA7:  INC $0300,X
+L8CA7:  INC ObjAction,X
 L8CAA:  LDA #$00
 L8CAC:  STA $91
 L8CAE:  LDA $0307,X
 L8CB1:  CMP #$03
-L8CB3:  BNE $8CC3
+L8CB3:  BNE L8CC3
 L8CB5:  TXA 
-L8CB6:  JSR $C2C5
-L8CB9:  BCS $8CC0
-L8CBB:  JSR $CC07
-L8CBE:  BNE $8CC3
-L8CC0:  JSR $CC03
-L8CC3:  JMP $8C71
+L8CB6:  JSR $C2C5 ; Amul16
+L8CB9:  BCS L8CC0
+L8CBB:  JSR $CC07 ; TourianMusic
+L8CBE:  BNE L8CC3
+L8CC0:  JSR $CC03 ; MotherBrainMusic
+L8CC3:  JMP ObjActionSubRoutine8C71
+
+DoorAction4:
 L8CC6:  LDA DoorStatus
 L8CC8:  CMP #$05
-L8CCA:  BNE $8CED
+L8CCA:  BNE L8CED
 L8CCC:  TXA 
 L8CCD:  EOR #$10
 L8CCF:  TAX 
 L8CD0:  LDA #$06
-L8CD2:  STA $0300,X
+L8CD2:  STA ObjAction,X
 L8CD5:  LDA #$2C
 L8CD7:  STA $0305,X
 L8CDA:  SEC 
 L8CDB:  SBC #$03
-L8CDD:  JSR $D2FD
-L8CE0:  JSR $CBDA
-L8CE3:  JSR $CB73
+L8CDD:  JSR $D2FD ; SetProjectileAnim2
+L8CE0:  JSR $CBDA ; SFX_Door
+L8CE3:  JSR $CB73 ; SelectSamusPal
 L8CE6:  LDX PageIndex
 L8CE8:  LDA #$02
-L8CEA:  STA $0300,X
-L8CED:  JMP $8BB1
+L8CEA:  STA ObjAction,X
+L8CED:  JMP ObjActionSubRoutine8BB1
+
+DoorAction5:
 L8CF0:  LDA DoorStatus
-L8CF2:  BNE $8CED
-L8CF4:  JMP $8C61
+L8CF2:  BNE L8CED
+L8CF4:  JMP ObjActionSubRoutine8C61:
+
+ObjActionSubRoutine8CF7
 L8CF7:  LDA #$FF
-L8CF9:  BNE $8CFD
+L8CF9:  BNE L8CFD
+ObjActionSubRoutine8CFB:
 L8CFB:  LDA #$4E
 L8CFD:  PHA 
 L8CFE:  LDA #$50
@@ -1178,11 +1200,11 @@ L8D02:  TXA
 L8D03:  JSR Adiv16
 L8D06:  AND #$01
 L8D08:  TAY 
-L8D09:  LDA $8D3A,Y
+L8D09:  LDA DoorDataTable,Y
 L8D0C:  STA $03
 L8D0E:  LDA $030C,X
 L8D11:  STA $0B
-L8D13:  JSR $E96A
+L8D13:  JSR $E96A ; MakeWRAMPtr
 L8D16:  LDY #$00
 L8D18:  PLA 
 L8D19:  STA ($04),Y
@@ -1193,10 +1215,10 @@ L8D1E:  ADC #$20
 L8D20:  TAY 
 L8D21:  TXA 
 L8D22:  CPY #$C0
-L8D24:  BNE $8D19
+L8D24:  BNE L8D19
 L8D26:  LDX PageIndex
 L8D28:  TXA 
-L8D29:  JSR $C2C0
+L8D29:  JSR $C2C0 ; Adiv8
 L8D2C:  AND #$06
 L8D2E:  TAY 
 L8D2F:  LDA $04
@@ -1205,6 +1227,7 @@ L8D34:  LDA $05
 L8D36:  STA $005D,Y
 L8D39:  RTS
 
+DoorDataTable:
 L8D3A:  .byte $E8, $10, $60, $AD, $91, $69, $8D, $78, $68, $AD, $92, $69, $8D, $79, $68, $A9 
 L8D4A:  .byte $00, $85, $00, $85, $02, $AD, $97, $69, $29, $80, $F0, $06, $A5, $00, $09, $80
 L8D5A:  .byte $85, $00, $AD, $97, $69, $29

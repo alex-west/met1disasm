@@ -3667,7 +3667,7 @@ Table0D:
 ; UpdateIceBullet
 ; ===============
 
-        UpdateIceBullet:
+UpdateIceBullet:
         lda #$81
         sta ObjectCntrl
         jmp UpdateBullet
