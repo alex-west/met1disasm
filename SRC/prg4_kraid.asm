@@ -32,6 +32,8 @@ BANK = 4
 ;Unused tile patterns (needed so the Palette Pointer Table, etc. below are properly aligned)
 .include kraid/unused_tiles.asm
 
+.include kraid/bg_chr_3.asm ; 9360 - Misc Kraid BG CHR
+
 ;----------------------------------------------------------------------------------------------------
 
 PalPntrTbl:

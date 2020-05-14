@@ -25,12 +25,8 @@ BANK = 3
 .include "areas_common.asm"
 
 ;------------------------------------------[ Graphics data ]-----------------------------------------
-
-;Kraid hideout enemy tile patterns.
-.include kraid/sprite_tiles.asm
-
-;Ridley hideout enemy tile patterns.
-.include ridley/sprite_tiles.asm
+.include kraid/sprite_tiles.asm ; 8D60 - Kraid Sprite CHR
+.include ridley/sprite_tiles.asm ; 9160 - Ridley Sprite CHR
 
 ;----------------------------------------------------------------------------------------------------
 

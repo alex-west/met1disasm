@@ -20,22 +20,15 @@ include "MetroidDefines.txt"
 
 BANK = 1
 
-;-----------------------------------------[ Start of code ]------------------------------------------
-
+;-------------------------------------------------------------------------------
 .include "areas_common.asm"
 
-;------------------------------------------[ Graphics data ]-----------------------------------------
+;-------------------------------------------------------------------------------
+; Graphics Data
+.include ending/end_font.asm       ; 8D60 - "THE END" graphics + partial font
+.include brinstar/sprite_tiles.asm ; 9160 - Brinstar Enemies
 
-;Partial font, "THE END".
-L8D60:
-.include misc_chr/end_font.asm
-
-;Brinstar enemy tile patterns.
-L9160:
-.include brinstar/sprite_tiles.asm
-
-;----------------------------------------------------------------------------------------------------
-
+;-------------------------------------------------------------------------------
 PalPntrTbl:
 L9560:  .word Palette00                 ;($A271)
 L9562:  .word Palette01                 ;($A295)

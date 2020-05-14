@@ -1308,7 +1308,7 @@ LC6CE:  jsr LoadGFX                     ;($C7AB)Load pattern table GFX.
 LC6D1:  ldy #$16                        ;Entry 22 in GFXInfo table.
 LC6D3:  jmp LoadGFX                     ;($C7AB)Load pattern table GFX.
 
-InitGFX7:
+InitGFX7: ; Load Password Font
 LC6D6:  ldy #$17                        ;Entry 23 in GFXInfo table.
 LC6D8:  jsr LoadGFX                     ;($C7AB)Load pattern table GFX.
 LC6DB:  ldy #$16                        ;Entry 22 in GFXInfo table.
@@ -1330,9 +1330,9 @@ LC6EE:  .byte $01                       ;[BGR]Partial font, "The End".  Entry 2.
 LC6EF:  .word $8D60, $1000, $0400
 LC6F5:  .byte $06                       ;[BGR]Brinstar rooms.           Entry 3.
 LC6F6:  .word $9DA0, $1000, $0150
-LC6FC:  .byte $05                       ;[BGR]Misc. objects.            Entry 4.
+LC6FC:  .byte $05                       ;[BGR]Common Room Elements      Entry 4.
 LC6FD:  .word $8D60, $1200, $0450
-LC703:  .byte $06                       ;[BGR]More Brinstar rooms.      Entry 5.
+LC703:  .byte $06                       ;[BGR]More CRE                  Entry 5.
 LC704:  .word $9EF0, $1800, $0800
 LC70A:  .byte $01                       ;[SPR]Brinstar enemies.         Entry 6.
 LC70B:  .word $9160, $0C00, $0400
@@ -1342,43 +1342,43 @@ LC718:  .byte $06                       ;[BGR]More Norfair rooms.       Entry 8.
 LC719:  .word $A950, $1700, $0070
 LC71F:  .byte $02                       ;[SPR]Norfair enemies.          Entry 9.
 LC720:  .word $8D60, $0C00, $0400
-LC726:  .byte $06                       ;[BGR]Tourian rooms.            Entry 10.
-LC727:  .word $A9C0, $1000, $02E0
-LC72D:  .byte $06                       ;[BGR]More Tourian rooms.       Entry 11.
+LC726:  .byte $06                       ;[BGR]Boss areas (Kr, Rd, Tr)   Entry 10. (0A)
+LC727:  .word $A9C0, $1000, $02E0       
+LC72D:  .byte $06                       ;[BGR]Tourian rooms.            Entry 11. (0B)
 LC72E:  .word $ACA0, $1200, $0600
-LC734:  .byte $06                       ;[BGR]Mother Brain room.        Entry 12.
+LC734:  .byte $06                       ;[BGR]Mother Brain room.        Entry 12. (0C)
 LC735:  .word $B2A0, $1900, $0090
-LC73B:  .byte $05                       ;[BGR]Misc. object.             Entry 13.
+LC73B:  .byte $05                       ;[BGR]Misc. object.             Entry 13. (0D)
 LC73C:  .word $91B0, $1D00, $0300
-LC742:  .byte $02                       ;[SPR]Tourian enemies.          Entry 14.
+LC742:  .byte $02                       ;[SPR]Tourian enemies.          Entry 14. (0E)
 LC743:  .word $9160, $0C00, $0400
-LC749:  .byte $06                       ;[BGR]More Tourian rooms.       Entry 15.
+LC749:  .byte $06                       ;[BGR]More Kraid Rooms          Entry 15. (0F)
 LC74A:  .word $B330, $1700, $00C0
-LC750:  .byte $04                       ;[BGR]Misc. object and fonts.   Entry 16.
+LC750:  .byte $04                       ;[BGR]More Kraid Rooms          Entry 16. (10)
 LC751:  .word $9360, $1E00, $0200
-LC757:  .byte $03                       ;[SPR]Miniboss I enemies.       Entry 17.
+LC757:  .byte $03                       ;[SPR]Miniboss I enemies.       Entry 17. (11)
 LC758:  .word $8D60, $0C00, $0400
-LC75E:  .byte $06                       ;[BGR]More Tourian Rooms.       Entry 18.
+LC75E:  .byte $06                       ;[BGR]More Ridley Rooms         Entry 18. (12)
 LC75F:  .word $B3F0, $1700, $00C0
-LC765:  .byte $03                       ;[SPR]Miniboss II enemies.      Entry 19.
+LC765:  .byte $03                       ;[SPR]Miniboss II enemies.      Entry 19. (13)
 LC766:  .word $9160, $0C00, $0400
-LC76C:  .byte $06                       ;[SPR]Inrto/End sprites.        Entry 20.
+LC76C:  .byte $06                       ;[SPR]Intro/End sprites.        Entry 20. (14)
 LC76D:  .word $89A0, $0C00, $0100
-LC773:  .byte $06                       ;[BGR]Title.                    Entry 21.
+LC773:  .byte $06                       ;[BGR]Title.                    Entry 21. (15)
 LC774:  .word $8BE0, $1400, $0500
-LC77A:  .byte $06                       ;[BGR]Solid tiles.              Entry 22.
+LC77A:  .byte $06                       ;[BGR]Solid tiles.              Entry 22. (16)
 LC77B:  .word $9980, $1FC0, $0040
-LC781:  .byte $06                       ;[BGR]Complete font.            Entry 23.
+LC781:  .byte $06                       ;[BGR]Complete font.            Entry 23. (17)
 LC782:  .word $B4C0, $1000, $0400
-LC788:  .byte $06                       ;[BGR]Complete font.            Entry 24.
+LC788:  .byte $06                       ;[BGR]Ingame HUD font.          Entry 24. (18)
 LC789:  .word $B4C0, $0A00, $00A0
-LC78F:  .byte $06                       ;[BGR]Solid tiles.              Entry 25.
+LC78F:  .byte $06                       ;[BGR]Solid tiles.              Entry 25. (19)
 LC790:  .word $9980, $0FC0, $0040
-LC796:  .byte $06                       ;[BGR]Complete font.            Entry 26.
+LC796:  .byte $06                       ;[BGR]Tourian font.             Entry 26. (1A)
 LC797:  .word $B4C0, $1D00, $02A0
-LC79D:  .byte $06                       ;[SPR]Suitless Samus.           Entry 27.
+LC79D:  .byte $06                       ;[SPR]Suitless Samus.           Entry 27. (1B)
 LC79E:  .word $90E0, $0000, $07B0
-LC7A4:  .byte $06                       ;[BGR]Exclaimation point.       Entry 28.
+LC7A4:  .byte $06                       ;[BGR]Exclaimation point.       Entry 28. (1C)
 LC7A5:  .word $9890, $1F40, $0010
 
 ;--------------------------------[ Pattern table loading routines ]---------------------------------
@@ -1945,9 +1945,9 @@ LCAEE:
 ;starts at $69B4, slot 1 starts at $69F4 and slot 2 starts at $6A34.
 
 SavedDataTable:
-LCAEF:  .word ItmeHistory               ;($69B4)Base for save game slot 0.
-LCAF1:  .word ItmeHistory               ;($69B4)Base for save game slot 1.
-LCAF3:  .word ItmeHistory               ;($69B4)Base for save game slot 2.
+LCAEF:  .word ItemHistory               ;($69B4)Base for save game slot 0.
+LCAF1:  .word ItemHistory               ;($69B4)Base for save game slot 1.
+LCAF3:  .word ItemHistory               ;($69B4)Base for save game slot 2.
 
 ;----------------------------------------[ Choose ending ]-------------------------------------------
 
