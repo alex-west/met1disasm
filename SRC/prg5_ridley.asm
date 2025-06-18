@@ -14,21 +14,35 @@
 
 ;Ridley hideout (memory page 5)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-.include "./MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
 
-BANK = 5
+.def CUR_BANK = 5
+.bank CUR_BANK
+.org $0000
+
+.include "./SRC/MetroidDefines.h"
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
-.include "areas_common.asm"
+.include "./SRC/areas_common.asm"
 
 ;------------------------------------------[ Graphics data ]-----------------------------------------
 
-.include common_chr/bg_CRE.asm ; 8D60 - Common Room Elements (loaded everywhere except Tourian)
+.include ./SRC/common_chr/bg_CRE.asm ; 8D60 - Common Room Elements (loaded everywhere except Tourian)
 
-.include tourian/font_chr.asm ; 91B0 - Game over, Japanese font tiles (only loaded in Tourian?)
+.include ./SRC/tourian/font_chr.asm ; 91B0 - Game over, Japanese font tiles (only loaded in Tourian?)
 
 ;Unused tile patterns.
 L94B0:  .byte $06, $0C, $38, $F0, $10, $10, $10, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -205,9 +219,9 @@ L982F:  RTS
 
 L9830:  LDA $81
 L9832:  CMP #$01
-L9834:  BEQ $983F
+L9834:  BEQ L983F
 L9836:  CMP #$03
-L9838:  BEQ $9844
+L9838:  BEQ L9844
 L983A:  LDA $00
 L983C:  JMP $8000
 L983F:  LDA $01
@@ -221,7 +235,7 @@ L9849:  STA $85
 L984B:  STA $86
 L984D:  LDA $6AF4,X
 L9850:  CMP #$03
-L9852:  BEQ $9857
+L9852:  BEQ L9857
 L9854:  JSR $801B
 L9857:  LDA #$06
 L9859:  STA $00
@@ -236,7 +250,7 @@ L9864:  JMP $9849
 
 ;-------------------------------------------------------------------------------
 ZebboRoutine: ; L9867
-.include enemies/pipe_bug.asm
+.include ./SRC/enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
 ; Swooper Routine
@@ -246,20 +260,20 @@ L98DB:  LDA #$08
 L98DD:  STA $01
 L98DF:  LDA $6AF4,X
 L98E2:  CMP #$01
-L98E4:  BNE $98F2
+L98E4:  BNE L98F2
 L98E6:  LDA $0405,X
 L98E9:  AND #$10
-L98EB:  BEQ $98F2
+L98EB:  BEQ L98F2
 L98ED:  LDA #$01
 L98EF:  JSR $9958
 L98F2:  JSR $98F8
 L98F5:  JMP $9830
 L98F8:  LDA $6AF4,X
 L98FB:  CMP #$02
-L98FD:  BNE $990B
+L98FD:  BNE L990B
 L98FF:  LDA #$20
 L9901:  LDY $0402,X
-L9904:  BPL $9908
+L9904:  BPL L9908
 L9906:  LDA #$1D
 L9908:  STA $6AF9,X
 L990B:  RTS
@@ -268,12 +282,12 @@ L990B:  RTS
 ; Swooper 2 Routine
 L990C:  LDA $81
 L990E:  CMP #$01
-L9910:  BEQ $9922
+L9910:  BEQ L9922
 L9912:  CMP #$03
-L9914:  BEQ $9955
+L9914:  BEQ L9955
 L9916:  LDA $6AF4,X
 L9919:  CMP #$01
-L991B:  BNE $9927
+L991B:  BNE L9927
 L991D:  LDA #$00
 L991F:  JSR $9958
 L9922:  LDA #$08
@@ -281,17 +295,17 @@ L9924:  JMP $8003
 L9927:  LDA #$80
 L9929:  STA $6AFE,X
 L992C:  LDA $0402,X
-L992F:  BMI $994D
+L992F:  BMI L994D
 L9931:  LDA $0405,X
 L9934:  AND #$10
-L9936:  BEQ $994D
+L9936:  BEQ L994D
 L9938:  LDA $0400,X
 L993B:  SEC 
 L993C:  SBC $030D
-L993F:  BPL $9944
+L993F:  BPL L9944
 L9941:  JSR $95C6
 L9944:  CMP #$10
-L9946:  BCS $994D
+L9946:  BCS L994D
 L9948:  LDA #$00
 L994A:  STA $6AFE,X
 L994D:  JSR $98F8
@@ -310,26 +324,26 @@ L9966:  RTS
 ; Crawler Routine
 L9967:  JSR $8009
 L996A:  AND #$03
-L996C:  BEQ $99A2
+L996C:  BEQ L99A2
 L996E:  LDA $81
 L9970:  CMP #$01
-L9972:  BEQ $99AA
+L9972:  BEQ L99AA
 L9974:  CMP #$03
-L9976:  BEQ $99A7
+L9976:  BEQ L99A7
 L9978:  LDA $6AF4,X
 L997B:  CMP #$03
-L997D:  BEQ $99A2
+L997D:  BEQ L99A2
 L997F:  LDA $040A,X
 L9982:  AND #$03
 L9984:  CMP #$01
-L9986:  BNE $9999
+L9986:  BNE L9999
 L9988:  LDY $0400,X
 L998B:  CPY #$EB
-L998D:  BNE $9999
+L998D:  BNE L9999
 L998F:  JSR $99DB
 L9992:  LDA #$03
 L9994:  STA $040A,X
-L9997:  BNE $999F
+L9997:  BNE L999F
 L9999:  JSR $9A00
 L999C:  JSR $99C6
 L999F:  JSR $99E4
@@ -349,9 +363,9 @@ L99BB:  JMP $800F
 L99BE:  .byte $4A, $4A, $53, $4D, $50, $50, $4D, $53
 
 L99C6:  LDX $4B
-L99C8:  BCS $99E3
+L99C8:  BCS L99E3
 L99CA:  LDA $00
-L99CC:  BNE $99DB
+L99CC:  BNE L99DB
 L99CE:  LDY $040A,X
 L99D1:  DEY 
 L99D2:  TYA 
@@ -366,7 +380,7 @@ L99E3:  RTS
 L99E4:  JSR $99F8
 L99E7:  JSR $9A00
 L99EA:  LDX $4B
-L99EC:  BCC $99F7
+L99EC:  BCC L99F7
 L99EE:  JSR $99F8
 L99F1:  STA $040A,X
 L99F4:  JSR $99AD
@@ -394,10 +408,10 @@ L9A12:  RTS
 ; Ridley Routine
 L9A13:  LDA $6AF4,X
 L9A16:  CMP #$03
-L9A18:  BCC $9A33
-L9A1A:  BEQ $9A20
+L9A18:  BCC L9A33
+L9A1A:  BEQ L9A20
 L9A1C:  CMP #$05
-L9A1E:  BNE $9A41
+L9A1E:  BNE L9A41
 
 L9A20:  LDA #$00
 L9A22:  STA $6B04
@@ -405,7 +419,7 @@ L9A25:  STA $6B14
 L9A28:  STA $6B24
 L9A2B:  STA $6B34
 L9A2E:  STA $6B44
-L9A31:  BEQ $9A41
+L9A31:  BEQ L9A41
 
 L9A33:  LDA #$0B
 L9A35:  STA $85
@@ -431,16 +445,16 @@ L9A57:  PLA
 L9A58:  LDX $4B
 L9A5A:  EOR $0405,X
 L9A5D:  LSR 
-L9A5E:  BCS $9A73
+L9A5E:  BCS L9A73
 L9A60:  LDA $0405,X
 L9A63:  LSR 
-L9A64:  BCS $9A78
+L9A64:  BCS L9A78
 L9A66:  LDA $0401,X
 L9A69:  SEC 
 L9A6A:  SBC $030E
-L9A6D:  BCC $9A78
+L9A6D:  BCC L9A78
 L9A6F:  CMP #$20
-L9A71:  BCC $9A78
+L9A71:  BCC L9A78
 L9A73:  LDA #$00
 L9A75:  STA $6AF4,X
 L9A78:  RTS
@@ -448,30 +462,30 @@ L9A78:  RTS
 ;-------------------------------------------------------------------------------
 ; Ridley Subroutine
 L9A79:  LDY $80
-L9A7B:  BNE $9A7F
+L9A7B:  BNE L9A7F
 L9A7D:  LDY #$60
 L9A7F:  LDA $2D
 L9A81:  AND #$02
-L9A83:  BNE $9AA9
+L9A83:  BNE L9AA9
 L9A85:  DEY 
 L9A86:  STY $80
 L9A88:  TYA 
 L9A89:  ASL 
-L9A8A:  BMI $9AA9
+L9A8A:  BMI L9AA9
 L9A8C:  AND #$0F
 L9A8E:  CMP #$0A
-L9A90:  BNE $9AA9
+L9A90:  BNE L9AA9
 L9A92:  LDX #$50
 L9A94:  LDA $6AF4,X
-L9A97:  BEQ $9AAA
+L9A97:  BEQ L9AAA
 L9A99:  LDA $0405,X
 L9A9C:  AND #$02
-L9A9E:  BEQ $9AAA
+L9A9E:  BEQ L9AAA
 L9AA0:  TXA 
 L9AA1:  SEC 
 L9AA2:  SBC #$10
 L9AA4:  TAX 
-L9AA5:  BNE $9A94
+L9AA5:  BNE L9A94
 L9AA7:  INC $7E
 L9AA9:  RTS
 
@@ -490,7 +504,7 @@ L9ABF:  STA $05
 L9AC1:  LDA #$F8
 L9AC3:  STA $04
 L9AC5:  JSR $8027
-L9AC8:  BCC $9AA9
+L9AC8:  BCC L9AA9
 L9ACA:  LDA #$00
 L9ACC:  STA $040F,X
 L9ACF:  LDA #$0A
@@ -525,7 +539,7 @@ L9B02:  RTS
 ; Bouncy Orb Routine
 L9B03:  LDA $6AF4,X
 L9B06:  CMP #$02
-L9B08:  BNE $9B0D
+L9B08:  BNE L9B0D
 L9B0A:  JSR $801E
 L9B0D:  LDA #$02
 L9B0F:  STA $00
@@ -546,7 +560,7 @@ L9B26:  LSR
 L9B27:  LSR 
 L9B28:  ADC $2D
 L9B2A:  AND #$07
-L9B2C:  BNE $9B48
+L9B2C:  BNE L9B48
 L9B2E:  LSR $0405,X
 L9B31:  LDA #$03
 L9B33:  STA $87
@@ -554,7 +568,7 @@ L9B35:  LDA $2E
 L9B37:  LSR 
 L9B38:  ROL $0405,X
 L9B3B:  AND #$03
-L9B3D:  BEQ $9B48
+L9B3D:  BEQ L9B48
 L9B3F:  STA $88
 L9B41:  LDA #$02
 L9B43:  STA $85
@@ -872,27 +886,27 @@ A0E6:   .byte $00, $04, $04, $8A, $FF
 
 ;------------------------------------------[ Palette data ]------------------------------------------
 
-.include ridley/palettes.asm
+.include ./SRC/ridley/palettes.asm
 
 ;----------------------------[ Room and structure pointer tables ]-----------------------------------
 
 RmPtrTbl:
-.include ridley/room_ptrs.asm
+.include ./SRC/ridley/room_ptrs.asm
 
 StrctPtrTbl:
-.include ridley/structure_ptrs.asm
+.include ./SRC/ridley/structure_ptrs.asm
 
 ;-----------------------------------[ Special items table ]-----------------------------------------
 
-.include ridley/items.asm
+.include ./SRC/ridley/items.asm
 
 ;-----------------------------------------[ Room definitions ]---------------------------------------
 
-.include ridley/rooms.asm
+.include ./SRC/ridley/rooms.asm
 
 ;---------------------------------------[ Structure definitions ]------------------------------------
 
-.include ridley/structures.asm
+.include ./SRC/ridley/structures.asm
 
 ;----------------------------------------[ Macro definitions ]---------------------------------------
 
@@ -1011,10 +1025,10 @@ LAFF7:  .byte $20, $C0, $C0, $C0, $C0, $C0, $C0, $C0, $C0
 ;------------------------------------------[ Area music data ]---------------------------------------
 
 ; Ridley Music Data
-.include ridley/music.asm
+.include ./SRC/ridley/music.asm
 
 ; Kraid Music Data
-.include kraid/music.asm
+.include ./SRC/kraid/music.asm
 
 ;Not used.
 B0E7:   .byte $2A, $2A, $2A, $B9, $2A, $2A, $2A, $B2, $2A, $2A, $2A, $2A, $2A, $B9, $2A, $12
@@ -1038,15 +1052,15 @@ B1F7:   .byte $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine.asm"
+.include "./SRC/music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include ./SRC/reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
