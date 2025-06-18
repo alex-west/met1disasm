@@ -257,7 +257,7 @@ L8159:  JSR SetBit5OfEnData05_AndClearEnData1B
 L815C:  BEQ L8169
 L815E:  LDA $977B,Y
 L8161:  LSR 
-L8162:  BCC $8169
+L8162:  BCC L8169
 L8164:  LDA #$01
 L8166:  JSR XorEnData05
 
@@ -817,7 +817,7 @@ L84AC:  SEC
 L84AD:  SBC EnRadX,X
 L84B0:  AND #$07
 L84B2:  SEC 
-L84B3:  BNE $84B8
+L84B3:  BNE L84B8
 L84B5:  JSR EnemyCheckMoveLeft
 L84B8:  LDY #$00
 L84BA:  STY $00
@@ -825,12 +825,12 @@ L84BC:  LDX PageIndex
 L84BE:  BCC L84FD
 L84C0:  INC $00
 L84C2:  LDY EnXRoomPos,X
-L84C5:  BNE $84DA
+L84C5:  BNE L84DA
 L84C7:  LDA $49
 L84C9:  CMP #$02
-L84CB:  BCC $84DA
+L84CB:  BCC L84DA
 L84CD:  LDA $FD
-L84CF:  BEQ $84D4
+L84CF:  BEQ L84D4
 L84D1:  JSR GetOtherNameTableIndex
 L84D4:  CLC 
 L84D5:  BEQ L84FD
@@ -838,11 +838,11 @@ L84D7:  JSR SwitchEnemyNameTable
 L84DA:  DEC EnXRoomPos,X
 L84DD:  LDA EnXRoomPos,X
 L84E0:  CMP EnRadX,X
-L84E3:  BNE $84F4
+L84E3:  BNE L84F4
 L84E5:  LDA $FD
-L84E7:  BEQ $84EE
+L84E7:  BEQ L84EE
 L84E9:  JSR GetOtherNameTableIndex
-L84EC:  BNE $84F4
+L84EC:  BNE L84F4
 L84EE:  INC EnXRoomPos,X
 L84F1:  CLC 
 L84F2:  BCC L84FD
@@ -931,7 +931,7 @@ XorEnData05: ; L856B
 ;----------------------------[ Sprite drawing pointer tables ]--------------------------------------
 ;------------------------------[ Sprite placement data tables ]-------------------------------------
 ;-------------------------------[ Sprite frame data tables ]---------------------------------------
-.include common_sprite_data.asm
+.include ./SRC/common_sprite_data.asm
 
 ;------------------------------------[ Samus enter door routines ]-----------------------------------
 
@@ -1144,7 +1144,7 @@ L8C81:  JMP $CBDA ;SFX_Door
 DoorAction3:
 L8C84:  LDA DoorStatus
 L8C86:  CMP #$05
-L8C88:  BCS $8CC3
+L8C88:  BCS L8CC3
 L8C8A:  JSR ObjActionSubRoutine8CFB
 L8C8D:  JSR ObjActionSubRoutine8C76
 L8C90:  LDX PageIndex

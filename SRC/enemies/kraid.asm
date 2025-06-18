@@ -150,24 +150,24 @@ KraidSubASub_BranchE:
 
 ; The Brinstar Kraid code makes an incorrect assumption about X, which leads to
 ;  a crash when attempting to spawn him
-IF BANK <> 1
+.IF CUR_BANK != 1
     TXA 
     PHA ;
-ENDIF
+.ENDIF
 
     LDX #$00
     JSR StorePositionToTemp
 
-IF BANK <> 1
+.IF CUR_BANK != 1
     PLA ;
     TAX 
-ENDIF
+.ENDIF
 
     JSR CommonJump_0D
     
-IF BANK = 1
+.IF CUR_BANK == 1
     LDX PageIndex
-ENDIF
+.ENDIF
 
     BCC KraidSubASub_Exit
     LDA EnStatus,X

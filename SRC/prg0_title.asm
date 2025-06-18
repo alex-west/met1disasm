@@ -14,11 +14,25 @@
 
 ;Title/end (memory page 0)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-.include "MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
 
-BANK = 0
+.bank 0
+.org $0000
+.def CUR_BANK = 0
+
+.include .\SRC\MetroidDefines.h
 
 ;-------------------------------------[ Forward declarations ]--------------------------------------
 
@@ -2477,7 +2491,7 @@ L9358:  RTS                             ;
 
 DisplayPassword:
 L9359:  LDA Timer3                      ;Wait for "GAME OVER" to be displayed-->
-L935B:  BNE $9324                       ;for 160 frames (2.6 seconds).
+L935B:  BNE L9324 ;$9324                       ;for 160 frames (2.6 seconds).
 L935D:  JSR ClearAll                    ;($909F)Turn off screen, erase sprites and nametables.
 L9360:  LDX #$7F                        ;Low byte of start of PPU data.
 L9362:  LDY #$93                        ;High byte of start of PPU data.
@@ -6121,15 +6135,15 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine.asm"
+.include "SRC\music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include "SRC\reset.asm"
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.

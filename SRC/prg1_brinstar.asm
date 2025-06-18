@@ -14,19 +14,33 @@
 
 ;Brinstar (memory page 1)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-include "MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
 
-BANK = 1
+.bank 1
+.org $0000
+.def CUR_BANK = 1
+
+.include "./SRC/MetroidDefines.h"
 
 ;-------------------------------------------------------------------------------
-.include "areas_common.asm"
+.include "./SRC/areas_common.asm"
 
 ;-------------------------------------------------------------------------------
 ; Graphics Data
-.include ending/end_font.asm       ; 8D60 - "THE END" graphics + partial font
-.include brinstar/sprite_tiles.asm ; 9160 - Brinstar Enemies
+.include ./SRC/ending/end_font.asm       ; 8D60 - "THE END" graphics + partial font
+.include ./SRC/brinstar/sprite_tiles.asm ; 9160 - Brinstar Enemies
 
 ;-------------------------------------------------------------------------------
 PalPntrTbl:
@@ -348,7 +362,7 @@ L99F7:  JMP L99C8
 
 ;-------------------------------------------------------------------------------
 ; SkreeRoutine
-.include enemies/skree.asm
+.include ./SRC/enemies/skree.asm
 ; The crawler routine below depends upon two of the exit labels in skree.asm
 
 ;-------------------------------------------------------------------------------
@@ -480,11 +494,11 @@ L9B2F:  JMP CommonJump_01
 
 ;-------------------------------------------------------------------------------
 ZebRoutine: ; L9B32
-.include enemies/pipe_bug.asm
+.include ./SRC/enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
 ; Brinstar Kraid Routine
-.include enemies/kraid.asm
+.include ./SRC/enemies/kraid.asm
 ; Note: For this bank the functions StorePositionToTemp and LoadPositionFromTemp
 ;  are in are in kraid.asm. Extract those functions from that file if you plan
 ;  on removing it.
@@ -796,36 +810,36 @@ LA267:  .byte $21, $00, $00, $C7, $C5, $D7, $D5, $E7, $E5, $FF
 
 ;----------------------------------------[ Palette data ]--------------------------------------------
 
-.include "brinstar/palettes.asm"
+.include "./SRC/brinstar/palettes.asm"
 
 ;----------------------------[ Room and structure pointer tables ]-----------------------------------
 
 RmPtrTbl:
-.include brinstar/room_ptrs.asm
+.include ./SRC/brinstar/room_ptrs.asm
 
 StrctPtrTbl:
-.include brinstar/structure_ptrs.asm
+.include ./SRC/brinstar/structure_ptrs.asm
 
 ;------------------------------------[ Special items table ]-----------------------------------------
 
-.include "brinstar/items.asm"
+.include "./SRC/brinstar/items.asm"
 
 ;-----------------------------------------[ Room definitions ]---------------------------------------
 
-.include "brinstar/rooms.asm"
+.include "./SRC/brinstar/rooms.asm"
 
 ;---------------------------------------[ Structure definitions ]------------------------------------
 
-.include "brinstar/structures.asm"
+.include "./SRC/brinstar/structures.asm"
 
 ;----------------------------------------[ Macro definitions ]--------------------------------------- 
 
 MacroDefs:
-.include "brinstar/metatiles.asm"
+.include "./SRC/brinstar/metatiles.asm"
 
 ;------------------------------------------[ Area music data ]---------------------------------------
 
-.include "brinstar/music.asm"
+.include "./SRC/brinstar/music.asm"
 
 ; Errant Mother Brain BG tiles (unused)
 LB135:  .byte $E0, $E0, $F0, $00, $00, $00, $00, $00, $00, $00, $00, $21, $80, $40, $02, $05
@@ -845,11 +859,11 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine.asm"
+.include "./SRC/music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include ./SRC/reset.asm
 
 ;;Not used.
 ;LBFD5:  .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $00, $00, $00, $00
@@ -858,7 +872,7 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.

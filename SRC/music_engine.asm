@@ -1735,100 +1735,100 @@ InitMusicTbl:
 
 ;Mother brain music(not used this memory page).
 LBD31:  .byte $0B, $FF, $F5, $00, $00
-IF BANK = 3
+.IF CUR_BANK == 3
 LBD36:  .word $B18C, $B18E, $B161, $0000
-ELSE
+.ELSE
 LBD36:  .word $0100, $0300, $0500, $0000
-ENDIF
+.ENDIF
 
 ;Escape music(not used this memory page).
 LBD3E:  .byte $0B, $FF, $00, $02, $02
-IF BANK = 3
+.IF CUR_BANK == 3
 LBD43:  .word $B04D, $B000, $B0CF, $B15A
-ELSE
+.ELSE
 LBD43:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Norfair music(not used this memory page).
 LBD4B:  .byte $0B, $FF, $F0, $04, $04
-IF BANK = 2
+.IF  CUR_BANK == 2
 LBD50:  .word $B000, $B026, $B057, $B08B
-ELSE
+.ELSE
 LBD50:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Kraid area music(not used this memory page).
 LBD58:  .byte $00, $FF, $F0, $00, $00
-IF (BANK = 4) || (BANK = 5)
+.IF (CUR_BANK == 4) || (CUR_BANK == 5)
 LBD5D:  .word $B03F, $B041, $B0AA, $0000
-ELSE
+.ELSE
 LBD5D:  .word $0100, $0300, $0500, $0000
-ENDIF
+.ENDIF
 
 ;Item room music.
 LBD65:  .byte $0B, $FF, $03, $00, $00
-IF BANK <= 5
+.IF CUR_BANK <= 5
 LBD6A:  .word $BDDA, $BDDC, $BDCD, $0000
-ELSE
+.ELSE
 LBDB8:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Ridley area music(not used this memory page).
 LBD72:  .byte $0B, $FF, $F0, $01, $01
-IF (BANK = 4) || (BANK = 5)
+.IF (CUR_BANK == 4) || (CUR_BANK == 5)
 LBD77:  .word $B022, $B031, $B000, $0000
-ELSE
+.ELSE
 LBD77:  .word $0100, $0300, $0500, $0000
-ENDIF
+.ENDIF
 
 ;End game music(not used this memory page).
 LBD7F:  .byte $17, $00, $00, $02, $01
-IF BANK = 0
+.IF CUR_BANK == 0
 LBD84:  .word $AC00, $ADC5, $ACF5, $AE8E
-ELSE
+.ELSE
 LBD84:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 
 ;Intro music(not used this memory page).
 LBD8C:  .byte $17, $00, $F0, $02, $05
-IF BANK = 0
+.IF CUR_BANK == 0
 LBD91:  .word $B0B9, $B000, $B076, $B115
-ELSE
+.ELSE
 LBD91:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Fade in music
 LBD99:  .byte $0B, $00, $F0, $02, $00
-IF BANK <= 5
+.IF CUR_BANK <= 5
 LBD9E:  .word $BE3E, $BE1D, $BE36, $0000
-ELSE
+.ELSE
 LBDB8:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Power up music
 LBDA6:  .byte $00, $00, $F0, $01, $00
-IF BANK <= 5
+.IF CUR_BANK <= 5
 LBDAB:  .word $BDF7, $BE0D, $BE08, $0000
-ELSE
+.ELSE
 LBDB8:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Brinstar music
 LBDB3:  .byte $0B, $FF, $00, $02, $03
-IF BANK = 1
+.IF CUR_BANK == 1
 LBDB8:  .word $B000, $B057, $B0C1, $B12B
-ELSE
+.ELSE
 LBDB8:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ;Tourian music
 LBDC0:  .byte $0B, $FF, $03, $00, $00
-IF BANK <= 5
+.IF CUR_BANK <= 5
 LBDC5:  .word $BE59, $BE47, $BE62, $0000
-ELSE
+.ELSE
 LBDB8:  .word $0100, $0300, $0500, $0700
-ENDIF
+.ENDIF
 
 ItemRoomTriangleIndexData:
 LBDCD:  .byte $C8                       ;
