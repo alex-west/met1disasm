@@ -876,5 +876,3 @@ LB1F5:  .byte $3C, $18, $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
-
-BRINSTAR = 0

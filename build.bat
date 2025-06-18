@@ -9,8 +9,8 @@ wla-6502 -o .\OBJ\bank2.o .\SRC\prg2_norfair.asm
 wla-6502 -o .\OBJ\bank3.o .\SRC\prg3_tourian.asm
 wla-6502 -o .\OBJ\bank4.o .\SRC\prg4_kraid.asm
 wla-6502 -o .\OBJ\bank5.o .\SRC\prg5_ridley.asm
-goto end
 wla-6502 -o .\OBJ\bank6.o .\SRC\prg6_graphics.asm
+goto end
 wla-6502 -o .\OBJ\bank7.o .\SRC\prg7_engine.asm
 
 copy /b ..\BIN\header.bin+..\BIN\bank* ..\test.nes

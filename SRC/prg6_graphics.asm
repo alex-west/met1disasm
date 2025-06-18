@@ -15,7 +15,23 @@
 
 ;Graphics data (memory page 6)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
+
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
+
+.def CUR_BANK = 6
+.bank CUR_BANK
+.org $0000
 
 ;-------------------------------------------[ Defines ]----------------------------------------------
 
@@ -36,10 +52,10 @@ NMI                    = $C0D9
 ;----------------------------------------[ Start of code ]-------------------------------------------
 
 ; These are loaded together.
-.include common_chr/samus.asm ; 8000 - Samus and gear tile patterns.
-.include common_chr/items.asm ; Item Graphics (plus bomb, the N in "EN", and another dot thingy)
+.include ./SRC/common_chr/samus.asm ; 8000 - Samus and gear tile patterns.
+.include ./SRC/common_chr/items.asm ; Item Graphics (plus bomb, the N in "EN", and another dot thingy)
 
-.include common_chr/intro_sprites.asm ; 89A0 - Intro and end tile patterns.
+.include ./SRC/common_chr/intro_sprites.asm ; 89A0 - Intro and end tile patterns.
 
 ; Garbage data
 ; (part of areas_common.asm from L8AA0 to L8BDF (sprite data, Samus door routines))
@@ -64,11 +80,11 @@ L8BB0:  .byte $03, $BD, $07, $03, $C9, $03, $D0, $02, $A9, $01, $09, $A0, $85, $
 L8BC0:  .byte $9D, $0A, $03, $8A, $29, $10, $49, $10, $05, $6B, $85, $6B, $A9, $06, $4C, $47
 L8BD0:  .byte $DE, $05, $01, $0A, $01, $BD, $0A, $03, $29, $04, $F0, $D5, $DE, $0F, $03, $D0
 
-.include common_chr/title.asm ; 8BE0 - METROID title screen CHR
+.include ./SRC/common_chr/title.asm ; 8BE0 - METROID title screen CHR
 
-.include common_chr/samus_suitless.asm ; 90E0 - Suitless Samus (in-game)
+.include ./SRC/common_chr/samus_suitless.asm ; 90E0 - Suitless Samus (in-game)
 
-.include common_chr/exclamation_point.asm ; 9890 - Exclamation point
+.include ./SRC/common_chr/exclamation_point.asm ; 9890 - Exclamation point
 
 ; Garbage data (leftovers from Ridley's bank)
 L98A0:  .byte $B9, $D5, $98, $9D, $03, $04, $BD, $05, $04, $0A, $30, $1E, $BD, $F4, $6A, $C9
@@ -87,7 +103,7 @@ L9960:  .byte $2A, $80, $68, $9D, $0B, $04, $60, $20, $09, $80, $29, $03, $F0, $
 L9970:  .byte $C9, $01, $F0, $36, $C9, $03, $F0, $2F, $BD, $F4, $6A, $C9, $03, $F0, $23, $BD
 
 ;Blank tile patterns.
-.include common_chr/solid.asm
+.include ./SRC/common_chr/solid.asm
 
 ; Garbage data (leftovers from Ridley's bank)
 L99C0:  .byte $53, $4D, $50, $50, $4D, $53, $A6, $4B, $B0, $19, $A5, $00, $D0, $0D, $BC, $0A
@@ -153,30 +169,30 @@ L9D70:  .byte $FC, $00, $F0, $F8, $F0, $00, $F8, $F8, $F8, $00, $00, $F8, $00, $
 L9D80:  .byte $08, $00, $F8, $E8, $F8, $10, $F8, $F0, $F8, $08, $F8, $F8, $F8, $00, $00, $F8
 L9D90:  .byte $00, $00, $F0, $00, $F0, $08, $F8, $08, $F0, $F0, $F0, $F8, $F8, $F0, $00, $F0
 
-.include brinstar/bg_chr_1.asm ; 9DA0 - Brinstar BG CHR data
+.include ./SRC/brinstar/bg_chr_1.asm ; 9DA0 - Brinstar BG CHR data
 
-.include common_chr/bg_CRE_2.asm ; 9EF0 - Common Room Elements (loaded in all areas)
+.include ./SRC/common_chr/bg_CRE_2.asm ; 9EF0 - Common Room Elements (loaded in all areas)
 
-.include norfair/bg_chr_1.asm ; A6F0 - Norfair BG CHR data
+.include ./SRC/norfair/bg_chr_1.asm ; A6F0 - Norfair BG CHR data
 
-.include norfair/bg_chr_2.asm ; A950 - Norfair BG CHR data
+.include ./SRC/norfair/bg_chr_2.asm ; A950 - Norfair BG CHR data
 
-.include common_chr/bg_boss_areas.asm ; A9C0 - Kraid, Ridley, Tourian BG CHR
+.include ./SRC/common_chr/bg_boss_areas.asm ; A9C0 - Kraid, Ridley, Tourian BG CHR
 
-.include tourian/bg_chr.asm ; ACA0 - Tourian BG CHR
+.include ./SRC/tourian/bg_chr.asm ; ACA0 - Tourian BG CHR
 
-.include tourian/zebetite_chr.asm ; B2A0 - Zebetite BG CHR
+.include ./SRC/tourian/zebetite_chr.asm ; B2A0 - Zebetite BG CHR
 
-.include kraid/bg_chr_2.asm ; B330 - More Kraid BG CHR
+.include ./SRC/kraid/bg_chr_2.asm ; B330 - More Kraid BG CHR
 
-.include ridley/bg_chr.asm ; B3F0 - More Ridley BG CHR
+.include ./SRC/ridley/bg_chr.asm ; B3F0 - More Ridley BG CHR
 
 ;Not used.
 LB4B0:  .byte $65, $06, $DD, $60, $06, $D0, $05, $A9, $00, $9D, $65, $06, $60, $8D, $4D, $06
 
-.include common_chr/font.asm ; B4C0 - Font (upper and lowercase)
+.include ./SRC/common_chr/font.asm ; B4C0 - Font (upper and lowercase)
 
-.include common_chr/exclamation_point.asm ; B8C0 - Exclamation point (unused)
+.include ./SRC/common_chr/exclamation_point.asm ; B8C0 - Exclamation point (unused)
 
 ; Garbage data (Half of the music engine)
 LB8D0:  .byte $40, $60, $20, $04, $B4, $A9, $0E, $A0, $75, $20, $52, $B4, $A9, $15, $8D, $16
@@ -292,11 +308,11 @@ LBFA0:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include ./SRC/reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
