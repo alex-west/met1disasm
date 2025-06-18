@@ -28,9 +28,9 @@ banksize $4000		;1x 16kb PRG
 banks 8
 .endro
 
-.bank 1
-.org $0000
 .def CUR_BANK = 1
+.bank CUR_BANK
+.org $0000
 
 .include "./SRC/MetroidDefines.h"
 

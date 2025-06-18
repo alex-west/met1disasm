@@ -14,19 +14,35 @@
 
 ;Tourian (memory page 3)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-.include "MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
+
+.def CUR_BANK = 3
+.bank CUR_BANK
+.org $0000
+
+.include "./SRC/MetroidDefines.h"
 
 BANK = 3
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
-.include "areas_common.asm"
+.include "./SRC/areas_common.asm"
 
 ;------------------------------------------[ Graphics data ]-----------------------------------------
-.include kraid/sprite_tiles.asm ; 8D60 - Kraid Sprite CHR
-.include ridley/sprite_tiles.asm ; 9160 - Ridley Sprite CHR
+.include ./SRC/kraid/sprite_tiles.asm ; 8D60 - Kraid Sprite CHR
+.include ./SRC/ridley/sprite_tiles.asm ; 9160 - Ridley Sprite CHR
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -196,9 +212,9 @@ L97E1:  RTS
 
 L97E2:  LDA $81
 L97E4:  CMP #$01
-L97E6:  BEQ $97F1
+L97E6:  BEQ L97F1
 L97E8:  CMP #$03
-L97EA:  BEQ $97F6
+L97EA:  BEQ L97F6
 L97EC:  LDA $00
 L97EE:  JMP $8000
 L97F1:  LDA $01
@@ -209,7 +225,7 @@ L97F6:  JMP $8006
 ; Metroid Routine
 L97F9:  LDY $010B
 L97FC:  INY 
-L97FD:  BEQ $9804
+L97FD:  BEQ L9804
 L97FF:  LDA #$00
 L9801:  STA $6AF4,X
 L9804:  LDA #$0F
@@ -217,19 +233,19 @@ L9806:  STA $00
 L9808:  STA $01
 L980A:  LDA $0405,X
 L980D:  ASL 
-L980E:  BMI $97E2
+L980E:  BMI L97E2
 L9810:  LDA $6AF4,X
 L9813:  CMP #$03
-L9815:  BEQ $97E2
+L9815:  BEQ L97E2
 L9817:  JSR $99B7
 L981A:  LDA $77F8,Y
-L981D:  BEQ $9822
+L981D:  BEQ L9822
 L981F:  JMP $9899
 L9822:  LDY $0408,X
 L9825:  LDA $77F6,Y
 L9828:  PHA 
 L9829:  LDA $0402,X
-L982C:  BPL $983B
+L982C:  BPL L983B
 L982E:  PLA 
 L982F:  JSR $95C6
 L9832:  PHA 
@@ -238,14 +254,14 @@ L9835:  CMP $0406,X
 L9838:  SBC $0402,X
 L983B:  CMP $77F6,Y
 L983E:  PLA 
-L983F:  BCC $9849
+L983F:  BCC L9849
 L9841:  STA $0402,X
 L9844:  LDA #$00
 L9846:  STA $0406,X
 L9849:  LDA $77F6,Y
 L984C:  PHA 
 L984D:  LDA $0403,X
-L9850:  BPL $985F
+L9850:  BPL L985F
 L9852:  PLA 
 L9853:  JSR $95C6
 L9856:  PHA 
@@ -254,7 +270,7 @@ L9859:  CMP $0407,X
 L985C:  SBC $0403,X
 L985F:  CMP $77F6,Y
 L9862:  PLA 
-L9863:  BCC $986D
+L9863:  BCC L986D
 L9865:  STA $0403,X
 L9868:  LDA #$00
 L986A:  STA $0407,X
@@ -269,43 +285,43 @@ L987A:  JSR $9A06
 L987D:  STA $6AFE,X
 L9880:  LDA $6AF4,X
 L9883:  CMP #$04
-L9885:  BNE $9894
+L9885:  BNE L9894
 L9887:  LDY $040B,X
 L988A:  INY 
-L988B:  BNE $9899
+L988B:  BNE L9899
 L988D:  LDA #$05
 L988F:  STA $040B,X
-L9892:  BNE $9899
+L9892:  BNE L9899
 L9894:  LDA #$FF
 L9896:  STA $040B,X
 L9899:  LDA $81
 L989B:  CMP #$06
-L989D:  BNE $98A9
+L989D:  BNE L98A9
 L989F:  CMP $6AF4,X
-L98A2:  BEQ $98A9
+L98A2:  BEQ L98A9
 L98A4:  LDA #$04
 L98A6:  STA $6AF4,X
 L98A9:  LDA $0404,X
 L98AC:  AND #$20
-L98AE:  BEQ $990F
+L98AE:  BEQ L990F
 L98B0:  JSR $99B7
 L98B3:  LDA $77F8,Y
-L98B6:  BEQ $98EF
+L98B6:  BEQ L98EF
 L98B8:  LDA $040E,X
 L98BB:  CMP #$07
-L98BD:  BEQ $98C3
+L98BD:  BEQ L98C3
 L98BF:  CMP #$0A
-L98C1:  BNE $9932
+L98C1:  BNE L9932
 L98C3:  LDA $2D
 L98C5:  AND #$02
-L98C7:  BNE $9932
+L98C7:  BNE L9932
 L98C9:  LDA $77F8,Y
 L98CC:  CLC 
 L98CD:  ADC #$10
 L98CF:  STA $77F8,Y
 L98D2:  AND #$70
 L98D4:  CMP #$50
-L98D6:  BNE $9932
+L98D6:  BNE L9932
 L98D8:  LDA #$02
 L98DA:  ORA $040F,X
 L98DD:  STA $040C,X
@@ -328,10 +344,10 @@ L9909:  JSR $9A10
 L990C:  STA $0403,X
 L990F:  JSR $99B7
 L9912:  LDA $77F8,Y
-L9915:  BNE $9932
+L9915:  BNE L9932
 L9917:  LDA $0404,X
 L991A:  AND #$04
-L991C:  BEQ $9964
+L991C:  BEQ L9964
 L991E:  LDA $0403,X
 L9921:  AND #$80
 L9923:  ORA #$01
@@ -348,7 +364,7 @@ L9934:  LDA $77F8,X
 L9937:  PHP 
 L9938:  AND #$0F
 L993A:  CMP #$0C
-L993C:  BEQ $9941
+L993C:  BEQ L9941
 L993E:  INC $77F8,X
 L9941:  TAY 
 L9942:  LDA $99D7,Y
@@ -359,7 +375,7 @@ L994B:  SEC
 L994C:  SBC $05
 L994E:  LDX $4B
 L9950:  PLP 
-L9951:  BMI $9956
+L9951:  BMI L9956
 L9953:  JSR $95C6
 L9956:  STA $05
 L9958:  JSR $99E4
@@ -369,7 +385,7 @@ L9961:  JMP $9967
 L9964:  JSR $99AE
 L9967:  LDA $6AF4,X
 L996A:  CMP #$03
-L996C:  BNE $9971
+L996C:  BNE L9971
 L996E:  JSR $99AE
 L9971:  LDY #$00
 L9973:  LDA $77F8
@@ -380,10 +396,10 @@ L997F:  ORA $77FC
 L9982:  ORA $77FD
 L9985:  AND #$0C
 L9987:  CMP #$0C
-L9989:  BNE $999E
+L9989:  BNE L999E
 L998B:  LDA $0106
 L998E:  ORA $0107
-L9991:  BEQ $999E
+L9991:  BEQ L999E
 L9993:  STY $6F
 L9995:  LDY #$04
 L9997:  STY $6E
@@ -391,7 +407,7 @@ L9999:  JSR $8042
 L999C:  LDY #$01
 L999E:  STY $92
 L99A0:  LDA $6B
-L99A2:  BMI $99AB
+L99A2:  BMI L99AB
 L99A4:  LDA $6B02,X
 L99A7:  ORA #$A2
 L99A9:  STA $6B
@@ -463,10 +479,10 @@ L9A29:  JMP $8003
 ; Rinka Routine??
 L9A2C:  LDY $6AF4,X
 L9A2F:  CPY #$02
-L9A31:  BNE $9AB0
+L9A31:  BNE L9AB0
 L9A33:  DEY 
 L9A34:  CPY $81
-L9A36:  BNE $9AB0
+L9A36:  BNE L9AB0
 L9A38:  LDA #$00
 L9A3A:  JSR $99D1
 L9A3D:  STA $6AFC,X
@@ -479,7 +495,7 @@ L9A4C:  LDA $0405,X
 L9A4F:  PHA 
 L9A50:  LSR 
 L9A51:  PHA 
-L9A52:  BCC $9A5A
+L9A52:  BCC L9A5A
 L9A54:  LDA #$00
 L9A56:  SBC $01
 L9A58:  STA $01
@@ -490,7 +506,7 @@ L9A61:  STA $00
 L9A63:  PLA 
 L9A64:  LSR 
 L9A65:  LSR 
-L9A66:  BCC $9A6E
+L9A66:  BCC L9A6E
 L9A68:  LDA #$00
 L9A6A:  SBC $00
 L9A6C:  STA $00
@@ -498,19 +514,19 @@ L9A6E:  LDA $00
 L9A70:  ORA $01
 L9A72:  LDY #$03
 L9A74:  ASL 
-L9A75:  BCS $9A7A
+L9A75:  BCS L9A7A
 L9A77:  DEY 
-L9A78:  BNE $9A74
+L9A78:  BNE L9A74
 L9A7A:  DEY 
-L9A7B:  BMI $9A83
+L9A7B:  BMI L9A83
 L9A7D:  LSR $00
 L9A7F:  LSR $01
-L9A81:  BPL $9A7A
+L9A81:  BPL L9A7A
 L9A83:  JSR $9AF9
 L9A86:  PLA 
 L9A87:  LSR 
 L9A88:  PHA 
-L9A89:  BCC $9A9B
+L9A89:  BCC L9A9B
 L9A8B:  LDA #$00
 L9A8D:  SBC $0407,X
 L9A90:  STA $0407,X
@@ -520,7 +536,7 @@ L9A98:  STA $0403,X
 L9A9B:  PLA 
 L9A9C:  LSR 
 L9A9D:  LSR 
-L9A9E:  BCC $9AB0
+L9A9E:  BCC L9AB0
 L9AA0:  LDA #$00
 L9AA2:  SBC $0406,X
 L9AA5:  STA $0406,X
@@ -529,7 +545,7 @@ L9AAA:  SBC $0402,X
 L9AAD:  STA $0402,X
 L9AB0:  LDA $0405,X
 L9AB3:  ASL 
-L9AB4:  BMI $9AF4
+L9AB4:  BMI L9AF4
 L9AB6:  LDA $0406,X
 L9AB9:  CLC 
 L9ABA:  ADC $6AFC,X
@@ -551,7 +567,7 @@ L9AE0:  STA $09
 L9AE2:  LDA $6AFB,X
 L9AE5:  STA $0B
 L9AE7:  JSR $8027
-L9AEA:  BCS $9AF1
+L9AEA:  BCS L9AF1
 L9AEC:  LDA #$00
 L9AEE:  STA $6AF4,X
 L9AF1:  JSR $99F4
@@ -602,31 +618,31 @@ L9B3C:  LDA $97
 L9B3E:  SEC 
 L9B3F:  SBC #$08
 L9B41:  TAX 
-L9B42:  BNE $9B39
+L9B42:  BNE L9B39
 L9B44:  STX $97
 L9B46:  LDY $6BF4,X
-L9B49:  BNE $9B4C
+L9B49:  BNE L9B4C
 L9B4B:  RTS
 
 L9B4C:  JSR $9C4D
 L9B4F:  TYA 
-L9B50:  BNE $9B4B
+L9B50:  BNE L9B4B
 L9B52:  LDY $010B
 L9B55:  INY 
-L9B56:  BNE $9B65
+L9B56:  BNE L9B65
 L9B58:  LDA $6BF8,X
 L9B5B:  CMP #$05
-L9B5D:  BEQ $9B4B
+L9B5D:  BEQ L9B4B
 L9B5F:  JSR $9B70
 L9B62:  JMP $9C2B
 L9B65:  LDA $2D
 L9B67:  AND #$02
-L9B69:  BNE $9B4B
+L9B69:  BNE L9B4B
 L9B6B:  LDA #$19
 L9B6D:  JMP $9C31
 L9B70:  LDY $6BF8,X
 L9B73:  LDA $6BFA,X
-L9B76:  BNE $9B81
+L9B76:  BNE L9B81
 L9B78:  LDA $9D8F,Y
 L9B7B:  STA $6BFA,X
 L9B7E:  INC $6BFB,X
@@ -636,13 +652,13 @@ L9B87:  CLC
 L9B88:  ADC $6BFB,X
 L9B8B:  TAY 
 L9B8C:  LDA $9D99,Y
-L9B8F:  BPL $9BAB
+L9B8F:  BPL L9BAB
 L9B91:  CMP #$FF
-L9B93:  BNE $9B9F
+L9B93:  BNE L9B9F
 L9B95:  LDY $6BF8,X
 L9B98:  LDA #$00
 L9B9A:  STA $6BFB,X
-L9B9D:  BEQ $9B84
+L9B9D:  BEQ L9B84
 L9B9F:  INC $6BFB,X
 L9BA2:  JSR $9BAF
 L9BA5:  LDY $6BF8,X
@@ -653,16 +669,16 @@ L9BAE:  RTS
 L9BAF:  PHA 
 L9BB0:  LDA MotherBrainStatus
 L9BB2:  CMP #$04
-L9BB4:  BCS $9BC6
+L9BB4:  BCS L9BC6
 L9BB6:  LDY #$60
 L9BB8:  LDA $6AF4,Y
-L9BBB:  BEQ $9BC8
+L9BBB:  BEQ L9BC8
 L9BBD:  TYA 
 L9BBE:  CLC 
 L9BBF:  ADC #$10
 L9BC1:  TAY 
 L9BC2:  CMP #$A0
-L9BC4:  BNE $9BB8
+L9BC4:  BNE L9BB8
 L9BC6:  PLA 
 L9BC7:  RTS
 
@@ -725,16 +741,16 @@ L9C4F:  LDA $6BF6,X
 L9C52:  CMP $FD
 L9C54:  LDA $49
 L9C56:  AND #$02
-L9C58:  BNE $9C5F
+L9C58:  BNE L9C5F
 L9C5A:  LDA $6BF5,X
 L9C5D:  CMP $FC
 L9C5F:  LDA $6BF7,X
 L9C62:  EOR $FF
 L9C64:  AND #$01
-L9C66:  BEQ $9C6B
-L9C68:  BCS $9C6D
+L9C66:  BEQ L9C6B
+L9C68:  BCS L9C6D
 L9C6A:  SEC 
-L9C6B:  BCS $9C6E
+L9C6B:  BCS L9C6E
 L9C6D:  INY 
 L9C6E:  RTS
 
@@ -744,59 +760,59 @@ L9C71:  LDY #$00
 L9C73:  LDA $6BF7,Y
 L9C76:  EOR $02
 L9C78:  LSR 
-L9C79:  BCS $9C80
+L9C79:  BCS L9C80
 L9C7B:  LDA #$00
 L9C7D:  STA $6BF4,Y
 L9C80:  TYA 
 L9C81:  CLC 
 L9C82:  ADC #$08
 L9C84:  TAY 
-L9C85:  BPL $9C73
+L9C85:  BPL L9C73
 L9C87:  LDX #$00
 L9C89:  LDA $0758,X
-L9C8C:  BEQ $9C99
+L9C8C:  BEQ L9C99
 L9C8E:  JSR $9D64
 L9C91:  EOR $075A,X
-L9C94:  BNE $9C99
+L9C94:  BNE L9C99
 L9C96:  STA $0758,X
 L9C99:  TXA 
 L9C9A:  CLC 
 L9C9B:  ADC #$08
 L9C9D:  TAX 
 L9C9E:  CMP #$28
-L9CA0:  BNE $9C89
+L9CA0:  BNE L9C89
 L9CA2:  LDX #$00
 L9CA4:  JSR $9CD6
 L9CA7:  LDX #$03
 L9CA9:  JSR $9CD6
 L9CAC:  LDA MotherBrainStatus
-L9CAE:  BEQ $9CC3
+L9CAE:  BEQ L9CC3
 L9CB0:  CMP #$07
-L9CB2:  BEQ $9CC3
+L9CB2:  BEQ L9CC3
 L9CB4:  CMP #$0A
-L9CB6:  BEQ $9CC3
+L9CB6:  BEQ L9CC3
 L9CB8:  LDA $9D
 L9CBA:  EOR $02
 L9CBC:  LSR 
-L9CBD:  BCS $9CC3
+L9CBD:  BCS L9CC3
 L9CBF:  LDA #$00
 L9CC1:  STA MotherBrainStatus
 L9CC3:  LDA $010D
-L9CC6:  BEQ $9CD5
+L9CC6:  BEQ L9CD5
 L9CC8:  LDA $010C
 L9CCB:  EOR $02
 L9CCD:  LSR 
-L9CCE:  BCS $9CD5
+L9CCE:  BCS L9CD5
 L9CD0:  LDA #$00
 L9CD2:  STA $010D
 L9CD5:  RTS
 
 L9CD6:  LDA $8B,X
-L9CD8:  BMI $9CE5
+L9CD8:  BMI L9CE5
 L9CDA:  LDA $8C,X
 L9CDC:  EOR $02
 L9CDE:  LSR 
-L9CDF:  BCS $9CE5
+L9CDF:  BCS L9CE5
 L9CE1:  LDA #$FF
 L9CE3:  STA $8B,X
 L9CE5:  RTS
@@ -805,13 +821,13 @@ L9CE5:  RTS
 ; Tourian Cannon Handler
 L9CE6:  LDX #$00
 L9CE8:  LDA $6BF4,X
-L9CEB:  BEQ $9CF6
+L9CEB:  BEQ L9CF6
 L9CED:  TXA 
 L9CEE:  CLC 
 L9CEF:  ADC #$08
 L9CF1:  TAX 
-L9CF2:  BPL $9CE8
-L9CF4:  BMI $9D20
+L9CF2:  BPL L9CE8
+L9CF4:  BMI L9D20
 L9CF6:  LDA ($00),Y
 L9CF8:  JSR $9B1B
 L9CFB:  STA $6BF8,X
@@ -881,10 +897,10 @@ L9D6B:  RTS
 ; Rinka Handler
 L9D6C:  LDX #$03
 L9D6E:  JSR $9D75
-L9D71:  BMI $9D87
+L9D71:  BMI L9D87
 L9D73:  LDX #$00
 L9D75:  LDA $8B,X
-L9D77:  BPL $9D87
+L9D77:  BPL L9D87
 L9D79:  LDA ($00),Y
 L9D7B:  JSR $9B1B
 L9D7E:  STA $8B,X
@@ -909,7 +925,7 @@ L9DCF:  .byte $F7, $00, $09, $09, $0B
 ; This is code:
 L9DD4:
     LDA MotherBrainStatus
-    BEQ $9DF1
+    BEQ L9DF1
     JSR CommonJump_ChooseRoutine
     .word Exit__    ;#$00=Mother brain not in room, 
     .word L9E22     ;#$01=Mother brain in room
@@ -927,19 +943,19 @@ L9DF1:  RTS
 ;-------------------------------------------------------------------------------
 L9DF2:  LDA $030C
 L9DF5:  EOR $9D
-L9DF7:  BNE $9DF1
+L9DF7:  BNE L9DF1
 L9DF9:  LDA $030E
 L9DFC:  SEC 
 L9DFD:  SBC #$48
 L9DFF:  CMP #$2F
-L9E01:  BCS $9DF1
+L9E01:  BCS L9DF1
 L9E03:  LDA $030D
 L9E06:  SEC 
 L9E07:  SBC #$80
-L9E09:  BPL $9E0E
+L9E09:  BPL L9E0E
 L9E0B:  JSR $95C6
 L9E0E:  CMP #$20
-L9E10:  BCS $9DF1
+L9E10:  BCS L9DF1
 L9E12:  LDA #$00
 L9E14:  STA $6E
 L9E16:  LDA #$02
@@ -967,7 +983,7 @@ L9E3E:  JMP $9E31
 L9E41:  .byte $08, $07
 
 L9E43:  DEC $9F
-L9E45:  BNE $9E4B
+L9E45:  BNE L9E4B
 L9E47:  LDA #$01
 L9E49:  STA MotherBrainStatus
 L9E4B:  LDA $9F
@@ -986,7 +1002,7 @@ L9E5C:  ASL
 L9E5D:  STA $FC
 L9E5F:  LDY MotherBrainStatus
 L9E61:  DEY 
-L9E62:  BNE $9E83
+L9E62:  BNE L9E83
 L9E64:  STY MotherBrainHits
 L9E66:  TYA 
 L9E67:  TAX 
@@ -994,7 +1010,7 @@ L9E68:  TYA
 L9E69:  STA $6AF4,X
 L9E6C:  JSR $9EF9
 L9E6F:  CPX #$C0
-L9E71:  BNE $9E68
+L9E71:  BNE L9E68
 L9E73:  LDA #$04
 L9E75:  STA MotherBrainStatus
 L9E77:  LDA #$28
@@ -1014,19 +1030,19 @@ L9E93:  JSR L9E43
 L9E96:  LDX #$00
 L9E98:  LDA $6AF4,X
 L9E9B:  CMP #$05
-L9E9D:  BNE $9EA4
+L9E9D:  BNE L9EA4
 L9E9F:  LDA #$00
 L9EA1:  STA $6AF4,X
 L9EA4:  JSR $9EF9
 L9EA7:  CMP #$40
-L9EA9:  BNE $9E98
+L9EA9:  BNE L9E98
 L9EAB:  LDA $07A0
-L9EAE:  BNE $9EB5
+L9EAE:  BNE L9EB5
 L9EB0:  LDA $9F00,Y
 L9EB3:  STA $1C
 L9EB5:  LDY MotherBrainStatus
 L9EB7:  DEY 
-L9EB8:  BNE $9ED5
+L9EB8:  BNE L9ED5
 L9EBA:  STY $9A
 L9EBC:  LDA #$04
 L9EBE:  STA MotherBrainStatus
@@ -1035,9 +1051,9 @@ L9EC2:  STA $9F
 L9EC4:  LDY MotherBrainHits
 L9EC6:  INC MotherBrainHits
 L9EC8:  CPY #$04
-L9ECA:  BEQ $9ED3
+L9ECA:  BEQ L9ED3
 L9ECC:  LDX #$00
-L9ECE:  BCC $9ED5
+L9ECE:  BCC L9ED5
 L9ED0:  JMP $9ED6
 L9ED3:  LSR $9F
 L9ED5:  RTS
@@ -1073,9 +1089,9 @@ L9F00:  ORA #$0A
 
 ;-------------------------------------------------------------------------------
 L9F02:  LDA MotherBrainHits
-L9F04:  BMI $9F33
+L9F04:  BMI L9F33
 L9F06:  CMP #$08
-L9F08:  BEQ $9F36
+L9F08:  BEQ L9F36
 L9F0A:  TAY 
 L9F0B:  LDA $9F41,Y
 L9F0E:  STA $0503
@@ -1093,9 +1109,9 @@ L9F22:  STA $0509
 L9F25:  LDA #$00
 L9F27:  STA $4B
 L9F29:  LDA $07A0
-L9F2C:  BNE $9F38
+L9F2C:  BNE L9F38
 L9F2E:  JSR $803F
-L9F31:  BCS $9F38
+L9F31:  BCS L9F38
 L9F33:  INC MotherBrainHits
 L9F35:  RTS
 
@@ -1105,7 +1121,7 @@ L9F38:  RTS
 L9F39:  .byte $00, $40, $08, $48, $80, $C0, $88, $C8, $08, $02, $09, $03, $0A, $04, $0B, $05
 
 L9F49:  JSR $9F69
-L9F4C:  BCS $9F64
+L9F4C:  BCS L9F64
 L9F4E:  LDA #$00
 L9F50:  STA MotherBrainStatus
 L9F52:  LDA #$99
@@ -1164,7 +1180,7 @@ L9FC0:  LDA #$10
 L9FC2:  ORA $0680
 L9FC5:  STA $0680
 L9FC8:  LDA $2C
-L9FCA:  BNE $9FD9
+L9FCA:  BNE L9FD9
 L9FCC:  LDA #$08
 L9FCE:  STA $0300
 L9FD1:  LDA #$0A
@@ -1175,7 +1191,7 @@ L9FD9:  RTS
 
 ;-------------------------------------------------------------------------------
 L9FDA:  JSR $9F69
-L9FDD:  BCS $9FEC
+L9FDD:  BCS L9FEC
 L9FDF:  LDA $9D
 L9FE1:  STA $010C
 L9FE4:  LDY #$01
@@ -1186,7 +1202,7 @@ L9FEC:  RTS
 
 ;-------------------------------------------------------------------------------
 L9FED:  LDA $9E
-L9FEF:  BEQ $A01A
+L9FEF:  BEQ LA01A
 L9FF1:  LDA $0684
 L9FF4:  ORA #$02
 L9FF6:  STA $0684
@@ -1195,13 +1211,13 @@ L9FFB:  LDA MotherBrainHits
 L9FFD:  CMP #$20
 L9FFF:  LDY #$02
 LA001:  LDA #$10
-LA003:  BCC $A016
+LA003:  BCC LA016
 LA005:  LDX #$00
 LA007:  LDA #$00
 LA009:  STA $0500,X
 LA00C:  JSR $9EF9
 LA00F:  CMP #$D0
-LA011:  BNE $A007
+LA011:  BNE LA007
 LA013:  INY 
 LA014:  LDA #$80
 LA016:  STY MotherBrainStatus
@@ -1210,7 +1226,7 @@ LA01A:  RTS
 
 ;-------------------------------------------------------------------------------
 LA01B:  DEC $9A
-LA01D:  BNE $A02D
+LA01D:  BNE LA02D
 LA01F:  LDA $2E
 LA021:  AND #$03
 LA023:  STA $9C
@@ -1225,7 +1241,7 @@ LA02D:  RTS
 LA02E:  DEC $9B
 LA030:  LDA $9B
 LA032:  ASL 
-LA033:  BNE $A040
+LA033:  BNE LA040
 LA035:  LDA #$20
 LA037:  SEC 
 LA038:  SBC MotherBrainHits
@@ -1248,7 +1264,7 @@ LA056:  LDA $A06D,Y
 LA059:  STA $6BD7
 LA05C:  JSR $803C
 LA05F:  LDA $9B
-LA061:  BMI $A06C
+LA061:  BMI LA06C
 LA063:  LDA $A071
 LA066:  STA $6BD7
 LA069:  JSR $803C
@@ -1257,14 +1273,14 @@ LA06C:  RTS
 LA06D:  .byte $13, $14, $15, $16, $17
 
 LA072:  LDY MotherBrainHits
-LA074:  BEQ $A086
+LA074:  BEQ LA086
 LA076:  LDA $A0C0,Y
 LA079:  CLC 
 LA07A:  ADC $9A
 LA07C:  TAY 
 LA07D:  LDA $A0A3,Y
 LA080:  CMP #$FF
-LA082:  BNE $A087
+LA082:  BNE LA087
 LA084:  DEC $9A
 LA086:  RTS
 
@@ -1289,20 +1305,20 @@ LA0C3:  .byte $11, $16, $1A
 
 ;-------------------------------------------------------------------------------
 LA0C6:  LDA $71
-LA0C8:  BEQ $A13E
+LA0C8:  BEQ LA13E
 LA0CA:  LDX $4B
 LA0CC:  LDA $0300,X
 LA0CF:  CMP #$0B
-LA0D1:  BNE $A13E
+LA0D1:  BNE LA13E
 LA0D3:  CPY #$98
-LA0D5:  BNE $A103
+LA0D5:  BNE LA103
 LA0D7:  LDX #$00
 LA0D9:  LDA $0500,X
-LA0DC:  BEQ $A0E7
+LA0DC:  BEQ LA0E7
 LA0DE:  JSR $9EF9
 LA0E1:  CMP #$D0
-LA0E3:  BNE $A0D9
-LA0E5:  BEQ $A13E
+LA0E3:  BNE LA0D9
+LA0E5:  BEQ LA13E
 LA0E7:  LDA #$8C
 LA0E9:  STA $0508,X
 LA0EC:  LDA $05
@@ -1315,35 +1331,35 @@ LA0F9:  STX $4B
 LA0FB:  JSR $803F
 LA0FE:  PLA 
 LA0FF:  STA $4B
-LA101:  BNE $A13E
+LA101:  BNE LA13E
 LA103:  LDA $04
 LA105:  LSR 
-LA106:  BCC $A10A
+LA106:  BCC LA10A
 LA108:  DEC $04
 LA10A:  LDY #$00
 LA10C:  LDA ($04),Y
 LA10E:  LSR 
-LA10F:  BCS $A13E
+LA10F:  BCS LA13E
 LA111:  CMP #$48
-LA113:  BCC $A13E
+LA113:  BCC LA13E
 LA115:  CMP #$4C
-LA117:  BCS $A13E
+LA117:  BCS LA13E
 LA119:  LDA $0758,Y
-LA11C:  BEQ $A12E
+LA11C:  BEQ LA12E
 LA11E:  LDA $04
 LA120:  AND #$9E
 LA122:  CMP $0759,Y
-LA125:  BNE $A12E
+LA125:  BNE LA12E
 LA127:  LDA $05
 LA129:  CMP $075A,Y
-LA12C:  BEQ $A139
+LA12C:  BEQ LA139
 LA12E:  TYA 
 LA12F:  CLC 
 LA130:  ADC #$08
 LA132:  TAY 
 LA133:  CMP #$28
-LA135:  BNE $A119
-LA137:  BEQ $A13E
+LA135:  BNE LA119
+LA137:  BEQ LA13E
 LA139:  LDA #$01
 LA13B:  STA $075D,Y
 LA13E:  PLA 
@@ -1354,15 +1370,15 @@ LA141:  RTS
 ;-------------------------------------------------------------------------------
 LA142:  TAY 
 LA143:  LDA $71
-LA145:  BEQ $A15C
+LA145:  BEQ LA15C
 LA147:  LDX $4B
 LA149:  LDA $0300,X
 LA14C:  CMP #$0B
-LA14E:  BNE $A15C
+LA14E:  BNE LA15C
 LA150:  CPY #$5E
-LA152:  BCC $A15C
+LA152:  BCC LA15C
 LA154:  CPY #$72
-LA156:  BCS $A15C
+LA156:  BCS LA15C
 LA158:  LDA #$01
 LA15A:  STA $9E
 LA15C:  TYA 
@@ -1371,34 +1387,34 @@ LA15D:  RTS
 ;-------------------------------------------------------------------------------
 LA15E:  LDY $010B
 LA161:  INY 
-LA162:  BNE $A1DA
+LA162:  BNE LA1DA
 LA164:  LDY #$03
 LA166:  JSR $A16B
 LA169:  LDY #$00
 LA16B:  STY $4B
 LA16D:  LDA $008B,Y
-LA170:  BMI $A15D
+LA170:  BMI LA15D
 LA172:  LDA $008C,Y
 LA175:  EOR $2D
 LA177:  LSR 
-LA178:  BCC $A15D
+LA178:  BCC LA15D
 LA17A:  LDA MotherBrainStatus
 LA17C:  CMP #$04
-LA17E:  BCS $A15D
+LA17E:  BCS LA15D
 LA180:  LDA $2D
 LA182:  AND #$06
-LA184:  BNE $A15D
+LA184:  BNE LA15D
 LA186:  LDX #$20
 LA188:  LDA $6AF4,X
-LA18B:  BEQ $A19C
+LA18B:  BEQ LA19C
 LA18D:  LDA $0405,X
 LA190:  AND #$02
-LA192:  BEQ $A19C
+LA192:  BEQ LA19C
 LA194:  TXA 
 LA195:  SEC 
 LA196:  SBC #$10
 LA198:  TAX 
-LA199:  BPL $A188
+LA199:  BPL LA188
 LA19B:  RTS
 
 LA19C:  LDA #$01
@@ -1424,7 +1440,7 @@ LA1CC:  LDX $4B
 LA1CE:  INC $8D,X
 LA1D0:  LDA $8D,X
 LA1D2:  CMP #$06
-LA1D4:  BNE $A1DA
+LA1D4:  BNE LA1DA
 LA1D6:  LDA #$00
 LA1D8:  STA $8D,X
 LA1DA:  RTS
@@ -1434,7 +1450,7 @@ LA1DB:  .byte $22, $2A, $2A, $BA, $B2, $2A, $C4, $2A, $C8, $BA, $BA, $BA
 ;-------------------------------------------------------------------------------
 LA1E7:  LDY $010B
 LA1EA:  INY 
-LA1EB:  BEQ $A237
+LA1EB:  BEQ LA237
 LA1ED:  LDA $010A
 LA1F0:  STA $03
 LA1F2:  LDA #$01
@@ -1448,13 +1464,13 @@ LA202:  JSR $8045
 LA205:  STA $010B
 LA208:  LDA $2D
 LA20A:  AND #$1F
-LA20C:  BNE $A216
+LA20C:  BNE LA216
 LA20E:  LDA $0681
 LA211:  ORA #$08
 LA213:  STA $0681
 LA216:  LDA $010A
 LA219:  ORA $010B
-LA21C:  BNE $A237
+LA21C:  BNE LA237
 LA21E:  DEC $010B
 LA221:  STA MotherBrainHits
 LA223:  LDA #$07
@@ -1470,7 +1486,7 @@ LA237:  RTS
 
 ;-------------------------------------------------------------------------------
 LA238:  LDA $010D
-LA23B:  BEQ $A28A
+LA23B:  BEQ LA28A
 LA23D:  LDA $010C
 LA240:  STA $6BDB
 LA243:  LDA #$84
@@ -1486,7 +1502,7 @@ LA258:  PHA
 LA259:  JSR $803C
 LA25C:  PLA 
 LA25D:  CMP $5B
-LA25F:  BEQ $A28A
+LA25F:  BEQ LA28A
 LA261:  TAX 
 LA262:  LDA $010B
 LA265:  LSR 
@@ -1521,20 +1537,20 @@ LA294:  TXA
 LA295:  SEC 
 LA296:  SBC #$08
 LA298:  TAX 
-LA299:  BNE $A291
+LA299:  BNE LA291
 LA29B:  LDA $0758,X
 LA29E:  AND #$0F
 LA2A0:  CMP #$01
-LA2A2:  BNE $A28A
+LA2A2:  BNE LA28A
 LA2A4:  LDA $075D,X
-LA2A7:  BEQ $A2F2
+LA2A7:  BEQ LA2F2
 LA2A9:  INC $075B,X
 LA2AC:  LDA $075B,X
 LA2AF:  LSR 
-LA2B0:  BCS $A2F2
+LA2B0:  BCS LA2F2
 LA2B2:  TAY 
 LA2B3:  SBC #$03
-LA2B5:  BNE $A2BA
+LA2B5:  BNE LA2BA
 LA2B7:  INC $0758,X
 LA2BA:  LDA $A310,Y
 LA2BD:  STA $0513
@@ -1543,13 +1559,13 @@ LA2C3:  STA $0518
 LA2C6:  LDA $075A,X
 LA2C9:  STA $0519
 LA2CC:  LDA $07A0
-LA2CF:  BNE $A2DA
+LA2CF:  BNE LA2DA
 LA2D1:  TXA 
 LA2D2:  PHA 
 LA2D3:  JSR $803F
 LA2D6:  PLA 
 LA2D7:  TAX 
-LA2D8:  BCC $A2EB
+LA2D8:  BCC LA2EB
 LA2DA:  LDA $0758,X
 LA2DD:  AND #$80
 LA2DF:  ORA #$01
@@ -1560,11 +1576,11 @@ LA2EA:  RTS
 
 LA2EB:  LDA #$40
 LA2ED:  STA $075C,X
-LA2F0:  BNE $A30A
+LA2F0:  BNE LA30A
 LA2F2:  LDY $075B,X
-LA2F5:  BEQ $A30A
+LA2F5:  BEQ LA30A
 LA2F7:  DEC $075C,X
-LA2FA:  BNE $A30A
+LA2FA:  BNE LA30A
 LA2FC:  LDA #$40
 LA2FE:  STA $075C,X
 LA301:  DEY 
@@ -1572,7 +1588,7 @@ LA302:  TYA
 LA303:  STA $075B,X
 LA306:  LSR 
 LA307:  TAY 
-LA308:  BCC $A2BA
+LA308:  BCC LA2BA
 LA30A:  LDA #$00
 LA30C:  STA $075D,X
 LA30F:  RTS
@@ -1582,7 +1598,7 @@ LA310:  .byte $0C, $0D, $0E, $0F, $07
 LA315:  LDY #$05
 LA317:  JSR $99B1
 LA31A:  DEY 
-LA31B:  BPL $A317
+LA31B:  BPL LA317
 LA31D:  STA $92
 LA31F:  RTS
 ;-----------------
@@ -1790,32 +1806,32 @@ LA713:  .byte $00, $04, $04, $8A, $FF
 
 ;-----------------------------------------[ Palette data ]-------------------------------------------
 
-.include tourian/palettes.asm
+.include ./SRC/tourian/palettes.asm
 
 ;----------------------------[ Room and structure pointer tables ]-----------------------------------
 
 RmPtrTbl:
-.include tourian/room_ptrs.asm
+.include ./SRC/tourian/room_ptrs.asm
 
 StrctPtrTbl:
-.include tourian/structure_ptrs.asm
+.include ./SRC/tourian/structure_ptrs.asm
 
 ;------------------------------------[ Special items table ]-----------------------------------------
 
-.include tourian/items.asm 
+.include ./SRC/tourian/items.asm 
 
 ;-----------------------------------------[ Room definitions ]---------------------------------------
 
-.include tourian/rooms.asm
+.include ./SRC/tourian/rooms.asm
 
 ;---------------------------------------[ Structure definitions ]------------------------------------
 
-.include tourian/structures.asm
+.include ./SRC/tourian/structures.asm
 
 ;----------------------------------------[ Macro definitions ]---------------------------------------
 
 MacroDefs:
-.include tourian/metatiles.asm
+.include ./SRC/tourian/metatiles.asm
 
 ;------------------------------------------[ Area music data ]---------------------------------------
 
@@ -2271,15 +2287,15 @@ LB1F0:  .byte $E6, $E6, $C4, $8E, $1C, $3C, $18, $30, $E8, $E8, $C8, $90, $60, $
 
 ;-----------------------------------------[ Sound engine ]-------------------------------------------
 
-.include "music_engine.asm"
+.include "./SRC/music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include ./SRC/reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
