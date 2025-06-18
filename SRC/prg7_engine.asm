@@ -16,9 +16,26 @@
 
 ;Game engine (memory page 7)
 
-.org $C000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-.include "MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
+
+.def CUR_BANK = 1
+.bank CUR_BANK
+.slot 1
+.org $0000
+
+.include "./SRC/MetroidDefines.h"
 
 ;-------------------------------------[ Forward declarations ]--------------------------------------
 
@@ -10352,7 +10369,7 @@ LFFF5:  .byte $04, $01, $06, $01, $BC
 
 ;-----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $FFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
