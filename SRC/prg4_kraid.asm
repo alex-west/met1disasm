@@ -14,25 +14,39 @@
 
 ;Kraid hideout (memory page 4)
 
-.org $8000
+.memorymap
+defaultslot 0
+slotsize $4000
+slot 0 $8000
+slotsize $4000
+slot 1 $C000
+.endme
 
-.include "MetroidDefines.txt"
+.rombankmap
+bankstotal 8
+banksize $4000		;1x 16kb PRG
+banks 8
+.endro
 
-BANK = 4
+.def CUR_BANK = 4
+.bank CUR_BANK
+.org $0000
+
+.include "./SRC/MetroidDefines.h"
 
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
-.include "areas_common.asm"
+.include "./SRC/areas_common.asm"
 
 ;------------------------------------------[ Graphics data ]-----------------------------------------
 
 ;Samus end tile patterns.
-.include ending/sprite_tiles.asm
+.include ./SRC/ending/sprite_tiles.asm
 
 ;Unused tile patterns (needed so the Palette Pointer Table, etc. below are properly aligned)
-.include kraid/unused_tiles.asm
+.include ./SRC/kraid/unused_tiles.asm
 
-.include kraid/bg_chr_3.asm ; 9360 - Misc Kraid BG CHR
+.include ./SRC/kraid/bg_chr_3.asm ; 9360 - Misc Kraid BG CHR
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -230,9 +244,9 @@ L98F6:  .byte $05, $C2, $04, $A2, $03, $92, $03, $12, $04, $22, $05, $42, $50, $
 
 L9905:  LDA $81
 L9907:  CMP #$01
-L9909:  BEQ $9914
+L9909:  BEQ L9914
 L990B:  CMP #$03
-L990D:  BEQ $9919
+L990D:  BEQ L9919
 L990F:  LDA $00
 L9911:  JMP $8000
 L9914:  LDA $01
@@ -246,7 +260,7 @@ L991E:  STA $85
 L9920:  STA $86
 L9922:  LDA EnStatus,X
 L9925:  CMP #$03
-L9927:  BEQ $992C
+L9927:  BEQ L992C
 L9929:  JSR $801B
 L992C:  LDA #$06
 L992E:  STA $00
@@ -265,20 +279,20 @@ L9939:  JMP $991E
 ; Ripper Routine
 L993C:  LDA EnStatus,X
 L993F:  CMP #$03
-L9941:  BEQ $9946
+L9941:  BEQ L9946
 L9943:  JSR $801E
 L9946:  JMP $992C
 
 ;-------------------------------------------------------------------------------
 ; Skree Routine
-.include enemies/skree.asm
+.include ./SRC/enemies/skree.asm
 ; The crawler routine below depends upon two of the exit labels in skree.asm
 
 ;-------------------------------------------------------------------------------
 ; Crawler Routine
 L999B:  JSR $8009
 L999E:  AND #$03
-L99A0:  BEQ $99D6
+L99A0:  BEQ L99D6
 L99A2:  LDA $81
 L99A4:  CMP #$01
 L99A6:  BEQ SkreeExitB
@@ -286,18 +300,18 @@ L99A8:  CMP #$03
 L99AA:  BEQ SkreeExitC
 L99AC:  LDA EnStatus,X
 L99AF:  CMP #$03
-L99B1:  BEQ $99D6
+L99B1:  BEQ L99D6
 L99B3:  LDA $040A,X
 L99B6:  AND #$03
 L99B8:  CMP #$01
-L99BA:  BNE $99CD
+L99BA:  BNE L99CD
 L99BC:  LDY $0400,X
 L99BF:  CPY #$E4
-L99C1:  BNE $99CD
+L99C1:  BNE L99CD
 L99C3:  JSR $9A0C
 L99C6:  LDA #$03
 L99C8:  STA $040A,X
-L99CB:  BNE $99D3
+L99CB:  BNE L99D3
 L99CD:  JSR $9A31
 L99D0:  JSR $99F7
 L99D3:  JSR $9A15
@@ -316,9 +330,9 @@ L99EC:  JMP $800F
 L99EF:  .byte $35, $35, $3E, $38, $3B, $3B, $38, $3E
 
 L99F7:  LDX $4B
-L99F9:  BCS $9A14
+L99F9:  BCS L9A14
 L99FB:  LDA $00
-L99FD:  BNE $9A0C
+L99FD:  BNE L9A0C
 L99FF:  LDY $040A,X
 L9A02:  DEY 
 L9A03:  TYA 
@@ -333,7 +347,7 @@ L9A14:  RTS
 L9A15:  JSR $9A29
 L9A18:  JSR $9A31
 L9A1B:  LDX $4B
-L9A1D:  BCC $9A28
+L9A1D:  BCC L9A28
 L9A1F:  JSR $9A29
 L9A22:  STA $040A,X
 L9A25:  JSR $99DE
@@ -359,11 +373,11 @@ L9A43:  RTS
 
 ;-------------------------------------------------------------------------------
 GeegaRoutine: ; L9A44
-.include enemies/pipe_bug.asm
+.include ./SRC/enemies/pipe_bug.asm
 
 ;-------------------------------------------------------------------------------
 ; Kraid Routine
-.include enemies/kraid.asm
+.include ./SRC/enemies/kraid.asm
 ; Note: For this bank the functions StorePositionToTemp and LoadPositionFromTemp
 ;  are in are in kraid.asm. Extract those functions from that file if you plan
 ;  on removing it.
@@ -672,28 +686,28 @@ LA14B:  .byte $21, $00, $00, $C7, $C5, $D7, $D5, $E7, $E5, $FF
 
 ;----------------------------------------[ Palette data ]--------------------------------------------
 
-.include kraid/palettes.asm
+.include ./SRC/kraid/palettes.asm
 
 ;----------------------------[ Room and structure pointer tables ]-----------------------------------
 
 RmPtrTbl:
-.include kraid/room_ptrs.asm
+.include ./SRC/kraid/room_ptrs.asm
 
 StrctPtrTbl:
-.include kraid/structure_ptrs.asm
+.include ./SRC/kraid/structure_ptrs.asm
 
 ;-----------------------------------[ Special items table ]-----------------------------------------
 
 SpecItmsTbl:
-.include kraid/items.asm
+.include ./SRC/kraid/items.asm
 
 ;-----------------------------------------[ Room definitions ]---------------------------------------
 
-.include kraid/rooms.asm
+.include ./SRC/kraid/rooms.asm
 
 ;---------------------------------------[ Structure definitions ]------------------------------------
 
-.include kraid/structures.asm
+.include ./SRC/kraid/structures.asm
 
 ;----------------------------------------[ Macro definitions ]---------------------------------------
 
@@ -801,10 +815,10 @@ LAFF6:  .byte $20, $20, $C0, $C0, $C0, $C0, $C0, $C0, $C0, $C0
 ;------------------------------------------[ Area music data ]---------------------------------------
 
 ; Ridley Music Data
-.include ridley/music.asm
+.include ./SRC/ridley/music.asm
 
 ; Kraid Music Data
-.include kraid/music.asm
+.include ./SRC/kraid/music.asm
 
 ;Not used.
 LB0E7:  .byte $2A, $2A, $2A, $B9, $2A, $2A, $2A, $B2, $2A, $2A, $2A, $2A, $2A, $B9, $2A, $12
@@ -828,15 +842,15 @@ LB1F7:  .byte $30, $E8, $E8, $C8, $90, $60, $00, $00, $00
 
 ;------------------------------------------[ Sound Engine ]------------------------------------------
 
-.include "music_engine.asm"
+.include "./SRC/music_engine.asm"
 
 ;----------------------------------------------[ RESET ]--------------------------------------------
 
-.include reset.asm
+.include ./SRC/reset.asm
 
 ;----------------------------------------[ Interrupt vectors ]--------------------------------------
 
-.org $BFFA, $FF
+.org $3FFA, $FF
 LBFFA:  .word NMI                       ;($C0D9)NMI vector.
 LBFFC:  .word RESET                     ;($FFB0)Reset vector.
 LBFFE:  .word RESET                     ;($FFB0)IRQ vector.
