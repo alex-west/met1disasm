@@ -4,9 +4,9 @@ A full disassembly of Metroid 1 for the NES, with sections of varying completene
 
 Based on the prior work of SnowBro (Kent Hansen), Dirty McDingus, and the metconst wiki. ZaneDubya's MMC3 mapper port was also a useful resource in making this.
 
-The code has been manually reworked to assemble with asm6f instead of Ophis, because Ophis was slow and lacking some crucial features.
+The code is being reworked to assemble with wla-dx.
 
-To build, run build.bat in the SRC folder. Currently, each of the banks must be assembled separately and then combined into a single file. This may change eventually.
+To attempt to build, run build.bat. Currently, this does not produce any rom files due to errors in the linking process.
 
 Please be sure to verify that your code produces an exact copy of the original before submitting a pull request.
 
