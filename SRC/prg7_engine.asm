@@ -1938,7 +1938,7 @@ LCACB:  tax                             ;
 LCACC:  lda SavedDataTable,x            ;
 LCACF:  sta $00                         ;Load $0000 and $0002 with base addresses from-->
 LCAD1:  sta $02                         ;table below($69B4).
-LCAD3:  lda SavedDataTable+1,x          ;
+LCAD3:  lda.w SavedDataTable+1,x          ;
 LCAD6:  sta $01                         ;
 LCAD8:  sta $03                         ;
 LCADA:  pla                             ;Restore A.
@@ -2767,7 +2767,7 @@ LCF88:  lda Joy1Status
         cmp #an_SamusSalto
         beq Lx016
         stx SamusDir
-        lda Table06+1,x
+        lda.w Table06+1,x
         jmp SetSamusAnim
 
 Lx015:
@@ -3199,12 +3199,12 @@ LD275:  lda MetroidOnSamus
         sta ObjectOnScreen,y
         jsr LD340
         ldx SamusDir
-        lda Table09+4,x
+        lda.w Table09+4,x
         sta $05
         lda ObjAction,y
         and #$01
         tax
-        lda Table09+6,x
+        lda.w Table09+6,x
         sta $04
         jsr LD306
         lda SamusGear
@@ -3224,7 +3224,7 @@ Lx044:
         ldy Table09,x
         lda SamusGravity
         beq +
-        ldy Table09+2,x
+        ldy.w Table09+2,x
 Lx045:
  +      lda ObjAction
         cmp #$01
@@ -6487,7 +6487,7 @@ Table02:
 LE701:  ldx ScrollDir
         lda ScrollX
         and #$07        ; keep lower 3 bits
-        cmp Table02-2,x ; compare value = 0 if ScrollDir = right, else 7
+        cmp.w Table02-2,x ; compare value = 0 if ScrollDir = right, else 7
         bne Lx196      ; exit if not equal (no nametable update)
 
 LE70C:  ldx ScrollDir

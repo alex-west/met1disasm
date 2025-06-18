@@ -2602,7 +2602,7 @@ L9415:
 L9416:  TAX                             ;
 L9417:  LDA PasswordRowsTbl,X           ;
 L941A:  STA PPUAddress                  ;
-L941D:  LDA PasswordRowsTbl+1,X         ;Displays the list of characters -->
+L941D:  LDA.w PasswordRowsTbl+1,X         ;Displays the list of characters -->
 L9420:  sTA PPUAddress                  ;to choose from on the password--> 
 L9423:  LDX #$00                        ;entry screen.
 L9425:
@@ -3302,7 +3302,7 @@ L9A14:  CMP #$05                        ;
 L9A16:  BCS L9A24                       ;If end message is finished being written, branch
 L9A18:  ASL                             ;
 L9A19:  TAY                             ;
-L9A1A:  LDX EndMessageStringTbl0-2,Y    ;Writes the end message on name table 0
+L9A1A:  LDX.w EndMessageStringTbl0-2,Y    ;Writes the end message on name table 0
 L9A1D:  LDA EndMessageStringTbl0-1,Y    ;
 L9A20:  TAY                             ;
 L9A21:  JSR PreparePPUProcess_          ;($C20E)Prepare to write to PPU.
@@ -3313,7 +3313,7 @@ L9A28:  CMP #$05                        ;
 L9A2A:  BCS Exit100                     ;If end message is finished being erased, branch
 L9A2C:  ASL                             ;
 L9A2D:  TAY                             ;
-L9A2E:  LDX EndMessageStringTbl1-2,Y    ;Erases the end message on name table 0
+L9A2E:  LDX.w EndMessageStringTbl1-2,Y    ;Erases the end message on name table 0
 L9A31:  LDA EndMessageStringTbl1-1,Y    ;
 L9A34:  TAY                             ;
 L9A35:  JMP PreparePPUProcess_          ;($C20E)Prepare to write to PPU.
@@ -3670,7 +3670,7 @@ LoadWaveSprites:
 L9C7F:  LDX WaveSpritePointer           ;
 L9C81:  LDA WavePointerTable,X          ;
 L9C84:  STA $00                         ;Load pointer to wave sprite data-->
-L9C86:  LDA WavePointerTable+1,X        ;into addresses $00 and $01.
+L9C86:  LDA.w WavePointerTable+1,X        ;into addresses $00 and $01.
 L9C89:  STA $01                         ;
 L9C8B:  LDX #$20                        ;Offset for sprite RAM load.
 L9C8D:  LDY #$00                        ;
@@ -3974,7 +3974,7 @@ L9F64:
       + ASL                             ;* 2, pointer is two bytes.
 L9F65:  TAY                             ;
 L9F66:  LDA EndGamePalPntrTbl-1,Y       ;High byte of PPU data pointer.
-L9F69:  LDX EndGamePalPntrTbl-2,Y       ;Low byte of PPU data pointer.
+L9F69:  LDX.w EndGamePalPntrTbl-2,Y       ;Low byte of PPU data pointer.
 L9F6C:  TAY                             ;
 L9F6D:  JSR PreparePPUProcess_          ;($C20E)Prepare to write data string to PPU.
 L9F70:  LDA #$3F                        ;
